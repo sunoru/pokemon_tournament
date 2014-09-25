@@ -1,2 +1,2 @@
-A tool for pokemon tournament.
+A tool for Pokemon tournament.
 
