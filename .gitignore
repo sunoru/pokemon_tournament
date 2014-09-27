@@ -1,4 +1,4 @@
 *.pyc
-test/*
-.idea
+/.idea
+/test
 db.sqlite3
