@@ -19,13 +19,16 @@ class Tournament(models.Model):
         (SWISS_PLUS_SINGLE, "Swiss plus Single Elimination")
     )
     name = models.CharField("name", max_length=100)
-    alias = models.CharField("alias", max_length=20)
+    alias = models.CharField("alias", max_length=20, unique=True)
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)
     start_time = models.DateTimeField("start time")
     description = models.TextField("description")
     status = models.SmallIntegerField("status", default=-1)
-    players = models.TextField("participators")
+    players = models.TextField("participants")
     remarks = models.TextField()  # use for the age separated swiss
+
+    def __unicode__(self):
+        return "%s (%s) %s" % (self.name, self.status, self.start_time)
 
 
 class Player(models.Model):
