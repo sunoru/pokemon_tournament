@@ -37,6 +37,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "pmtour",
+    "accounts",
 )
 
 MIDDLEWARE_CLASSES = (
@@ -82,3 +83,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+TEMPLATE_DIRS = "templates/"

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% block head_mae %}{% endblock %}
+        <link rel="icon" href="{% block icon %}/static/sindex.ico{% endblock %}">
+        <title>{% block title %}Untitled{% endblock %}</title>
+        {% block csss %}
+        <link rel="stylesheet" type="text/css" href="/static/css/default.css" />
+        {% endblock %}
+        {% block jss %}{% endblock %}
+        {% block head_ato %}{% endblock %}
+    </head>
+    <body>
+        {% block body %}
+        {% endblock %}
+    </body>
+</html>

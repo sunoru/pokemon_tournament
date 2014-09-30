@@ -1,12 +1,32 @@
 from django.contrib.auth.models import User
 from django.db import models
+import datetime
 
 
 class PlayerUser(models.Model):
     user = models.OneToOneField(User)
-    name = models.CharField("name", max_length=100)
-    player_id = models.CharField("Play Pokemon ID", max_length=100)
-    birthday = models.DateField("birthday")
+    name = models.CharField("name", max_length=100, default="")
+    player_id = models.CharField("Play Pokemon ID", max_length=100, default='test')
+    birthday = models.DateField("birthday", default=datetime.date.today())
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        playeruser = cls(*args, **kwargs)
+        if playeruser.name == "":
+            playeruser.name = playeruser.user.username
+        return playeruser
+
+    def get_age_division(self):
+        fy = datetime.date.today().year - 10
+        if self.birthday.year >= fy:
+            return 1  # for Junior
+        fy -= 4
+        if self.birthday.year >= fy:
+            return 2  # for Senior
+        return 3  # for Masters
+
+    def __unicode__(self):
+        return "%s (%s)" % (self.name, self.player_id)
 
 
 class Tournament(models.Model):
@@ -18,14 +38,24 @@ class Tournament(models.Model):
         (SINGLE, "Single Elimination"),
         (SWISS_PLUS_SINGLE, "Swiss plus Single Elimination")
     )
-    name = models.CharField("name", max_length=100)
+    name = models.CharField("name", max_length=100, default='a tournament')
+    tour_id = models.CharField("tour_id", max_length=20, unique=True)
     alias = models.CharField("alias", max_length=20, unique=True)
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)
     start_time = models.DateTimeField("start time")
     description = models.TextField("description")
     status = models.SmallIntegerField("status", default=-1)
+    players_count = models.SmallIntegerField("number of players", default=0)
     players = models.TextField("participants")
-    remarks = models.TextField()  # use for the age separated swiss
+    remarks = models.TextField()  # use for the age separated swiss, swiss plus turns, etc
+    # the format for each turn
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        tour = cls(*args, **kwargs)
+        tour.tour_id = "%s" % (100000 + cls.objects.count())
+        tour.alias = tour.tour_id
+        return tour
 
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)
@@ -59,7 +89,13 @@ class Player(models.Model):
         if len(self.foes.all()) == 0:
             return 0.0
         else:
-            return sum([x.get_winning_persentage() for x in self.foes.all()]) / len(self.foes.all())
+            return sum([x.get_winning_persentage() for x in self.foes.all()]) / self.foes.count()
+
+    def get_opps_opps_wp(self):
+        if len(self.foes.all()) == 0:
+            return 0.0
+        else:
+            return sum([x.get_opponents_wp() for x in self.foes.all()]) / self.foes.count()
 
 
 class Turn(models.Model):
