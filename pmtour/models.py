@@ -10,8 +10,8 @@ class PlayerUser(models.Model):
     birthday = models.DateField("birthday", default=datetime.date.today())
 
     @classmethod
-    def create(cls, *args, **kwargs):
-        playeruser = cls(*args, **kwargs)
+    def create(cls, **kwargs):
+        playeruser = cls.objects.create(**kwargs)
         if playeruser.name == "":
             playeruser.name = playeruser.user.username
         return playeruser
@@ -51,8 +51,8 @@ class Tournament(models.Model):
     # the format for each turn
 
     @classmethod
-    def create(cls, *args, **kwargs):
-        tour = cls(*args, **kwargs)
+    def create(cls, **kwargs):
+        tour = cls.objects.create(**kwargs)
         tour.tour_id = "%s" % (100000 + cls.objects.count())
         tour.alias = tour.tour_id
         return tour
