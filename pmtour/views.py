@@ -1,6 +1,19 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 
-def home(request):
-    return HttpResponse('Hello, world')
+
+def index(request):
+    pass
+
+
+def new_tour(request):
+    pass
+
+
+def home(request, tour_id):
+    return HttpResponse('Hello, world!')
+
+
+def admin(request, tour_id):
+    pass
 
