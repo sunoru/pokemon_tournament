@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, loader
+from django.shortcuts import render_to_response, redirect, loader
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from django.template import RequestContext
@@ -32,7 +32,7 @@ def logout_view(request):
 
 @login_required
 def home(request):
-    pass
+    return render_to_response("accounts.html", context_instance=RequestContext(request))
 
 
 @login_required

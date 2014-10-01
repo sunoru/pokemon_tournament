@@ -2,12 +2,13 @@
 {% block title %}登录{% endblock %}
 {% block body %}
     <div id="login_w" class="login_w">
-        {% if mes == 1 %}
-            <p>您的账号已被停用！<p>
-        {% elif mes == 2 %}
-            <p>账号密码错误！</p>
-        {% endif %}
-        <p></p>
+        <p>
+            {% if mes == 1 %}
+                您的账号已被停用！
+            {% elif mes == 2 %}
+                账号密码错误！
+            {% endif %}
+        </p>
         <form method="post" action=".">
             {% csrf_token %}
             <p>
