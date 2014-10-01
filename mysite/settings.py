@@ -81,10 +81,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-# TODO: /static/ /templates/
 STATIC_URL = '/static/'
 
-TEMPLATE_DIRS = "templates/"
+STATICFILES_DIRS = (
+    "static/",
+)
+
+TEMPLATE_DIRS = (
+    "templates/",
+)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     "django.contrib.auth.context_processors.auth",
