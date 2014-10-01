@@ -25,7 +25,12 @@ def login_view(request):
     return HttpResponse(temp.render(cont))
 
 
-def logout_view(request):
+def logout_view(request):{% extends "base.html" %}
+{% block title %}个人中心{% endblock %}
+{% block body %}
+    <p id="new_tour"><a href="create">新建比赛</a></p>
+{% endblock %}
+
     logout(request)
     return redirect(request.GET.get("next", "/"))
 
@@ -37,5 +42,5 @@ def home(request):
 
 @login_required
 def create(request):
-    #TODO
-    pass
+    tour = pmtour.models.Tournament.create()
+    return redirect("/%s/admin/" % tour.alias)

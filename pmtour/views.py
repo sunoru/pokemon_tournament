@@ -6,10 +6,6 @@ def index(request):
     pass
 
 
-def new_tour(request):
-    pass
-
-
 def home(request, tour_id):
     return HttpResponse('Hello, world!')
 
