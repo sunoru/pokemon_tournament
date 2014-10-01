@@ -20,27 +20,22 @@ def login_view(request):
                 mes = 1
         else:
             mes = 2
-    temp = loader.get_template("login.html")
+    temp = loader.get_template("accounts/login.html")
     cont = RequestContext(request, {"mes": mes, "next": request.GET.get("next", "/")})
     return HttpResponse(temp.render(cont))
 
 
-def logout_view(request):{% extends "base.html" %}
-{% block title %}个人中心{% endblock %}
-{% block body %}
-    <p id="new_tour"><a href="create">新建比赛</a></p>
-{% endblock %}
-
+def logout_view(request):
     logout(request)
     return redirect(request.GET.get("next", "/"))
 
 
 @login_required
 def home(request):
-    return render_to_response("accounts.html", context_instance=RequestContext(request))
+    return render_to_response("accounts/accounts.html", context_instance=RequestContext(request))
 
 
 @login_required
 def create(request):
     tour = pmtour.models.Tournament.create()
-    return redirect("/%s/admin/" % tour.alias)
+    return redirect("/%s/" % tour.alias)

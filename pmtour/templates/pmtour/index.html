@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block body %}
+    <div id="content">
+    {% block content %}{% endblock %}
+    </div>
+    <div id="sidebar">
+    {% block sidebar %}
+        <ul class="nav">
+            <li><a href=".">比赛主页</a></li>
+            <li><a href="bracket">对阵表</a></li>
+            <li><a href="standings">排名</a></li>
+            <li><a href="discussion">讨论</a></li>
+            <li><a href="log">记录</a></li>
+        </ul>
+    {% endblock %}
+    </div>
+{% endblock %}

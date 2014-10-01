@@ -8,3 +8,13 @@ body{
     font-family: arial, sans-serif;
 }
 
+#content{
+    position: fixed;
+    width: 70%;
+    margin: 3px;
+}
+#sidebar{
+    width: 30%;
+    margin: 3px;
+    float: right;
+}

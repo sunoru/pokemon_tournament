@@ -1,33 +1,6 @@
-from django.contrib.auth.models import User
 from django.db import models
+import accounts.models
 import datetime
-
-
-class PlayerUser(models.Model):
-    user = models.OneToOneField(User)
-    name = models.CharField("name", max_length=100, default="")
-    player_id = models.CharField("Play Pokemon ID", max_length=100, default='test')
-    birthday = models.DateField("birthday", default=datetime.date.today())
-
-    @classmethod
-    def create(cls, **kwargs):
-        playeruser = cls.objects.create(**kwargs)
-        if playeruser.name == "":
-            playeruser.name = playeruser.user.username
-        return playeruser
-
-    def get_age_division(self):
-        fy = datetime.date.today().year - 10
-        if self.birthday.year >= fy:
-            return 1  # for Junior
-        fy -= 4
-        if self.birthday.year >= fy:
-            return 2  # for Senior
-        return 3  # for Masters
-
-    def __unicode__(self):
-        return "%s (%s)" % (self.name, self.player_id)
-
 
 class Tournament(models.Model):
     SWISS = "swiss"
@@ -43,18 +16,28 @@ class Tournament(models.Model):
     alias = models.CharField("alias", max_length=20, unique=True)
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)
     start_time = models.DateTimeField("start time")
-    description = models.TextField("description")
+    description = models.TextField("description", null=True)
     status = models.SmallIntegerField("status", default=-1)
     players_count = models.SmallIntegerField("number of players", default=0)
-    players = models.TextField("participants")
-    remarks = models.TextField()  # use for the age separated swiss, swiss plus turns, etc
+    players = models.TextField("participants", null=True)
+    remarks = models.TextField(null=True)  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
 
     @classmethod
     def create(cls, **kwargs):
+        if "start_time" not in kwargs:
+            kwargs["start_time"] = datetime.datetime.now()
+        uid = accounts.models.Option.objects.get(option_name="uid")
+        uid.option_value = str(int(uid.option_value) + 1)
+        kwargs["tour_id"] = str(100000 + int(uid.option_value))
+        uid.save()
+        if "alias" not in kwargs:
+            kwargs["alias"] =  kwargs["tour_id"]
+        else:
+            if cls.objects.filter(alias=kwargs["alias"]).count() != 0:
+                return None
+            #TODO
         tour = cls.objects.create(**kwargs)
-        tour.tour_id = "%s" % (100000 + cls.objects.count())
-        tour.alias = tour.tour_id
         return tour
 
     def __unicode__(self):
@@ -62,7 +45,7 @@ class Tournament(models.Model):
 
 
 class Player(models.Model):
-    user = models.ForeignKey(PlayerUser)
+    user = models.ForeignKey(accounts.models.PlayerUser)
     tournament = models.ForeignKey(Tournament)
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)
