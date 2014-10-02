@@ -6,9 +6,9 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
-    url(r'^$', 'pmtour.views.index', name='index'),
+    url(r'^$', 'mysite.views.index', name='index'),
     url(r'^favicon\.ico$', 'django.shortcuts.redirect', {'to': '/static/images/favicon.ico'}),
     url(r'^django_admin/', include(admin.site.urls)),
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
-    url(r'^(?P<tour_id>.+)/', include('pmtour.urls', namespace='tournament')),
+    url(r'^(?P<tour_id>.+?)/', include('pmtour.urls', namespace='tournament')),
 )

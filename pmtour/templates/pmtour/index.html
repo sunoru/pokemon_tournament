@@ -2,20 +2,21 @@
 {% block body %}
     <div id="container">
         <div id="content">
-        {% block content %}{% endblock %}
+            <h2>{{ tour.name }}</h2>
+            {% block content %}{% endblock %}
         </div>
         <div id="sidebar">
         {% block sidebar %}
             <ul class="nav">
-                <li id="nav-home"><a href=".">比赛主页</a></li>
-                <li id="nav-bracket"><a href="bracket">对阵表</a></li>
-                <li id="nav-standings"><a href="standings">排名</a></li>
-                <li id="nav-discussion"><a href="discussion">讨论</a></li>
-                <li id="nav-log"><a href="log">记录</a></li>
+                <li id="nav-home"><a href="/{{ tour.alias }}">比赛主页</a></li>
+                <li id="nav-bracket"><a href="/{{ tour.alias }}/bracket">对阵表</a></li>
+                <li id="nav-standings"><a href="/{{ tour.alias }}/standings">排名</a></li>
+                <li id="nav-discussion"><a href="/{{ tour.alias }}/discussion">讨论</a></li>
+                <li id="nav-log"><a href="/{{ tour.alias }}/log">记录</a></li>
                 {% if has_perm %}
                     <li class="nav-header"><span>管理</span></li>
-                    <li id="nav-settings"><a href="settings">设置</a></li>
-                    <li id="nav-participants"><a href="participants">选手</a></li>
+                    <li id="nav-settings"><a href="/{{ tour.alias }}/settings">设置</a></li>
+                    <li id="nav-participants"><a href="/{{ tour.alias }}/participants">选手</a></li>
                 {% endif %}
             </ul>
         {% endblock %}

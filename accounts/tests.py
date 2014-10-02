@@ -1,3 +1,6 @@
 from django.test import TestCase
 
-# Create your tests here.
+
+def init():
+    from accounts.models import Option
+    Option.objects.create(option_name="uid", option_value="0")

@@ -2,4 +2,7 @@
 {% block title %}个人中心{% endblock %}
 {% block body %}
     <p id="new_tour"><a href="create">新建比赛</a></p>
+    {% if user.playeruser %}<ul>
+        {% for tour in user.playeruser.tournament_set.all %}<li><a href="/{{ tour.alias }}">{{ tour.name }}</a></li>{% endfor %}
+    </ul>{% endif %}
 {% endblock %}
