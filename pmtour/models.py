@@ -17,7 +17,7 @@ class Tournament(models.Model):
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)
     start_time = models.DateTimeField("start time")
     description = models.TextField("description", null=True)
-    status = models.SmallIntegerField("status", default=-1)
+    status = models.SmallIntegerField("status", default=-2)
     players_count = models.SmallIntegerField("number of players", default=0)
     players = models.TextField("participants", null=True)
     remarks = models.TextField(null=True)  # use for the age separated swiss, swiss plus turns, etc

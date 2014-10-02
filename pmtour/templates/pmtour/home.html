@@ -1,5 +1,14 @@
 {% extends "pmtour/index.html" %}
 
 {% block content %}
-    <p>{{ tour.alias }}</p>
+    <h2>{{ tour.name }}</h2>
+    {% if tour.status == -2 %}
+        {% if user.is_staff %}
+            <p>快去<a href="settings">设置页</a>完善比赛信息~</p>
+        {% else %}
+            <p>比赛还在准备中……</p>
+        {% endif %}
+    {% else %}
+        <p>比赛还没有开始……</p>
+    {% endif %}
 {% endblock %}
