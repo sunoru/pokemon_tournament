@@ -8,10 +8,16 @@ body{
     font-family: arial, sans-serif;
 }
 
+#container{
+    display: table;
+    width: 100%;
+    clear: both;
+}
+
 #content{
-    position: fixed;
-    width: 70%;
+    width: 65%;
     margin: 3px;
+    float: left;
 }
 #sidebar{
     width: 30%;

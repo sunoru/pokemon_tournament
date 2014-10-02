@@ -20,11 +20,12 @@ class Tournament(models.Model):
     status = models.SmallIntegerField("status", default=-2)
     players_count = models.SmallIntegerField("number of players", default=0)
     players = models.TextField("participants", null=True)
+    admins = models.ManyToManyField(accounts.models.PlayerUser)
     remarks = models.TextField(null=True)  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
 
     @classmethod
-    def create(cls, **kwargs):
+    def create(cls, admin, **kwargs):
         if "start_time" not in kwargs:
             kwargs["start_time"] = datetime.datetime.now()
         uid = accounts.models.Option.objects.get(option_name="uid")
@@ -38,6 +39,7 @@ class Tournament(models.Model):
                 return None
             #TODO
         tour = cls.objects.create(**kwargs)
+        tour.admins.add(admin)
         return tour
 
     def __unicode__(self):

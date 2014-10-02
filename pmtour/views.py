@@ -17,6 +17,10 @@ def home(request, tour_id):
         except Tournament.DoesNotExist:
             raise Http404
     temp = loader.get_template("pmtour/home.html")
-    cont = RequestContext(request, {"tour":tour})
+    if not request.user.is_anonymous() and request.user.playeruser in tour.admins.all():
+        has_perm = True
+    else:
+        has_perm = False
+    cont = RequestContext(request, {"tour":tour, "has_perm":has_perm})
     return HttpResponse(temp.render(cont))
 

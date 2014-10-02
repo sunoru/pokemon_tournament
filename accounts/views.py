@@ -37,5 +37,5 @@ def home(request):
 
 @login_required
 def create(request):
-    tour = pmtour.models.Tournament.create()
+    tour = pmtour.models.Tournament.create(request.user.playeruser)
     return redirect("/%s/" % tour.alias)
