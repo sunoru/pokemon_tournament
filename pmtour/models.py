@@ -16,13 +16,13 @@ class Tournament(models.Model):
     tour_id = models.CharField("tour_id", max_length=20, unique=True)
     alias = models.CharField("alias", max_length=20, unique=True)
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)
-    start_time = models.DateTimeField("start time")
-    description = models.TextField("description", null=True)
+    start_time = models.DateTimeField("start time", default=datetime.datetime(2014, 10, 6,13, 0))
+    description = models.TextField("description", default="")
     status = models.SmallIntegerField("status", default=-2)
     players_count = models.SmallIntegerField("number of players", default=0)
-    players = models.TextField("participants", null=True)
+    players = models.TextField("participants", default="")
     admins = models.ManyToManyField(accounts.models.PlayerUser)
-    remarks = models.TextField(null=True)  # use for the age separated swiss, swiss plus turns, etc
+    remarks = models.TextField(default="{}")  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
 
 
@@ -32,8 +32,8 @@ class Tournament(models.Model):
 
     @classmethod
     def create(cls, admin, **kwargs):
-        if "start_time" not in kwargs:
-            kwargs["start_time"] = datetime.datetime.now()
+        #if "start_time" not in kwargs:
+        #    kwargs["start_time"] = datetime.datetime.now()
         uid = accounts.models.Option.objects.get(option_name="uid")
         uid.option_value = str(int(uid.option_value) + 1)
         kwargs["tour_id"] = str(100000 + int(uid.option_value))

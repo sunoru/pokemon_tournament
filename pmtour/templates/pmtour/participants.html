@@ -1,6 +1,7 @@
 {% extends "pmtour/index.html" %}
 {% block title %}{{ tour.name }} - 选手设定{% endblock %}
 {% block content %}
+    {# TODO add test players #}
     <ul>
     {% for player in tour.player_set.all %}
         <li>{{ player.user.name }}</li>

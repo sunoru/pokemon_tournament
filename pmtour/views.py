@@ -1,4 +1,4 @@
-from django.shortcuts import render, loader
+from django.shortcuts import loader, redirect
 from django.http import HttpResponse, Http404
 from django.template import RequestContext
 from django.utils import timezone
@@ -84,6 +84,12 @@ def settings(request, tour_id):
     temp = loader.get_template("pmtour/settings.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "status": status, "remarks": mj, "starttime": tm})
     return HttpResponse(temp.render(cont))
+
+
+def delete(request, tour_id):
+    tour = _get_tour(tour_id)
+    tour.delete()
+    return redirect("/accounts")
 
 
 def get_turns(request, tour_id):
