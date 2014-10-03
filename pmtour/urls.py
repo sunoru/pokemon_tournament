@@ -8,5 +8,6 @@ urlpatterns = patterns(
     url(r'^discussion/$', 'pmtour.views.discussion', name='discussion'),
     url(r'^log/$', 'pmtour.views.log', name='log'),
     url(r'^settings/$', 'pmtour.views.settings', name='settings'),
+    url(r'^settings/get_turns$', 'pmtour.views.get_turns', name='get_turns'),
     url(r'^participants/$', 'pmtour.views.participants', name='participants'),
 )

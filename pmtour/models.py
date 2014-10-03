@@ -2,6 +2,7 @@ from django.db import models
 import accounts.models
 import datetime
 
+
 class Tournament(models.Model):
     SWISS = "swiss"
     SINGLE = "single"
@@ -24,6 +25,11 @@ class Tournament(models.Model):
     remarks = models.TextField(null=True)  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
 
+
+    @classmethod
+    def alias_unique(cls, alias):
+        return cls.objects.filter(alias=alias).count() == 0
+
     @classmethod
     def create(cls, admin, **kwargs):
         if "start_time" not in kwargs:
@@ -35,8 +41,8 @@ class Tournament(models.Model):
         if "alias" not in kwargs:
             kwargs["alias"] =  kwargs["tour_id"]
         else:
-            if cls.objects.filter(alias=kwargs["alias"]).count() != 0:
-                return None
+            if Tournament.is_unique(kwargs["alias"]):
+                raise Exception
             #TODO
         tour = cls.objects.create(**kwargs)
         tour.admins.add(admin)
@@ -49,6 +55,7 @@ class Tournament(models.Model):
 class Player(models.Model):
     user = models.ForeignKey(accounts.models.PlayerUser)
     tournament = models.ForeignKey(Tournament)
+    playerid = models.SmallIntegerField()
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)
