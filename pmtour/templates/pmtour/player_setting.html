@@ -1,0 +1,9 @@
+{% extends "pmtour/index.html" %}
+{% block title %}{{ tour.name }} - 编辑选手{% endblock %}
+{% block content %}
+    <form id="test_add" action="#" method="post">
+        {% csrf_token %}
+        <button type="submit" name="commit" value="next">保存并编辑下一个</button>
+        <button type="submit" name="commit" value="close">保存并关闭</button>
+    </form>
+{% endblock %}

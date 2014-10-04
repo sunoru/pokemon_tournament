@@ -1,5 +1,5 @@
 {% extends "pmtour/index.html" %}
-{% block title %}{{ tour.name }} - 添加玩家{% endblock %}
+{% block title %}{{ tour.name }} - 添加选手{% endblock %}
 {% block content %}
     <form id="test_add" action="#" method="post">
         {% csrf_token %}
@@ -10,6 +10,6 @@
                 {% endfor %}
             </select>
         </div>
-        <input type="submit" name="commit" class="btn" value="添加玩家">
+        <button class="btn">添加选手</button>
     </form>
 {% endblock %}

@@ -13,7 +13,7 @@
     </head>
     <body>
         <header id="header">
-            <a href="/"><img src="{% static 'images/title.png' %}"></a>
+            <a href="/">主页</a>
             {% if user.is_authenticated %}
                 <a href="/accounts/">{{ user.username }}</a> <a href="/accounts/logout?next={{ request.path }}">登出</a>
             {% else %}

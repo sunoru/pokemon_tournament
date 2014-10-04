@@ -6,6 +6,7 @@ from pmtour.models import Tournament, Player
 from accounts.models import PlayerUser
 import json
 
+
 def _get_tour(tour_id):
     try:
         tour = Tournament.objects.get(alias=tour_id)
@@ -59,20 +60,31 @@ def add_player(request, tour_id):
 
     if request.method == "POST":
         for sp in request.POST.getlist("selected_players"):
-            print sp
             pu = PlayerUser.objects.get(player_id=sp)
-            tour.players_count += 1
             Player.objects.create(
                 user=pu,
                 tournament=tour,
-                playerid=tour.players_count
+                playerid=tour.players_count() + 1
             )
-        tour.players_count
         return redirect("/%s/participants/" % tour.alias)
 
     playerusers = PlayerUser.objects.all()
     temp = loader.get_template("pmtour/add_player.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "playerusers": playerusers})
+    return HttpResponse(temp.render(cont))
+
+
+def player_setting(request, tour_id, playerid):
+    tour = _get_tour(tour_id)
+    has_perm = _get_perm(request, tour)
+    if not has_perm:
+        return _ret_no_perm(request, tour_id)
+    try:
+        player = tour.player_set.get(playerid=playerid)
+    except Player.DoesNotExist:
+        return redirect("/%s/participants/" % tour.alias)
+    temp = loader.get_template("pmtour/player_setting.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "player": player})
     return HttpResponse(temp.render(cont))
 
 

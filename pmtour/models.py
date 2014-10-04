@@ -57,7 +57,7 @@ class Tournament(models.Model):
 class Player(models.Model):
     user = models.ForeignKey(accounts.models.PlayerUser)
     tournament = models.ForeignKey(Tournament)
-    playerid = models.SmallIntegerField()
+    playerid = models.SmallIntegerField(unique=True)
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)

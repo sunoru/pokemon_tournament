@@ -11,5 +11,6 @@ urlpatterns = patterns(
     url(r'^settings/get_turns$', 'pmtour.views.get_turns', name='get_turns'),
     url(r'^participants/$', 'pmtour.views.participants', name='participants'),
     url(r'^participants/add$', 'pmtour.views.add_player', name='add_player'),
+    url(r'^participants/(?P<playerid>\d+?)/', 'pmtour.views.player_setting', name='player_setting'),
     url(r'^delete/$', 'pmtour.views.delete', name='delete'),
 )
