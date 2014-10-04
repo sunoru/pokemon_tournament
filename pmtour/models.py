@@ -60,6 +60,9 @@ class Tournament(models.Model):
         pst = json.loads(self.remarks)
         return pst.get(option_name, None)
 
+    def get_current_turn(self):
+        return self.turn_set.get(turn_number=self.status)
+
     def players_count(self):
         return self.player_set.count()
 
@@ -88,6 +91,10 @@ class Tournament(models.Model):
             status=0
         )
         turn.gen_bracket()
+
+    def end(self):
+        turn = self.get_current_turn()
+        turn.gen_standings()
 
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)
@@ -275,9 +282,10 @@ class Turn(models.Model):
         return standings
 
     def check_all(self):
-        for log in self.log_set:
+        rq = []
+        for log in self.log_set.all():
             if log.status == 0:
-                return False
+                rq.append(str(log))
         return True
 
     # TODO: should be tested
@@ -287,7 +295,6 @@ class Turn(models.Model):
             return None
         standings = self._get_standings()
         self.standings = json.dumps(standings)
-        return standings
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:
@@ -331,6 +338,18 @@ class Log(models.Model):
             self.player_b.delete_log(self.status)
             self.player_b.save()
         self.status = 0
+
+    def __unicode__(self):
+        if self.status == 0:
+            return "%s vs. %s" % (self.player_a, self.player_b)
+        if self.status == 1:
+            return "%s won against %s" % (self.player_a, self.player_b)
+        if self.status == 2:
+            return "%s won against %s" % (self.player_b, self.player_a)
+        if self.status == 3:
+            return "%s and %s tied" % (self.player_a, self.player_b)
+        if self.status == 4:
+            return "%s byed" % self.player_a
 
     @staticmethod
     def search(a, b):

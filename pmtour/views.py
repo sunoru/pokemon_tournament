@@ -42,10 +42,12 @@ def _get_player_by_request(request, tour):
     except Player.DoesNotExist:
         return None
 
-def _get_bracket(request, tour, has_perm, player=None, log_set=None):
+
+def _get_bracket(request, tour, has_perm, player=None, turn=None):
     temp = loader.get_template("pmtour/bracket_main.html")
-    if log_set is None:
-        log_set = tour.turn_set.get(turn_number=tour.status).log_set.all()
+    if turn is None:
+        turn = tour.get_current_turn()
+    log_set = turn.log_set.all()
     if player is None and not has_perm:
         player = _get_player_by_request(request, tour)
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "logs": log_set, "player": player})
@@ -67,6 +69,7 @@ def home(request, tour_id):
             if tour.status == 0:
                 tour.start(1)
             elif tour.status > 0:
+                tour.end()
                 tour.start(tour.status + 1)
             tour.save()
     if tour.status > 0:
@@ -82,7 +85,8 @@ def check(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
-    data = tour.turn_set.get(turn_number=tour.status).check_all()
+    turn = tour.get_current_turn()
+    data = turn.check_all()
     if data is True:
         return HttpResponse("All Done")
     else:
@@ -91,9 +95,10 @@ def check(request, tour_id):
 
 def bracket(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
+    bracket_set = None
     if request.method == "POST":
-        log_set = tour.turn_set.get(turn_number=tour.status).log_set.all()
-        log = log_set.get(id=request.POST["log"])
+        turn = tour.get_current_turn()
+        log = turn.log_set.get(id=request.POST["log"])
         player = _get_player_by_request(request, tour)
         if has_perm or player == log.player_a or player is not None and player == log.player_b:
             commit = request.POST["commit"]
@@ -109,12 +114,9 @@ def bracket(request, tour_id):
             elif commit == "4":
                 log.delete_status()
                 log.save()
-
-    if tour.status > 0:
+        bracket_set = _get_bracket(request, tour, has_perm, player, turn)
+    if bracket_set is None and tour.status > 0:
         bracket_set = _get_bracket(request, tour, has_perm)
-    else:
-        bracket_set = None
-
     temp = loader.get_template("pmtour/bracket.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "bracket": bracket_set})
     return HttpResponse(temp.render(cont))
