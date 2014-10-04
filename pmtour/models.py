@@ -100,6 +100,7 @@ class Player(models.Model):
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)
+    byes = models.SmallIntegerField(default=0)
     foes = models.ManyToManyField("self")
     standing = models.SmallIntegerField(default=0)
     late = models.BooleanField(default=False)
@@ -108,10 +109,13 @@ class Player(models.Model):
     score = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return "%s (%s/%s/%s (%s))" % (self.user.name, self.wins, self.loses, self.ties, self.score)
+        return "%s (%s) %s" % (self.user.name, self.get_printable(), self.score)
+
+    def get_printable(self):
+        return "%s/%s/%s" % (self.wins + self.byes, self.loses, self.ties)
 
     def get_winning_persentage(self):
-        re = self.wins + self.loses + self.ties
+        re = self.wins + self.loses + self.ties + self.byes
         if re == 0:
             return 0.0
         re = float(self.wins) / re
@@ -134,7 +138,10 @@ class Player(models.Model):
             return sum([x.get_opponents_wp() for x in self.foes.all()]) / self.foes.count()
 
     def set_log(self, status, foe=None):
-        if status == 3:
+        if status == 4:
+            self.score += 3
+            self.byes += 1
+        elif status == 3:
             self.score += 1
             self.ties += 1
         elif status == 2:
@@ -144,6 +151,21 @@ class Player(models.Model):
             self.wins += 1
         if foe is not None:
             self.foes.add(foe)
+
+    def delete_log(self, status, foe=None):
+        if status == 4:
+            self.score -= 3
+            self.byes -= 1
+        elif status == 3:
+            self.score -= 1
+            self.ties -= 1
+        elif status == 2:
+            self.loses -= 1
+        elif status == 1:
+            self.score -= 3
+            self.wins -= 1
+        if foe is not None:
+            self.foes.remove(foe)
 
     @staticmethod
     def _by_playerid(a, b):
@@ -193,7 +215,7 @@ class Turn(models.Model):
     tournament = models.ForeignKey(Tournament)
     turn_number = models.SmallIntegerField("turn number")
     standings = models.TextField("standings")  # the results
-    bracket = models.TextField("bracket")
+    #bracket = models.TextField("bracket")
     type = models.CharField("type", max_length=100)
     status = models.SmallIntegerField("status")  # count for log checked
 
@@ -252,6 +274,12 @@ class Turn(models.Model):
             standings.append(p)
         return standings
 
+    def check_all(self):
+        for log in self.log_set:
+            if log.status == 0:
+                return False
+        return True
+
     # TODO: should be tested
     def gen_standings(self):
         if self.type == Tournament.SINGLE:
@@ -260,9 +288,6 @@ class Turn(models.Model):
         standings = self._get_standings()
         self.standings = json.dumps(standings)
         return standings
-
-    def _gen_bracket(self):
-        return self.log_set.all()
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:
@@ -278,25 +303,34 @@ class Turn(models.Model):
                 Log.create_from_players(self, players)
             else:
                 players = Player.get_sorted_by_standing(self.tournament)
-            pass  # TODO: do it later
+                # TODO: do it later
         else:
             raise Tournament.NoTypeError("Unknown type.")
-        return self._gen_bracket()
 
 
 class Log(models.Model):
     player_a = models.ForeignKey(Player, related_name="player_a_log")
     player_b = models.ForeignKey(Player, related_name="player_b_log", null=True)
-    status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie
-    result = models.CharField("result", max_length=20)
+    status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie, 4 for bye
     time = models.DateTimeField("time")
     turn = models.ForeignKey(Turn)
 
     def check(self, status):
         self.status = status
+        self.time = timezone.now()
         self.player_a.set_log(status, self.player_b)
+        self.player_a.save()
         if self.player_b is not None:
             self.player_b.set_log(status)
+            self.player_b.save()
+
+    def delete_status(self):
+        self.player_a.delete_log(self.status, self.player_b)
+        self.player_a.save()
+        if self.player_b is not None:
+            self.player_b.delete_log(self.status)
+            self.player_b.save()
+        self.status = 0
 
     @staticmethod
     def search(a, b):
@@ -319,12 +353,9 @@ class Log(models.Model):
         log = cls.objects.create(
             player_a=p1,
             player_b=None,
-            status=3,
-            result="%s 轮空" % p1,
-            time=timezone.now(),  # may cause sth...
             turn=turn
         )
-        log.check(3)
+        log.check(4)
 
     @classmethod
     def create_from_players(cls, turn, players):

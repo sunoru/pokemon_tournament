@@ -4,7 +4,6 @@ from django.template import RequestContext
 from django.utils import timezone
 from pmtour.models import Tournament, Player
 from accounts.models import PlayerUser
-import datetime
 import json
 import random
 
@@ -34,8 +33,23 @@ def _get_atour(request, tour_id):
     tour = _get_tour(tour_id)
     has_perm = _get_perm(request, tour)
     tour.refresh()
-
     return tour, has_perm
+
+
+def _get_player_by_request(request, tour):
+    try:
+        return tour.player_set.get(user=request.user.playeruser)
+    except Player.DoesNotExist:
+        return None
+
+def _get_bracket(request, tour, has_perm, player=None, log_set=None):
+    temp = loader.get_template("pmtour/bracket_main.html")
+    if log_set is None:
+        log_set = tour.turn_set.get(turn_number=tour.status).log_set.all()
+    if player is None and not has_perm:
+        player = _get_player_by_request(request, tour)
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "logs": log_set, "player": player})
+    return temp.render(cont)
 
 
 def home(request, tour_id):
@@ -49,11 +63,60 @@ def home(request, tour_id):
             tour.start_time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
             tour.status = 0
             tour.save()
-        elif request.POST["commit"] == "start" and tour.status >= 0:
-            tour.start(tour.status + 1)
+        elif request.POST["commit"] == "start":
+            if tour.status == 0:
+                tour.start(1)
+            elif tour.status > 0:
+                tour.start(tour.status + 1)
             tour.save()
+    if tour.status > 0:
+        bracket_set = _get_bracket(request, tour, has_perm)
+    else:
+        bracket_set = None
     temp = loader.get_template("pmtour/home.html")
-    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "bracket": bracket_set})
+    return HttpResponse(temp.render(cont))
+
+
+def check(request, tour_id):
+    tour, has_perm = _get_atour(request, tour_id)
+    if not has_perm:
+        return _ret_no_perm(request, tour_id)
+    data = tour.turn_set.get(turn_number=tour.status).check_all()
+    if data is True:
+        return HttpResponse("All Done")
+    else:
+        return HttpResponse("%s" % data)
+
+
+def bracket(request, tour_id):
+    tour, has_perm = _get_atour(request, tour_id)
+    if request.method == "POST":
+        log_set = tour.turn_set.get(turn_number=tour.status).log_set.all()
+        log = log_set.get(id=request.POST["log"])
+        player = _get_player_by_request(request, tour)
+        if has_perm or player == log.player_a or player is not None and player == log.player_b:
+            commit = request.POST["commit"]
+            if commit == "1":
+                log.check(1)
+                log.save()
+            elif commit == "2":
+                log.check(2)
+                log.save()
+            elif commit == "3":
+                log.check(3)
+                log.save()
+            elif commit == "4":
+                log.delete_status()
+                log.save()
+
+    if tour.status > 0:
+        bracket_set = _get_bracket(request, tour, has_perm)
+    else:
+        bracket_set = None
+
+    temp = loader.get_template("pmtour/bracket.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "bracket": bracket_set})
     return HttpResponse(temp.render(cont))
 
 

@@ -4,6 +4,7 @@ urlpatterns = patterns(
     '',
     url(r'^$', 'pmtour.views.home', name='home'),
     url(r'^bracket/$', 'pmtour.views.bracket', name='bracket'),
+    url(r'^check/$', 'pmtour.views.check', name='check'),
     url(r'^standings/$', 'pmtour.views.standings', name='standings'),
     url(r'^discussion/$', 'pmtour.views.discussion', name='discussion'),
     url(r'^log/$', 'pmtour.views.log', name='log'),

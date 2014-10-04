@@ -30,6 +30,10 @@ label{
     float: right;
 }
 
+.control-hidden{
+    display: none;
+}
+
 .control-group{
     margin-bottom: 20px;
 }
