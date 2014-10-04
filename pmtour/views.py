@@ -6,6 +6,7 @@ from pmtour.models import Tournament, Player
 from accounts.models import PlayerUser
 import datetime
 import json
+import random
 
 
 def _get_tour(tour_id):
@@ -72,7 +73,9 @@ def add_player(request, tour_id):
         return _ret_no_perm(request, tour_id)
 
     if request.method == "POST":
-        for sp in request.POST.getlist("selected_players"):
+        q = request.POST.getlist("selected_players")
+        random.shuffle(q)
+        for sp in q:
             pu = PlayerUser.objects.get(player_id=sp)
             Player.objects.create(
                 user=pu,
@@ -130,24 +133,69 @@ def delete(request, tour_id):
 
 
 def get_turns(request, tour_id):
-    try:
-        tour = _get_tour(tour_id)
-        return HttpResponse(_get_turns(tour))
-    except:
+    tour = _get_tour(tour_id)
+    if tour.tournament_type == Tournament.SWISS:
+        return HttpResponse(_get_turns(tour.players_count()))
+    elif tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+        return HttpResponse(_get_turns_2(tour.players_count()))
+    else:
         raise Http404
 
-def _get_turns(tour):
-    if tour.players_count in xrange(6, 9):
+
+def get_elims(request, tour_id):
+    tour = _get_tour(tour_id)
+    if tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+        return HttpResponse(_get_elims(tour.players_count()))
+    else:
+        raise Http404
+
+
+def _get_turns(number):
+    if number < 6:
+        return -1
+    elif 6 <= number <= 8:
         return 3
-    elif tour.players_count in xrange(9, 17):
+    elif number <= 16:
         return 4
-    elif tour.players_count in xrange(17, 33):
+    elif number <= 32:
         return 5
-    elif tour.players_count in xrange(33, 65):
+    elif number <= 64:
         return 6
-    elif tour.players_count in xrange(65, 129):
+    elif number <= 128:
         return 7
-    elif tour.players_count in xrange(129, 257):
+    elif number <= 256:
         return 8
     else:
         return -1
+
+
+def _get_turns_2(number):
+    if number < 8:
+        return -1
+    elif number == 8:
+        return 3
+    elif number <= 12:
+        return 4
+    elif number <= 32:
+        return 5
+    elif number <= 64:
+        return 6
+    elif number <= 128:
+        return 7
+    elif number <= 226:
+        return 8
+    elif number <= 409:
+        return 9
+    elif number > 409:
+        return 10
+
+
+def _get_elims(number):
+    if number < 8:
+        return -1
+    elif number == 8:
+        return 0
+    elif number <= 20:
+        return 4
+    elif number > 21:
+        return 8

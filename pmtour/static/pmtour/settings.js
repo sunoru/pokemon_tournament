@@ -24,5 +24,10 @@ $(document).ready(function(){
             if(status == "success")
                 $("#tour_turns")[0].value = data;
         });
+        if (this.selectedIndex == 2)
+            $.get("get_elims", function(data, status){
+                if(status == "success")
+                    $("#tour_elims")[0].value = data;
+            });
     })
 });

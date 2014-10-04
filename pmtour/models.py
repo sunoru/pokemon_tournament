@@ -1,3 +1,4 @@
+# coding=utf-8
 from django.db import models
 import accounts.models
 import datetime
@@ -24,7 +25,6 @@ class Tournament(models.Model):
     admins = models.ManyToManyField(accounts.models.PlayerUser)
     remarks = models.TextField(default="{}")  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
-
 
     class NoTypeError(Exception):
         pass
@@ -64,11 +64,10 @@ class Tournament(models.Model):
         return self.player_set.count()
 
     def refresh(self):
-        if self.status == -1:
-            if (datetime.datetime.now() - timezone.localtime(self.start_time).replace(tzinfo=None)).total_seconds()\
-                    >= 0:
-                self.status = 0
-                self.save()
+        if self.status == -1 and (datetime.datetime.now() -
+                timezone.localtime(self.start_time).replace(tzinfo=None)).total_seconds() >= 0:
+            self.status = 0
+            self.save()
 
     def _get_type(self, turn_number):
         if self.tournament_type == Tournament.SWISS or self.tournament_type == Tournament.SINGLE:
@@ -88,8 +87,7 @@ class Tournament(models.Model):
             type=self._get_type(turn_number),
             status=0
         )
-        players = self.player_set.filter(eliminated=False)
-
+        turn.gen_bracket()
 
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)
@@ -103,6 +101,7 @@ class Player(models.Model):
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)
     foes = models.ManyToManyField("self")
+    standing = models.SmallIntegerField(default=0)
     late = models.BooleanField(default=False)
     eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
@@ -133,6 +132,61 @@ class Player(models.Model):
             return 0.0
         else:
             return sum([x.get_opponents_wp() for x in self.foes.all()]) / self.foes.count()
+
+    def set_log(self, status, foe=None):
+        if status == 3:
+            self.score += 1
+            self.ties += 1
+        elif status == 2:
+            self.loses += 1
+        elif status == 1:
+            self.score += 3
+            self.wins += 1
+        if foe is not None:
+            self.foes.add(foe)
+
+    @staticmethod
+    def _by_playerid(a, b):
+        if a.playerid > b.playerid:
+            return 1
+        return -1
+
+    @staticmethod
+    def _by_standing(a, b):
+        if a.standing > b.standing:
+            return 1
+        else:
+            return -1
+
+    @classmethod
+    def _get_sorted(cls, tour, key, **kwargs):
+        players = tour.player_set.filter(**kwargs)
+        players = [x for x in players]
+        players.sort(key=key)
+        return players
+
+    @classmethod
+    def get_sorted_by_playerid(cls, tour):
+        return cls._get_sorted(tour, cls._by_playerid, exited=False, eliminated=False)
+
+    @classmethod
+    def get_sorted_by_standing(cls, tour):
+        return cls._get_sorted(tour, cls._by_standing, exited=False, eliminated=False)
+
+    @classmethod
+    def get_sorted_for_elims(cls, tour):
+        players = cls._get_sorted(tour, cls._by_standing)
+        elims = int(tour.get_option("elims"))
+        if elims == 8:
+            q = [1, 8, 4, 5, 3, 6, 2, 7]
+        elif elims == 4:
+            q = [1, 4, 2, 3]
+        elif elims == 2:
+            q = [1, 2]
+        else:
+            raise Tournament.NoTypeError("the number of players is wrong")
+        players = [players[i - 1] for i in q if not players[i - 1].eliminated]
+        return players
 
 
 class Turn(models.Model):
@@ -185,11 +239,13 @@ class Turn(models.Model):
         tmp.sort(Turn._compare, reverse=True)
         standings = []
         for i in xrange(len(tmp)):
+            tmp[i].standing = i + 1
+            tmp[i].save()
             p = {
                 "standing": i + 1,
                 "name": tmp[i].user.name,
                 "match": "%s/%s/%s (%s)" % (tmp[i].wins, tmp[i].loses, tmp[i].ties, tmp[i].score),
-                "points": str(tmp[i].score),
+                "points": tmp[i].score,
                 "opswin": "{0:.2%}".format(tmp[i].get_opponents_wp()),
                 "opsopswin": "{0:.2%}".format(tmp[i].get_opps_opps_wp()),
             }
@@ -205,6 +261,28 @@ class Turn(models.Model):
         self.standings = json.dumps(standings)
         return standings
 
+    def _gen_bracket(self):
+        return self.log_set.all()
+
+    def gen_bracket(self):
+        if self.type == Tournament.SINGLE:
+            if self.tournament.tournament_type == Tournament.SINGLE:
+                players = Player.get_sorted_by_playerid(self.tournament)
+                Log.create_from_players(self, players)
+            elif self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+                players = Player.get_sorted_for_elims(self.tournament)
+                Log.create_from_players(self, players)
+        elif self.type == Tournament.SWISS:
+            if self.turn_number == 1:
+                players = Player.get_sorted_by_playerid(self.tournament)
+                Log.create_from_players(self, players)
+            else:
+                players = Player.get_sorted_by_standing(self.tournament)
+            pass  # TODO: do it later
+        else:
+            raise Tournament.NoTypeError("Unknown type.")
+        return self._gen_bracket()
+
 
 class Log(models.Model):
     player_a = models.ForeignKey(Player, related_name="player_a_log")
@@ -214,6 +292,12 @@ class Log(models.Model):
     time = models.DateTimeField("time")
     turn = models.ForeignKey(Turn)
 
+    def check(self, status):
+        self.status = status
+        self.player_a.set_log(status, self.player_b)
+        if self.player_b is not None:
+            self.player_b.set_log(status)
+
     @staticmethod
     def search(a, b):
         try:
@@ -221,3 +305,41 @@ class Log(models.Model):
         except Log.DoesNotExist:
             return None
         return log
+
+    @classmethod
+    def create_from_player(cls, turn, p1, p2):
+        cls.objects.create(
+            player_a=p1,
+            player_b=p2,
+            turn=turn
+        )
+
+    @classmethod
+    def create_bye(cls, turn, p1):
+        log = cls.objects.create(
+            player_a=p1,
+            player_b=None,
+            status=3,
+            result="%s 轮空" % p1,
+            time=timezone.now(),  # may cause sth...
+            turn=turn
+        )
+        log.check(3)
+
+    @classmethod
+    def create_from_players(cls, turn, players):
+        for i in xrange(1, len(players) / 2 + 1):
+            p1 = players[i * 2 - 1]
+            p2 = players[i * 2]
+            if p1.exited:
+                if not p2.exited:
+                    cls.create_bye(turn, p2)
+            else:
+                if p2.exted:
+                    cls.create_bye(turn, p1)
+                else:
+                    cls.create_from_player(turn, p1, p2)
+
+        if len(players) & 1 == 1:
+            p1 = players[-1]
+            cls.create_bye(turn, p1)
