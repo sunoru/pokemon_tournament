@@ -165,16 +165,59 @@ class Turn(models.Model):
             return True
         if ta < tb:
             return False
+        ta = Log.search(a, b)
+        if ta is not None:
+            if ta.status == 1:
+                return True
+            elif ta.status == 2:
+                return False
+        else:
+            ta = Log.search(b, a)
+            if ta is not None:
+                if ta.status == 1:
+                    return False
+                elif ta.status == 2:
+                    return True
         return Turn._compare(a.foes.last(), b.foes.last())
 
+    def _get_standings(self):
+        tmp = [x for x in self.tournament.player_set.all()]
+        tmp.sort(Turn._compare, reverse=True)
+        standings = []
+        for i in xrange(len(tmp)):
+            p = {
+                "standing": i + 1,
+                "name": tmp[i].user.name,
+                "match": "%s/%s/%s (%s)" % (tmp[i].wins, tmp[i].loses, tmp[i].ties, tmp[i].score),
+                "points": str(tmp[i].score),
+                "opswin": "{0:.2%}".format(tmp[i].get_opponents_wp()),
+                "opsopswin": "{0:.2%}".format(tmp[i].get_opps_opps_wp()),
+            }
+            standings.append(p)
+        return standings
+
+    # TODO: should be tested
     def gen_standings(self):
-        standings = [x for x in self.tournament.player_set.all()].sort(Turn._compare)
+        if self.type == Tournament.SINGLE:
+            self.standings = json.dumps(None)
+            return None
+        standings = self._get_standings()
+        self.standings = json.dumps(standings)
+        return standings
 
 
 class Log(models.Model):
     player_a = models.ForeignKey(Player, related_name="player_a_log")
     player_b = models.ForeignKey(Player, related_name="player_b_log", null=True)
-    status = models.BooleanField("status")
+    status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie
     result = models.CharField("result", max_length=20)
     time = models.DateTimeField("time")
     turn = models.ForeignKey(Turn)
+
+    @staticmethod
+    def search(a, b):
+        try:
+            log = a.player_a_log.get(player_b=b)
+        except Log.DoesNotExist:
+            return None
+        return log
