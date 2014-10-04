@@ -3,6 +3,7 @@ from django.http import HttpResponse, Http404
 from django.template import RequestContext
 from django.utils import timezone
 from pmtour.models import Tournament, Player
+from accounts.models import PlayerUser
 import json
 
 def _get_tour(tour_id):
@@ -47,6 +48,31 @@ def participants(request, tour_id):
 
     temp = loader.get_template("pmtour/participants.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
+    return HttpResponse(temp.render(cont))
+
+
+def add_player(request, tour_id):
+    tour = _get_tour(tour_id)
+    has_perm = _get_perm(request, tour)
+    if not has_perm:
+        return _ret_no_perm(request, tour_id)
+
+    if request.method == "POST":
+        for sp in request.POST.getlist("selected_players"):
+            print sp
+            pu = PlayerUser.objects.get(player_id=sp)
+            tour.players_count += 1
+            Player.objects.create(
+                user=pu,
+                tournament=tour,
+                playerid=tour.players_count
+            )
+        tour.players_count
+        return redirect("/%s/participants/" % tour.alias)
+
+    playerusers = PlayerUser.objects.all()
+    temp = loader.get_template("pmtour/add_player.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "playerusers": playerusers})
     return HttpResponse(temp.render(cont))
 
 

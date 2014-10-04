@@ -1,0 +1,15 @@
+{% extends "pmtour/index.html" %}
+{% block title %}{{ tour.name }} - 添加玩家{% endblock %}
+{% block content %}
+    <form id="test_add" action="#" method="post">
+        {% csrf_token %}
+        <div class="selector">
+            <select multiple="multiple" class="filtered" id="players_from" name="selected_players">
+                {% for playeruser in playerusers %}
+                    <option value="{{ playeruser.player_id }}">{{ playeruser.name }} ({{ playeruser.player_id }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <input type="submit" name="commit" class="btn" value="添加玩家">
+    </form>
+{% endblock %}

@@ -19,7 +19,6 @@ class Tournament(models.Model):
     start_time = models.DateTimeField("start time", default=datetime.datetime(2014, 10, 6,13, 0))
     description = models.TextField("description", default="")
     status = models.SmallIntegerField("status", default=-2)
-    players_count = models.SmallIntegerField("number of players", default=0)
     players = models.TextField("participants", default="")
     admins = models.ManyToManyField(accounts.models.PlayerUser)
     remarks = models.TextField(default="{}")  # use for the age separated swiss, swiss plus turns, etc
@@ -47,6 +46,9 @@ class Tournament(models.Model):
         tour = cls.objects.create(**kwargs)
         tour.admins.add(admin)
         return tour
+
+    def players_count(self):
+        return self.player_set.count()
 
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)

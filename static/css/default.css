@@ -48,3 +48,12 @@ label{
 .controls{
     margin-left: 180px;
 }
+
+.filtered{
+    width: 250px;
+    height: 300px;
+}
+
+.selector{
+    margin-left: 100px;
+}

@@ -6,7 +6,7 @@ import datetime
 class PlayerUser(models.Model):
     user = models.OneToOneField(User)
     name = models.CharField("name", max_length=100, default="")
-    player_id = models.CharField("Play Pokemon ID", max_length=100, default='test')
+    player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
     birthday = models.DateField("birthday", default=datetime.date.today())
 
     @classmethod

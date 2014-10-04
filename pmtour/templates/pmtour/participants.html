@@ -1,7 +1,12 @@
 {% extends "pmtour/index.html" %}
+{% load staticfiles %}
 {% block title %}{{ tour.name }} - 选手设定{% endblock %}
+{% block jss %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pmtour/participants.js' %}"></script>
+{% endblock %}
 {% block content %}
-    {# TODO add test players #}
+    <a href="add">添加玩家</a>
     <ul>
     {% for player in tour.player_set.all %}
         <li>{{ player.user.name }}</li>
