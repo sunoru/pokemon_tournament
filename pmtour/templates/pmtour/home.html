@@ -5,6 +5,7 @@
         {% if has_perm %}
             <p>快去<a href="settings">设置页</a>完善比赛信息~</p>
             <form action="#" method="post" id="get_ready">
+                {% csrf_token %}
                 <button cls="btn" type="submit" name="commit" value="ok">准备完毕</button>
             </form>
         {% else %}
@@ -14,6 +15,7 @@
         <p>比赛还没有开始……</p>
         {% if has_perm %}
             <form action="#" method="post" id="get_ready">
+                {% csrf_token %}
                 <button cls="btn" type="submit" name="commit" value="start_tour">提前开始</button>
             </form>
         {% endif %}
@@ -21,6 +23,7 @@
         <p>比赛即将开始……</p>
         {% if has_perm %}
             <form action="#" method="post" id="get_ready">
+                {% csrf_token %}
                 <button cls="btn" type="submit" name="commit" value="start">开始第一轮</button>
             </form>
         {% endif %}

@@ -12,3 +12,5 @@ def add_test_users(n):
 
 def init():
     Option.objects.create(option_name="uid", option_value="-1")
+    playeruser = PlayerUser.objects.create(user=User.objects.all()[0], name="admin", player_id="root")
+    print playeruser

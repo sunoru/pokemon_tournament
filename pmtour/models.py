@@ -2,6 +2,7 @@ from django.db import models
 import accounts.models
 import datetime
 import json
+from django.utils import timezone
 
 
 class Tournament(models.Model):
@@ -24,6 +25,9 @@ class Tournament(models.Model):
     remarks = models.TextField(default="{}")  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
 
+
+    class NoTypeError(Exception):
+        pass
 
     @classmethod
     def alias_unique(cls, alias):
@@ -59,6 +63,34 @@ class Tournament(models.Model):
     def players_count(self):
         return self.player_set.count()
 
+    def refresh(self):
+        if self.status == -1:
+            if (datetime.datetime.now() - timezone.localtime(self.start_time).replace(tzinfo=None)).total_seconds()\
+                    >= 0:
+                self.status = 0
+                self.save()
+
+    def _get_type(self, turn_number):
+        if self.tournament_type == Tournament.SWISS or self.tournament_type == Tournament.SINGLE:
+            return self.tournament_type
+        elif self.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+            return Tournament.SWISS if turn_number <= int(self.get_option("turns")) else Tournament.SINGLE
+        else:
+            raise Tournament.NoTypeError
+
+    def start(self, turn_number):
+        self.status = turn_number
+        turn = Turn.objects.create(
+            tournament=self,
+            turn_number=turn_number,
+            standings="",
+            bracket="",
+            type=self._get_type(turn_number),
+            status=0
+        )
+        players = self.player_set.filter(eliminated=False)
+
+
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)
 
@@ -71,6 +103,8 @@ class Player(models.Model):
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)
     foes = models.ManyToManyField("self")
+    late = models.BooleanField(default=False)
+    eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
 
@@ -103,9 +137,38 @@ class Player(models.Model):
 
 class Turn(models.Model):
     tournament = models.ForeignKey(Tournament)
+    turn_number = models.SmallIntegerField("turn number")
     standings = models.TextField("standings")  # the results
     bracket = models.TextField("bracket")
+    type = models.CharField("type", max_length=100)
     status = models.SmallIntegerField("status")  # count for log checked
+
+    @staticmethod
+    def _compare(a, b):
+        if a.late and not b.late:
+            return False
+        if not a.late and b.late:
+            return True
+        if a.score > b.score:
+            return True
+        if a.score < b.score:
+            return False
+        ta = a.get_opponents_wp()
+        tb = b.get_opponents_wp()
+        if ta > tb:
+            return True
+        if ta < tb:
+            return False
+        ta = a.get_opps_opps_wp()
+        tb = b.get_opps_opps_wp()
+        if ta > tb:
+            return True
+        if ta < tb:
+            return False
+        return Turn._compare(a.foes.last(), b.foes.last())
+
+    def gen_standings(self):
+        standings = [x for x in self.tournament.player_set.all()].sort(Turn._compare)
 
 
 class Log(models.Model):

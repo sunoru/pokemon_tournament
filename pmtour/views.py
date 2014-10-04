@@ -4,6 +4,7 @@ from django.template import RequestContext
 from django.utils import timezone
 from pmtour.models import Tournament, Player
 from accounts.models import PlayerUser
+import datetime
 import json
 
 
@@ -31,20 +32,24 @@ def _ret_no_perm(request, tour_id):
 def _get_atour(request, tour_id):
     tour = _get_tour(tour_id)
     has_perm = _get_perm(request, tour)
+    tour.refresh()
+
     return tour, has_perm
 
 
 def home(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     if has_perm and request.method == "POST":
-        if request.POST["commit"] == "ok":
+        if request.POST["commit"] == "ok" and tour.status == -2:
             tour.status = -1
             tour.save()
-        elif request.POST["commit"] == "start_tour":
+        elif request.POST["commit"] == "start_tour" and tour.status == -1:
+            t = timezone.now()
+            tour.start_time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
             tour.status = 0
             tour.save()
-        elif request.POST["commit"] == "start":
-            tour.status += 1
+        elif request.POST["commit"] == "start" and tour.status >= 0:
+            tour.start(tour.status + 1)
             tour.save()
     temp = loader.get_template("pmtour/home.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
@@ -88,7 +93,7 @@ def settings(request, tour_id):
         return _ret_no_perm(request, tour_id)
 
     status = 0
-    tm = str(tour.start_time.astimezone(timezone.get_current_timezone()).isoformat())[:-6]  #
+    tm = str(timezone.localtime(tour.start_time).replace(tzinfo=None)).replace(' ', 'T')
     if request.method == "POST":
         print request.POST
         try:
