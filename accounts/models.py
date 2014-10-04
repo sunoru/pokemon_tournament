@@ -28,6 +28,7 @@ class PlayerUser(models.Model):
     def __unicode__(self):
         return "%s (%s)" % (self.name, self.player_id)
 
+
 class Option(models.Model):
     option_name = models.CharField("key", max_length=50, unique=True)
     option_value = models.TextField("value")

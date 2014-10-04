@@ -1,6 +1,7 @@
 from django.db import models
 import accounts.models
 import datetime
+import json
 
 
 class Tournament(models.Model):
@@ -19,7 +20,6 @@ class Tournament(models.Model):
     start_time = models.DateTimeField("start time", default=datetime.datetime(2014, 10, 6,13, 0))
     description = models.TextField("description", default="")
     status = models.SmallIntegerField("status", default=-2)
-    players = models.TextField("participants", default="")
     admins = models.ManyToManyField(accounts.models.PlayerUser)
     remarks = models.TextField(default="{}")  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
@@ -46,6 +46,15 @@ class Tournament(models.Model):
         tour = cls.objects.create(**kwargs)
         tour.admins.add(admin)
         return tour
+
+    def set_option(self, option_name, option_value=None):
+        pst = json.loads(self.remarks)
+        pst[option_name] = option_value
+        self.remarks = json.dumps(pst)
+
+    def get_option(self, option_name):
+        pst = json.loads(self.remarks)
+        return pst.get(option_name, None)
 
     def players_count(self):
         return self.player_set.count()

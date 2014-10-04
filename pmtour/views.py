@@ -19,15 +19,7 @@ def _get_tour(tour_id):
 
 
 def _get_perm(request, tour):
-    return (not request.user.is_anonymous() and request.user.playeruser in tour.admins.all())
-
-
-def _ret_normal(request, tour_id, aname):
-    tour = _get_tour(tour_id)
-    has_perm = _get_perm(request, tour)
-    temp = loader.get_template("pmtour/%s.html" % aname)
-    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
-    return HttpResponse(temp.render(cont))
+    return not request.user.is_anonymous() and request.user.playeruser in tour.admins.all()
 
 
 def _ret_no_perm(request, tour_id):
@@ -36,14 +28,31 @@ def _ret_no_perm(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
+def _get_atour(request, tour_id):
+    tour = _get_tour(tour_id)
+    has_perm = _get_perm(request, tour)
+    return tour, has_perm
+
+
 def home(request, tour_id):
-    print tour_id
-    return _ret_normal(request, tour_id, "home")
+    tour, has_perm = _get_atour(request, tour_id)
+    if has_perm and request.method == "POST":
+        if request.POST["commit"] == "ok":
+            tour.status = -1
+            tour.save()
+        elif request.POST["commit"] == "start_tour":
+            tour.status = 0
+            tour.save()
+        elif request.POST["commit"] == "start":
+            tour.status += 1
+            tour.save()
+    temp = loader.get_template("pmtour/home.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
+    return HttpResponse(temp.render(cont))
 
 
 def participants(request, tour_id):
-    tour = _get_tour(tour_id)
-    has_perm = _get_perm(request, tour)
+    tour, has_perm = _get_atour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
 
@@ -53,8 +62,7 @@ def participants(request, tour_id):
 
 
 def add_player(request, tour_id):
-    tour = _get_tour(tour_id)
-    has_perm = _get_perm(request, tour)
+    tour, has_perm = _get_atour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
 
@@ -74,35 +82,19 @@ def add_player(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
-def player_setting(request, tour_id, playerid):
-    tour = _get_tour(tour_id)
-    has_perm = _get_perm(request, tour)
-    if not has_perm:
-        return _ret_no_perm(request, tour_id)
-    try:
-        player = tour.player_set.get(playerid=playerid)
-    except Player.DoesNotExist:
-        return redirect("/%s/participants/" % tour.alias)
-    temp = loader.get_template("pmtour/player_setting.html")
-    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "player": player})
-    return HttpResponse(temp.render(cont))
-
-
 def settings(request, tour_id):
-    tour = _get_tour(tour_id)
-    has_perm = _get_perm(request, tour)
+    tour, has_perm = _get_atour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
 
     status = 0
-    mj = json.loads(tour.remarks)
-    tm = str(tour.start_time.astimezone(timezone.get_current_timezone()).isoformat())[:-6] #
+    tm = str(tour.start_time.astimezone(timezone.get_current_timezone()).isoformat())[:-6]  #
     if request.method == "POST":
+        print request.POST
         try:
             if request.POST["tour_alias"] != tour.alias and not tour.alias_unique(request.POST["tour_alias"]):
                 status = 2
                 raise Exception
-
             tour.name = request.POST["tour_name"]
             tour.alias = request.POST["tour_alias"]
             tour.tournament_type = request.POST["tour_type"]
@@ -110,22 +102,24 @@ def settings(request, tour_id):
             tm = request.POST["tour_start_time"]
             tour.description = request.POST["tour_description"]
             if "tour_turns" in request.POST:
-                mj["turns"] = request.POST["tour_turns"]
+                tour.set_option("turns", request.POST["tour_turns"])
             if "tour_elims" in request.POST:
-                mj["elims"] = request.POST["tour_elims"]
-            tour.remarks = json.dumps(mj)
+                tour.set_option("elims", request.POST["tour_elims"])
             tour.save()
             status = 1
         except Exception as e:
             print e
             status = -1
+    mj = json.loads(tour.remarks)
     temp = loader.get_template("pmtour/settings.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "status": status, "remarks": mj, "starttime": tm})
     return HttpResponse(temp.render(cont))
 
 
 def delete(request, tour_id):
-    tour = _get_tour(tour_id)
+    tour, has_perm = _get_atour(request, tour_id)
+    if not has_perm:
+        return _ret_no_perm(request, tour_id)
     tour.delete()
     return redirect("/accounts")
 

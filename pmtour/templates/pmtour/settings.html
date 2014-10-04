@@ -46,7 +46,7 @@
         <div class="control-group{% if tour.tournament_type != "swiss_single" %} control-disabled{% endif %}" id="control-elims">
             <label class="control-label" for="tour_elims">淘汰赛人数</label>
             <div class="controls">
-                <input type="text" name="tour_elims" id="tour_elims" class="input" size="20"{% if tour.tournament_type != "swiss_single" %} disabled="true"{% endif %} value="{{ remarks.turns }}">
+                <input type="text" name="tour_elims" id="tour_elims" class="input" size="20"{% if tour.tournament_type != "swiss_single" %} disabled="true"{% endif %} value="{{ remarks.elims }}">
             </div>
         </div>
         <div class="control-group">

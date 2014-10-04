@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from accounts.models import PlayerUser
+from accounts.models import PlayerUser, Option
 import random
 
 def add_test_users(n):
@@ -10,3 +10,5 @@ def add_test_users(n):
         playeruser = PlayerUser.objects.create(user=user, name=user.username, player_id=user.username)
         print playeruser
 
+def init():
+    Option.objects.create(option_name="uid", option_value="-1")

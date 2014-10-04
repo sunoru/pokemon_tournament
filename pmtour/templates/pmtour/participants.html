@@ -9,7 +9,7 @@
     <a href="add">添加选手</a>
     <ul>
     {% for player in tour.player_set.all %}
-        <li><a href="{{ player.playerid }}">{{ player.user.name }}</a></li>
+        <li>{{ player.playerid }} - {{ player }}</li>
     {% endfor %}
     </ul>
 {% endblock %}
