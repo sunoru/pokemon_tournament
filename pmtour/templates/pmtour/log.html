@@ -8,16 +8,38 @@
 {% block content %}
     {# TODO: 之前各轮的记录 #}
     <nav aria-label="navigation" class="round-selector">
-    <ul>
-    {% for turn in tour.turn_set.reverse %}
-        <li><a id="round-select" href="#{{ turn.turn_number }}">{% if tour.is_over and forloop.revcounter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a></li>
-    {% endfor %}
-    </ul>
-    <ul>
-        <li><div id="round-standing" class="clickable">排行榜</div></li>
-        <li><div id="round-bracket" class="clickable">对阵表</div></li>
-    </ul>
-    <div id="result-standings"></div>
-    <div id="result-bracket" class="control-hidden"></div>
+
+
+
+    <table id="logtable-main">
+        <tbody><tr>
+            <th style="width: 125px;height: 100px;">
+                <div style="width: 125px;height: 100%;top: 0px">
+                    <ul class="round-list">
+                        {% for turn in tour.turn_set.reverse %}
+                        <li><a id="round-select" href="#{{ turn.turn_number }}">{% if tour.is_over and forloop.revcounter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a></li>
+                        {% endfor %}
+                    </ul>
+                    <ul class="list-swicher">
+                        <li><div id="round-standing" class="clickable">排行榜</div></li>
+                        <li><div id="round-bracket" class="clickable">对阵表</div></li>
+                    </ul>
+                </div>
+            </th>
+            <th>
+                <div style=";margin-left: 10px;">
+
+                    <div class="pure-u-1">
+                        <div id="result-standings"></div>
+                        <div id="result-bracket" class="control-hidden"></div>
+                    </div>
+                </div>
+            </th>
+        </tr></tbody>
+    </table>
+
     </nav>
 {% endblock %}
+
+
+

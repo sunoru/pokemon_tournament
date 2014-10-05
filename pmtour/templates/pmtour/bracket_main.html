@@ -1,4 +1,4 @@
-<table class="report">
+<table class="report border pure-table pure-table-horizontal">
 {% if has_perm and turn.status == 1 %}
     <a href="/{{ tour.alias }}/check" target="_blank">检查</a>
     <form action="/{{ tour.alias }}/" method="post">
@@ -7,11 +7,18 @@
     </form>
 {% endif %}
     <tbody>
+        <tr>
+		<th scope="col"><strong>场次</strong></th>
+		<th scope="col"><strong>队伍A(胜/负/平)积分</strong></th>
+		<th scope="col"><strong></strong></th>
+		<th scope="col"><strong>队伍B(胜/负/平)积分</strong></th>
+        <th scope="col"><strong></strong></th>
+	</tr>
     {% for log in logs %}
     <tr>
-		<td align="left" class="matches"><b>
+		<td align="left" class="matches">
             {{ forloop.counter }}
-        </b></td>
+        </td>
 		<td align="left" class="matches">
             {% if log.status == 1 or log.status == 4%}
                 <b>{{ log.player_a}}</b>
