@@ -93,7 +93,7 @@ class Tournament(models.Model):
         if self.tournament_type == Tournament.SWISS or self.tournament_type == Tournament.SINGLE:
             return self.tournament_type
         elif self.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-            return Tournament.SWISS if turn_number <= int(self.get_option("turns")) else Tournament.SINGLE
+            return Tournament.SWISS if turn_number <= self.get_option("turns") else Tournament.SINGLE
         else:
             raise Tournament.NoTypeError
 
@@ -108,7 +108,7 @@ class Tournament(models.Model):
     def _should_end(self):
         print self.player_set.filter(eliminated=False).all()
         if self.tournament_type == Tournament.SWISS:
-            return self.status >= int(self.get_option("turns"))
+            return self.status >= self.get_option("turns")
         return self.player_set.filter(eliminated=False).count() == 1
 
     def start(self, turn_number):
@@ -144,11 +144,12 @@ class Tournament(models.Model):
     def on_swiss_over(self, turn_number=None):
         if turn_number is None:
             turn_number = self.status
-        return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and int(self.get_option("turns")) == turn_number
+        return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and self.get_option("turns") >= turn_number
 
     def stop(self):
-        self.status = -3
         self.set_option("champion", self.get_current_champion().playerid)
+        self.set_option("total_turns", self.status)
+        self.status = -3
 
     def is_over(self):
         return self.status == -3
@@ -282,7 +283,7 @@ class Player(models.Model):
     @classmethod
     def get_sorted_for_elims(cls, tour):
         players = cls._get_sorted(tour, cls._by_standing)
-        elims = int(tour.get_option("elims"))
+        elims = tour.get_option("elims")
         if elims == 8:
             q = [1, 8, 4, 5, 3, 6, 2, 7]
         elif elims == 4:
@@ -310,7 +311,7 @@ class Turn(models.Model):
     def _compare2(a, b):
         p = Turn._compare(a, b)
         if p == 0:
-            return Turn.compare2(a.foes.last(), b.foes.last())
+            return Turn._compare2(a.foes.last(), b.foes.last())
         return p
 
     @staticmethod
@@ -394,8 +395,8 @@ class Turn(models.Model):
     def end(self):
         self.gen_standings()
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE and\
-                self.turn_number == int(self.tournament.get_option("turns")):
-            lp = int(self.tournament.get_option("elims"))
+                self.turn_number == self.tournament.get_option("turns"):
+            lp = self.tournament.get_option("elims")
             sts = self.get_standing()
             for i in xrange(lp, len(sts)):
                 player = self.tournament.player_set.get(playerid=sts[i]["pid"])
@@ -404,11 +405,11 @@ class Turn(models.Model):
         self.status = -1
 
     def gen_standings(self):
-        if self.type == Tournament.SINGLE:
-            self.standings = json.dumps(None)
-            return None
-        standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
-        self.standings = json.dumps(standings)
+        if self.turn_number == self.tournament.get_option("total_turns") or self.type != Tournament.SINGLE:
+            standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
+            self.standings = json.dumps(standings)
+            return
+        self.standings = json.dumps(None)
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:

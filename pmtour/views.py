@@ -86,7 +86,7 @@ def _get_standings(request, tour, has_perm, player=None, turn=None):
         player = _get_player_by_request(request, tour)
     elimed = 0
     if tour.on_swiss_over(turn.turn_number):
-        elimed = int(tour.get_option("elims"))
+        elimed = tour.get_option("elims")
     cont = RequestContext(request, {
         "tour": tour, "has_perm": has_perm, "standings": standings_set, "player": player, "elimed": elimed
     })
