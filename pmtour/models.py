@@ -20,7 +20,7 @@ class Tournament(models.Model):
     tour_id = models.CharField("tour_id", max_length=20, unique=True)
     alias = models.CharField("alias", max_length=20, unique=True)
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)
-    start_time = models.DateTimeField("start time", default=datetime.datetime(2014, 10, 6,13, 0))
+    start_time = models.DateTimeField("start time", default=datetime.datetime(2014, 10, 6, 13, 0))
     description = models.TextField("description", default="")
     status = models.SmallIntegerField("status", default=-2)
     admins = models.ManyToManyField(accounts.models.PlayerUser)
@@ -47,11 +47,10 @@ class Tournament(models.Model):
         kwargs["tour_id"] = str(100000 + int(uid.option_value))
         uid.save()
         if "alias" not in kwargs:
-            kwargs["alias"] =  kwargs["tour_id"]
+            kwargs["alias"] = kwargs["tour_id"]
         else:
             if Tournament.is_unique(kwargs["alias"]):
-                raise Exception
-            #TODO
+                raise Tournament.InvalidAliasError
         tour = cls.objects.create(**kwargs)
         tour.admins.add(admin)
         return tour
@@ -84,8 +83,9 @@ class Tournament(models.Model):
         return self.player_set.count()
 
     def refresh(self):
-        if self.status == -1 and (datetime.datetime.now() -
-            timezone.localtime(self.start_time).replace(tzinfo=None)).total_seconds() >= 0:
+        if self.status == -1 and (
+            datetime.datetime.now() - timezone.localtime(self.start_time).replace(tzinfo=None)
+        ).total_seconds() >= 0:
             self.status = 0
             self.save()
 
@@ -403,14 +403,12 @@ class Turn(models.Model):
                 player.save()
         self.status = -1
 
-    # TODO: should be tested
     def gen_standings(self):
         if self.type == Tournament.SINGLE:
             self.standings = json.dumps(None)
             return None
         standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
         self.standings = json.dumps(standings)
-
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:
@@ -430,7 +428,6 @@ class Turn(models.Model):
                 players = Player.get_sorted_by_standing(self.tournament)
                 player_pairs = Turn.swissshuffle(players)
                 Log.create_from_player_pairs(self, player_pairs)
-                # TODO: do it later
         else:
             raise Tournament.NoTypeError("Unknown type.")
 
