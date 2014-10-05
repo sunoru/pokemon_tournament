@@ -110,7 +110,6 @@ class Tournament(models.Model):
         return self.player_set.filter(eliminated=False).count() == 1
 
     def start(self, turn_number):
-        print turn_number
         if self._should_end():
             self.stop()
             return
@@ -146,7 +145,7 @@ class Tournament(models.Model):
 
     def stop(self):
         turn = self.get_current_turn()
-        turn.gen_standings()
+        turn.gen_last_standings()
         turn.save()
         self.set_option("champion", self.get_current_champion().playerid)
         self.set_option("total_turns", self.status)
@@ -407,9 +406,28 @@ class Turn(models.Model):
         self.status = -1
 
     def gen_standings(self):
-        print self.turn_number
         standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
         self.standings = json.dumps(standings)
+
+    def gen_last_standings(self):
+        if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+            standings = self._get_standings(True)
+            alog = self.log_set.all()[0]
+            a = alog.get_winner().playerid
+            b = alog.get_loser().playerid
+            for i in xrange(len(standings)):
+                x = standings[i]
+                if x["pid"] == b:
+                    standings.remove(x)
+                    standings.insert(0, x)
+                    break
+            for i in xrange(len(standings)):
+                x = standings[i]
+                if x["pid"] == a:
+                    standings.remove(x)
+                    standings.insert(0, x)
+                    break
+            self.standings = json.dumps(standings)
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:
@@ -533,6 +551,20 @@ class Log(models.Model):
             return "%s and %s tied" % (self.player_a, self.player_b)
         if self.status == 4:
             return "%s byed" % self.player_a
+
+    def get_winner(self):
+        if self.status == 3:
+            return None
+        if self.status == 2:
+            return self.player_b
+        return self.player_a
+
+    def get_loser(self):
+        if self.status == 3:
+            return None
+        if self.status == 2:
+            return self.player_a
+        return self.player_b
 
     @staticmethod
     def search(a, b):

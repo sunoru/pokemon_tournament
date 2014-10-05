@@ -170,7 +170,7 @@ def standings(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     turn = tour.get_last_turn()
     standing = None
-    if turn is not None and turn.type == Tournament.SWISS:
+    if turn is not None and (turn.type == Tournament.SWISS or tour.is_over()):
         standing = _get_standings(request, tour, has_perm, None)
     temp = loader.get_template("pmtour/standings.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "standings": standing})

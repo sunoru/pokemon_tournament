@@ -3,6 +3,7 @@
 {% block content %}
     {% if tour.is_over %}
         <h3>冠军：{{ tour.get_current_champion }}</h3>
+        {{ standings }}
         <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
     {% else %}
     {% if standings %}
