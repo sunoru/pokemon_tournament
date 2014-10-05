@@ -488,6 +488,10 @@ class Turn(models.Model):
             if not ok:
                 player_pairs.append((tmp2[0], None))
                 tmp2.remove(tmp2[0])
+        s = sum([1 for x in player_pairs if x[1] is None])
+        if s > 1:
+            player_pairs = Turn.swissshuffle(players)
+
         #random.shuffle(player_pairs)
         return player_pairs
 
