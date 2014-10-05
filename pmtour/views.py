@@ -20,7 +20,7 @@ def _get_tour(tour_id):
 
 
 def _get_perm(request, tour):
-    return not request.user.is_anonymous() and request.user.playeruser in tour.admins.all()
+    return request.user.is_staff or not request.user.is_anonymous() and request.user.playeruser in tour.admins.all()
 
 
 def _ret_no_perm(request, tour_id):
@@ -44,14 +44,31 @@ def _get_player_by_request(request, tour):
     except Player.DoesNotExist:
         return None
 
+def _get_player_printable(sts, player):
+    if player is None:
+        return ""
+    for q in sts:
+        if q["pid"] == player.playerid:
+            return "%s (%s) %s" % (player.user.name, q["match"], q["score"])
+    return ""
+
 
 def _get_bracket(request, tour, has_perm, player=None, turn=None):
     temp = loader.get_template("pmtour/bracket_main.html")
     if turn is None:
         turn = tour.get_current_turn()
-    log_set = turn.log_set.all()
+    log_set = tmp_log_set = turn.log_set.all()
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
+    sts = turn.get_standing()
+    if sts is not None:
+        log_set = []
+        for logs in tmp_log_set:
+            log_set.append({
+                "player_a": _get_player_printable(sts, logs.player_a),
+                "player_b": _get_player_printable(sts, logs.player_b),
+                "status": logs.status
+            })
     cont = RequestContext(request, {
         "tour": tour, "has_perm": has_perm, "turn": turn, "logs": log_set, "player": player
     })
@@ -65,12 +82,12 @@ def _get_standings(request, tour, has_perm, player=None, turn=None):
     standings_set = turn.get_standing()
     if standings_set is not None:
         for s in standings_set:
-            s["name"] = tour.player_set.get(playerid=s["pid"])
+            s["name"] = tour.player_set.get(playerid=s["pid"]).user.name
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
     elimed = 0
     if tour.on_swiss_over(turn.turn_number):
-        elimed = int(tour.get_option("elims"))
+        elimed = tour.get_option("elims")
     cont = RequestContext(request, {
         "tour": tour, "has_perm": has_perm, "standings": standings_set, "player": player, "elimed": elimed
     })
@@ -93,6 +110,7 @@ def home(request, tour_id):
                 tour.end()
                 tour.start(tour.status + 1)
             tour.save()
+            return redirect("bracket/")
         elif request.POST["commit"] == "stop":
             if tour.status > 0:
                 tour.end()
@@ -152,7 +170,7 @@ def standings(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     turn = tour.get_last_turn()
     standing = None
-    if turn is not None and turn.type == Tournament.SWISS:
+    if turn is not None and (turn.type == Tournament.SWISS or tour.is_over()):
         standing = _get_standings(request, tour, has_perm, None)
     temp = loader.get_template("pmtour/standings.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "standings": standing})
@@ -218,6 +236,7 @@ def add_player(request, tour_id):
                 tournament=tour,
                 playerid=tour.players_count() + 1
             )
+        tour.save()
         return redirect("/%s/participants/" % tour.alias)
 
     playerusers = PlayerUser.objects.all()
@@ -261,9 +280,9 @@ def settings(request, tour_id):
             tm = request.POST["tour_start_time"]
             tour.description = request.POST["tour_description"]
             if "tour_turns" in request.POST:
-                tour.set_option("turns", request.POST["tour_turns"])
+                tour.set_option("turns", int(request.POST["tour_turns"]))
             if "tour_elims" in request.POST:
-                tour.set_option("elims", request.POST["tour_elims"])
+                tour.set_option("elims", int(request.POST["tour_elims"]))
             tour.save()
             status = 1
         except Tournament.InvalidAliasError:
@@ -290,9 +309,10 @@ def delete(request, tour_id):
 
 def get_turns(request, tour_id):
     tour = _get_tour(tour_id)
-    if tour.tournament_type == Tournament.SWISS:
+    tp = int(request.GET.get("q", -1))
+    if tp == 0:
         return HttpResponse(_get_turns(tour.players_count()))
-    elif tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+    elif tp == 2:
         return HttpResponse(_get_turns_2(tour.players_count()))
     else:
         raise Http404
@@ -300,7 +320,7 @@ def get_turns(request, tour_id):
 
 def get_elims(request, tour_id):
     tour = _get_tour(tour_id)
-    if tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+    if int(request.GET.get("q", -1)) == 2:
         return HttpResponse(_get_elims(tour.players_count()))
     else:
         raise Http404

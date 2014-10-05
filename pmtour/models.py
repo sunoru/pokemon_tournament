@@ -68,7 +68,6 @@ class Tournament(models.Model):
         if self.is_over():
             return self.turn_set.last()
         else:
-            print self.turn_set.all()
             return self.turn_set.get(turn_number=self.status)
 
     def get_last_turn(self):
@@ -93,7 +92,7 @@ class Tournament(models.Model):
         if self.tournament_type == Tournament.SWISS or self.tournament_type == Tournament.SINGLE:
             return self.tournament_type
         elif self.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-            return Tournament.SWISS if turn_number <= int(self.get_option("turns")) else Tournament.SINGLE
+            return Tournament.SWISS if turn_number <= self.get_option("turns") else Tournament.SINGLE
         else:
             raise Tournament.NoTypeError
 
@@ -106,13 +105,11 @@ class Tournament(models.Model):
         self.status = 0
 
     def _should_end(self):
-        print self.player_set.filter(eliminated=False).all()
         if self.tournament_type == Tournament.SWISS:
-            return self.status >= int(self.get_option("turns"))
+            return self.status >= self.get_option("turns")
         return self.player_set.filter(eliminated=False).count() == 1
 
     def start(self, turn_number):
-        print turn_number
         if self._should_end():
             self.stop()
             return
@@ -144,11 +141,15 @@ class Tournament(models.Model):
     def on_swiss_over(self, turn_number=None):
         if turn_number is None:
             turn_number = self.status
-        return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and int(self.get_option("turns")) == turn_number
+        return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and self.get_option("turns") <= turn_number
 
     def stop(self):
-        self.status = -3
+        turn = self.get_current_turn()
+        turn.gen_last_standings()
+        turn.save()
         self.set_option("champion", self.get_current_champion().playerid)
+        self.set_option("total_turns", self.status)
+        self.status = -3
 
     def is_over(self):
         return self.status == -3
@@ -282,7 +283,7 @@ class Player(models.Model):
     @classmethod
     def get_sorted_for_elims(cls, tour):
         players = cls._get_sorted(tour, cls._by_standing)
-        elims = int(tour.get_option("elims"))
+        elims = tour.get_option("elims")
         if elims == 8:
             q = [1, 8, 4, 5, 3, 6, 2, 7]
         elif elims == 4:
@@ -310,7 +311,7 @@ class Turn(models.Model):
     def _compare2(a, b):
         p = Turn._compare(a, b)
         if p == 0:
-            return Turn.compare2(a.foes.last(), b.foes.last())
+            return Turn._compare2(a.foes.last(), b.foes.last())
         return p
 
     @staticmethod
@@ -353,7 +354,6 @@ class Turn(models.Model):
 #TODO:test
     def _get_standings(self, on_swiss_over=False):
         tmp = [x for x in self.tournament.player_set.all()]
-        print tmp
         if on_swiss_over:
             tmp.sort(Turn._compare2, reverse=True)
         else:
@@ -371,7 +371,6 @@ class Turn(models.Model):
                 "opsopswin": "{0:.2%}".format(tmp[i].get_opps_opps_wp()),
             }
             standings.append(p)
-        print standings
         return standings
 
     def get_standing(self):
@@ -392,10 +391,13 @@ class Turn(models.Model):
         self.status = 1
 
     def end(self):
-        self.gen_standings()
+        if self.type != Tournament.SINGLE:
+            self.gen_standings()
+        else:
+            self.standings = json.dumps(None)
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE and\
-                self.turn_number == int(self.tournament.get_option("turns")):
-            lp = int(self.tournament.get_option("elims"))
+                self.turn_number == self.tournament.get_option("turns"):
+            lp = self.tournament.get_option("elims")
             sts = self.get_standing()
             for i in xrange(lp, len(sts)):
                 player = self.tournament.player_set.get(playerid=sts[i]["pid"])
@@ -404,11 +406,28 @@ class Turn(models.Model):
         self.status = -1
 
     def gen_standings(self):
-        if self.type == Tournament.SINGLE:
-            self.standings = json.dumps(None)
-            return None
         standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
         self.standings = json.dumps(standings)
+
+    def gen_last_standings(self):
+        if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+            standings = self._get_standings(True)
+            alog = self.log_set.all()[0]
+            a = alog.get_winner().playerid
+            b = alog.get_loser().playerid
+            for i in xrange(len(standings)):
+                x = standings[i]
+                if x["pid"] == b:
+                    standings.remove(x)
+                    standings.insert(0, x)
+                    break
+            for i in xrange(len(standings)):
+                x = standings[i]
+                if x["pid"] == a:
+                    standings.remove(x)
+                    standings.insert(0, x)
+                    break
+            self.standings = json.dumps(standings)
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:
@@ -422,7 +441,6 @@ class Turn(models.Model):
             if self.turn_number == 1:
                 players = Player.get_sorted_by_playerid(self.tournament)
                 random.shuffle(players)
-                print players
                 Log.create_from_players(self, players)
             else:
                 players = Player.get_sorted_by_standing(self.tournament)
@@ -460,7 +478,6 @@ class Turn(models.Model):
             j = 1
             ok = False
             while j < len(tmp2):
-                print tmp2[j]
                 if not tmp2[0].has_meeted(tmp2[j]):
                     player_pairs.append((tmp2[0], tmp2[j]))
                     tmp2.remove(tmp2[j])
@@ -471,7 +488,7 @@ class Turn(models.Model):
             if not ok:
                 player_pairs.append((tmp2[0], None))
                 tmp2.remove(tmp2[0])
-        random.shuffle(player_pairs)
+        #random.shuffle(player_pairs)
         return player_pairs
 
 
@@ -488,6 +505,8 @@ class Log(models.Model):
         3: 3
     }
     def check(self, status):
+        if self.status != 0:
+            self.delete_status()
         self.status = status
         t = timezone.now()
         self.time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
@@ -532,6 +551,20 @@ class Log(models.Model):
             return "%s and %s tied" % (self.player_a, self.player_b)
         if self.status == 4:
             return "%s byed" % self.player_a
+
+    def get_winner(self):
+        if self.status == 3:
+            return None
+        if self.status == 2:
+            return self.player_b
+        return self.player_a
+
+    def get_loser(self):
+        if self.status == 3:
+            return None
+        if self.status == 2:
+            return self.player_a
+        return self.player_b
 
     @staticmethod
     def search(a, b):

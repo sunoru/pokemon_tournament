@@ -10,7 +10,7 @@
     {% for log in logs %}
     <tr>
 		<td align="left" class="matches"><b>
-            {% if log.status == 4 %}轮空{% else %}{{ forloop.counter }}{% endif %}
+            {{ forloop.counter }}
         </b></td>
 		<td align="left" class="matches">
             {% if log.status == 1 or log.status == 4%}
@@ -19,11 +19,13 @@
                 {{ log.player_a}}
             {% endif %}
         </td>
-		<td align="center" class="matches">vs.</td>
+		<td align="center" class="matches">{% if log.status != 4 %}vs.{% endif %}</td>
 		<td align="left" class="matches">
             {% if log.status == 2 %}
                 <b>{{ log.player_b}}</b>
-            {% elif log.status != 4 %}
+            {% elif log.status == 4 %}
+                轮空
+            {% else %}
                 {{ log.player_b}}
             {% endif %}
         </td>
