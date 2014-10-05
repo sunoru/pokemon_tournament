@@ -44,14 +44,30 @@ def _get_player_by_request(request, tour):
     except Player.DoesNotExist:
         return None
 
+def _get_player_printable(sts, player):
+    if player is None:
+        return ""
+    for q in sts:
+        if q["pid"] == player.playerid:
+            return "%s (%s) %s" % (player.user.name, q["match"], q["score"])
+    return ""
 
 def _get_bracket(request, tour, has_perm, player=None, turn=None):
     temp = loader.get_template("pmtour/bracket_main.html")
     if turn is None:
         turn = tour.get_current_turn()
-    log_set = turn.log_set.all()
+    log_set = tmp_log_set = turn.log_set.all()
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
+    sts = turn.get_standing()
+    if sts is not None:
+        log_set = []
+        for logs in tmp_log_set:
+            log_set.append({
+                "player_a": _get_player_printable(sts, logs.player_a),
+                "player_b": _get_player_printable(sts, logs.player_b),
+                "status": logs.status
+            })
     cont = RequestContext(request, {
         "tour": tour, "has_perm": has_perm, "turn": turn, "logs": log_set, "player": player
     })
@@ -65,7 +81,7 @@ def _get_standings(request, tour, has_perm, player=None, turn=None):
     standings_set = turn.get_standing()
     if standings_set is not None:
         for s in standings_set:
-            s["name"] = tour.player_set.get(playerid=s["pid"])
+            s["name"] = tour.player_set.get(playerid=s["pid"]).user.name
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
     elimed = 0

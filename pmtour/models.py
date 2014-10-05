@@ -471,7 +471,7 @@ class Turn(models.Model):
             if not ok:
                 player_pairs.append((tmp2[0], None))
                 tmp2.remove(tmp2[0])
-        random.shuffle(player_pairs)
+        #random.shuffle(player_pairs)
         return player_pairs
 
 
