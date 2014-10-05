@@ -2,6 +2,7 @@
 /.idea
 /test
 db.sqlite3
-secret
-uwsgi.xml
-django_wsgi.py
+/secret
+/tests
+/uwsgi.xml
+/django_wsgi.py
