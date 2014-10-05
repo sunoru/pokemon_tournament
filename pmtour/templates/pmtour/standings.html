@@ -1,9 +1,13 @@
 {% extends "pmtour/index.html" %}
 {% block title %}{{ tour.name }} - 排行榜{% endblock %}
 {% block content %}
+    {% if tour.is_over %}
+        <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+    {% else %}
     {% if standings %}
     {{ standings }}
     {% else %}
     <p>上回合没有排行榜，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+    {% endif %}
     {% endif %}
 {% endblock %}

@@ -17,7 +17,7 @@
                     <li class="nav-header"><span>管理</span></li>
                     <li id="nav-settings"><a href="/{{ tour.alias }}/settings">设置</a></li>
                     <li id="nav-participants"><a href="/{{ tour.alias }}/participants">选手</a></li>
-                    <li id="nav-delete"><a href="/{{ tour.alias }}/delete">删除比赛</a></li>
+                    <li id="nav-delete"><a href="/{{ tour.alias }}/delete" onclick="javascript:if (confirm('您真的确定要删除吗？\n\n请确认！')==true)return true;else return false;">删除比赛</a></li>
                 {% endif %}
             </ul>
         {% endblock %}

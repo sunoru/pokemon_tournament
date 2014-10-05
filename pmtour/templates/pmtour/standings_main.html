@@ -14,7 +14,7 @@
 		<td class="table-left">{{ standing.standing }}</td>
 		<td class="table-left
 		{% if player and player.playerid == standing.pid %}text-highlight{% endif %}
-		{% if elimed and forloop.counter0 < elimed %}text-bold{% endif %}">{{ standing.name }}</td>
+		{% if forloop.counter0 < elimed %}text-bold{% endif %}">{{ standing.name }}</td>
 		<td class="table-center">{{ standing.match }} ({{ standing.score }})</td>
 		<td class="table-center">{{ standing.score }}</td>
 		<td class="table-center">{{ standing.opswin }}</td>

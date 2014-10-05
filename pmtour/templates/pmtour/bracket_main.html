@@ -1,5 +1,5 @@
 <table class="report">
-{% if has_perm %}
+{% if has_perm and turn.status == 1 %}
     <a href="/{{ tour.alias }}/check" target="_blank">检查</a>
     <form action="/{{ tour.alias }}/" method="post">
         {% csrf_token %}
@@ -13,7 +13,7 @@
             {% if log.status == 4 %}轮空{% else %}{{ forloop.counter }}{% endif %}
         </b></td>
 		<td align="left" class="matches">
-            {% if log.status == 1 %}
+            {% if log.status == 1 or log.status == 4%}
                 <b>{{ log.player_a}}</b>
             {% else %}
                 {{ log.player_a}}
@@ -28,6 +28,7 @@
             {% endif %}
         </td>
         <td>
+        {% if turn.status == 1 %}
         {% if has_perm and log.status != 4 or log.status == 0 and player == log.player_a or log.status == 0 and log.player_b and player == log.player_b %}
             <form class="controls" method="post" action="/{{ tour.alias }}/bracket/">
                 <button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>
@@ -39,6 +40,7 @@
                 <input type="hidden" name="log" value="{{ log.id }}">
                 {% csrf_token %}
             </form>
+        {% endif %}
         {% endif %}
         </td>
 	</tr>

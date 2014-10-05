@@ -10,7 +10,7 @@
     <nav aria-label="navigation" class="round-selector">
     <ul>
     {% for turn in tour.turn_set.reverse %}
-        <li><a id="round-select" href="#{{ turn.turn_number }}">{% if tour.is_over and forloop.counter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a></li>
+        <li><a id="round-select" href="#{{ turn.turn_number }}">{% if tour.is_over and forloop.revcounter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a></li>
     {% endfor %}
     </ul>
     <ul>

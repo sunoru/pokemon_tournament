@@ -52,7 +52,9 @@ def _get_bracket(request, tour, has_perm, player=None, turn=None):
     log_set = turn.log_set.all()
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
-    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "logs": log_set, "player": player})
+    cont = RequestContext(request, {
+        "tour": tour, "has_perm": has_perm, "turn": turn, "logs": log_set, "player": player
+    })
     return temp.render(cont)
 
 
@@ -67,10 +69,8 @@ def _get_standings(request, tour, has_perm, player=None, turn=None):
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
     elimed = 0
-    if tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-        turns = tour.get_option("turns")
-        if turns == turn.turn_number:
-            elimed = tour.get_option("elims")
+    if tour.on_swiss_over(turn.turn_number):
+        elimed = int(tour.get_option("elims"))
     cont = RequestContext(request, {
         "tour": tour, "has_perm": has_perm, "standings": standings_set, "player": player, "elimed": elimed
     })
@@ -113,10 +113,10 @@ def check(request, tour_id):
         return _ret_no_perm(request, tour_id)
     turn = tour.get_current_turn()
     data = turn.check_all()
-    if data is True:
+    if len(data) == 0:
         return HttpResponse("All Done")
     else:
-        return HttpResponse("%s" % data)
+        return HttpResponse("\n".join(data))
 
 
 def bracket(request, tour_id):
@@ -124,22 +124,22 @@ def bracket(request, tour_id):
     bracket_set = None
     if request.method == "POST":
         turn = tour.get_current_turn()
-        log = turn.log_set.get(id=request.POST["log"])
+        alog = turn.log_set.get(id=request.POST["log"])
         player = _get_player_by_request(request, tour)
-        if has_perm or player == log.player_a or player is not None and player == log.player_b:
+        if has_perm or player == alog.player_a or player is not None and player == alog.player_b:
             commit = request.POST["commit"]
             if commit == "1":
-                log.check(1)
-                log.save()
+                alog.check(1)
+                alog.save()
             elif commit == "2":
-                log.check(2)
-                log.save()
+                alog.check(2)
+                alog.save()
             elif commit == "3":
-                log.check(3)
-                log.save()
+                alog.check(3)
+                alog.save()
             elif commit == "4":
-                log.delete_status()
-                log.save()
+                alog.delete_status()
+                alog.save()
         bracket_set = _get_bracket(request, tour, has_perm, player, turn)
     if bracket_set is None and tour.status > 0:
         bracket_set = _get_bracket(request, tour, has_perm)
@@ -188,7 +188,14 @@ def participants(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
-
+    if has_perm and request.method == "POST":
+        if request.POST["commit"] == "exit":
+            try:
+                player = tour.player_set.get(playerid=request.POST["playerid"])
+            except Player.DoesNotExist:
+                raise Http404
+            player.exit()
+            player.save()
     temp = loader.get_template("pmtour/participants.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
     return HttpResponse(temp.render(cont))
@@ -227,6 +234,11 @@ def discussion(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
+INVALID_LIST = {
+    "admin",
+    "django_admin",
+    "accounts"
+}
 
 def settings(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
@@ -236,11 +248,12 @@ def settings(request, tour_id):
     status = 0
     tm = str(timezone.localtime(tour.start_time).replace(tzinfo=None)).replace(' ', 'T')
     if request.method == "POST":
-        print request.POST
         try:
-            if request.POST["tour_alias"] != tour.alias and not tour.alias_unique(request.POST["tour_alias"]):
-                status = 2
-                raise Exception
+            if request.POST["tour_alias"] != tour.alias:
+                if not tour.alias_unique(request.POST["tour_alias"]) or request.POST["tour_alias"] in INVALID_LIST:
+                    raise Tournament.InvalidAliasError
+            if tour.is_over():
+                raise Tournament.TourOverError
             tour.name = request.POST["tour_name"]
             tour.alias = request.POST["tour_alias"]
             tour.tournament_type = request.POST["tour_type"]
@@ -253,12 +266,17 @@ def settings(request, tour_id):
                 tour.set_option("elims", request.POST["tour_elims"])
             tour.save()
             status = 1
-        except Exception as e:
-            print e
+        except Tournament.InvalidAliasError:
+            status = 2
+        except Tournament.TourOverError:
+            status = 3
+        except:
             status = -1
     mj = json.loads(tour.remarks)
     temp = loader.get_template("pmtour/settings.html")
-    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "status": status, "remarks": mj, "starttime": tm})
+    cont = RequestContext(request, {
+        "tour": tour, "has_perm": has_perm, "status": status, "remarks": mj, "starttime": tm
+    })
     return HttpResponse(temp.render(cont))
 
 
