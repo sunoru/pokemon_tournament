@@ -68,7 +68,6 @@ class Tournament(models.Model):
         if self.is_over():
             return self.turn_set.last()
         else:
-            print self.turn_set.all()
             return self.turn_set.get(turn_number=self.status)
 
     def get_last_turn(self):
@@ -106,7 +105,6 @@ class Tournament(models.Model):
         self.status = 0
 
     def _should_end(self):
-        print self.player_set.filter(eliminated=False).all()
         if self.tournament_type == Tournament.SWISS:
             return self.status >= self.get_option("turns")
         return self.player_set.filter(eliminated=False).count() == 1
@@ -147,6 +145,9 @@ class Tournament(models.Model):
         return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and self.get_option("turns") <= turn_number
 
     def stop(self):
+        turn = self.get_current_turn()
+        turn.gen_standings()
+        turn.save()
         self.set_option("champion", self.get_current_champion().playerid)
         self.set_option("total_turns", self.status)
         self.status = -3
@@ -391,7 +392,10 @@ class Turn(models.Model):
         self.status = 1
 
     def end(self):
-        self.gen_standings()
+        if self.type != Tournament.SINGLE:
+            self.gen_standings()
+        else:
+            self.standings = json.dumps(None)
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE and\
                 self.turn_number == self.tournament.get_option("turns"):
             lp = self.tournament.get_option("elims")
@@ -403,11 +407,9 @@ class Turn(models.Model):
         self.status = -1
 
     def gen_standings(self):
-        if self.turn_number == self.tournament.get_option("total_turns") or self.type != Tournament.SINGLE:
-            standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
-            self.standings = json.dumps(standings)
-            return
-        self.standings = json.dumps(None)
+        print self.turn_number
+        standings = self._get_standings(self.tournament.on_swiss_over(self.turn_number))
+        self.standings = json.dumps(standings)
 
     def gen_bracket(self):
         if self.type == Tournament.SINGLE:
@@ -421,7 +423,6 @@ class Turn(models.Model):
             if self.turn_number == 1:
                 players = Player.get_sorted_by_playerid(self.tournament)
                 random.shuffle(players)
-                print players
                 Log.create_from_players(self, players)
             else:
                 players = Player.get_sorted_by_standing(self.tournament)
@@ -459,7 +460,6 @@ class Turn(models.Model):
             j = 1
             ok = False
             while j < len(tmp2):
-                print tmp2[j]
                 if not tmp2[0].has_meeted(tmp2[j]):
                     player_pairs.append((tmp2[0], tmp2[j]))
                     tmp2.remove(tmp2[j])
