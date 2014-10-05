@@ -50,7 +50,7 @@ label{
 }
 
 .controls{
-    margin-left: 180px;
+    /*margin-left: 180px;*/
 }
 
 .filtered{
@@ -148,8 +148,23 @@ tr:nth-of-type(even){
 /*some css for log.html*/
 #logtable-main{
     margin: auto;
-    width: 960px;
+    width: 1024px;
     background: #EBEBEB;
     font-family: '微软雅黑'!important;
     border: 1px #E5E5EE solid;
+}
+
+#logtabel-menu{
+     width: 100px;
+    height: 100px;"
+}
+
+#logtabel-menu > div{
+    width: 100px;
+    height: 100%;
+    top: 0px;
+}
+
+#result-bracket{
+    text-align:left;
 }
