@@ -3,6 +3,7 @@ from django.db import models
 import accounts.models
 import datetime
 import json
+import random
 from django.utils import timezone
 
 
@@ -105,7 +106,6 @@ class Tournament(models.Model):
             tournament=self,
             turn_number=turn_number,
             standings="",
-            bracket="",
             type=self._get_type(turn_number),
             status=0
         )
@@ -140,6 +140,14 @@ class Player(models.Model):
     eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
+
+    @classmethod
+    def create(cls, **kwargs):
+        player = cls.objects.create(**kwargs)
+        if player.late:
+            player.loses += player.tournament.status
+            player.save()
+        return player
 
     def __unicode__(self):
         return "%s (%s) %s" % (self.user.name, self.get_printable(), self.score)
@@ -200,6 +208,12 @@ class Player(models.Model):
         if foe is not None:
             self.foes.remove(foe)
 
+    def exit(self):
+        self.exited = True
+
+    def has_meeted(self, another):
+        return another in self.foes.all()
+
     @staticmethod
     def _by_playerid(a, b):
         if a.playerid > b.playerid:
@@ -214,10 +228,10 @@ class Player(models.Model):
             return -1
 
     @classmethod
-    def _get_sorted(cls, tour, key, **kwargs):
+    def _get_sorted(cls, tour, compare, **kwargs):
         players = tour.player_set.filter(**kwargs)
         players = [x for x in players]
-        players.sort(key=key)
+        players.sort(cmp=compare)
         return players
 
     @classmethod
@@ -255,38 +269,38 @@ class Turn(models.Model):
     @staticmethod
     def _compare(a, b):
         if a.late and not b.late:
-            return False
+            return -1
         if not a.late and b.late:
-            return True
+            return 1
         if a.score > b.score:
-            return True
+            return 1
         if a.score < b.score:
-            return False
+            return -1
         ta = a.get_opponents_wp()
         tb = b.get_opponents_wp()
         if ta > tb:
-            return True
+            return 1
         if ta < tb:
-            return False
+            return -1
         ta = a.get_opps_opps_wp()
         tb = b.get_opps_opps_wp()
         if ta > tb:
-            return True
+            return 1
         if ta < tb:
-            return False
+            return -1
         ta = Log.search(a, b)
         if ta is not None:
             if ta.status == 1:
-                return True
+                return 1
             elif ta.status == 2:
-                return False
+                return -1
         else:
             ta = Log.search(b, a)
             if ta is not None:
                 if ta.status == 1:
-                    return False
+                    return -1
                 elif ta.status == 2:
-                    return True
+                    return 1
         return Turn._compare(a.foes.last(), b.foes.last())
 
     def _get_standings(self):
@@ -339,28 +353,80 @@ class Turn(models.Model):
         elif self.type == Tournament.SWISS:
             if self.turn_number == 1:
                 players = Player.get_sorted_by_playerid(self.tournament)
+                random.shuffle(players)
+                print players
                 Log.create_from_players(self, players)
             else:
                 players = Player.get_sorted_by_standing(self.tournament)
+                player_pairs = Turn.swissshuffle(players)
+                Log.create_from_player_pairs(self, player_pairs)
                 # TODO: do it later
         else:
             raise Tournament.NoTypeError("Unknown type.")
+
+    @staticmethod
+    def swissshuffle(players):
+        tmp = []
+        p1 = -1
+        p2 = None
+        for i in xrange(len(players)):
+            if players[i].score == p1:
+                p2.append(players[i])
+            else:
+                p1 = players[i].score
+                p2 = [players[i]]
+                tmp.append(p2)
+        for i in xrange(len(tmp)):
+            random.shuffle(tmp[i])
+            k = -1
+            for j in xrange(len(tmp[i])):
+                if tmp[i][j].byes > 0:
+                    k += 1
+                    t = tmp[i][k]
+                    tmp[i][k] = tmp[i][j]
+                    tmp[i][j] = t
+        tmp2 = []
+        for p in tmp:
+            tmp2 += p
+        player_pairs = []
+        while len(tmp2) > 0:
+            j = 1
+            ok = False
+            while j < len(tmp2):
+                if not tmp[0].has_meeted(tmp2[j]):
+                    player_pairs.append((tmp2[0], tmp2[j]))
+                    tmp.remove(tmp2[j])
+                    tmp.remove(tmp2[0])
+                    ok = True
+                    break
+                j += 1
+            if not ok:
+                player_pairs.append((tmp2[i], None))
+                tmp2.remove(tmp[i])
+        random.shuffle(player_pairs)
+        return player_pairs
 
 
 class Log(models.Model):
     player_a = models.ForeignKey(Player, related_name="player_a_log")
     player_b = models.ForeignKey(Player, related_name="player_b_log", null=True)
     status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie, 4 for bye
-    time = models.DateTimeField("time")
+    time = models.DateTimeField("time", null=True)
     turn = models.ForeignKey(Turn)
 
     def check(self, status):
         self.status = status
-        self.time = timezone.now()
+        t = timezone.now()
+        self.time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
         self.player_a.set_log(status, self.player_b)
         self.player_a.save()
+        if status == 1:
+            self.player_b.set_log(2)
+        elif status == 2:
+            self.player_b.set_log(1)
+        elif status == 3:
+            self.player_b.set_log(3)
         if self.player_b is not None:
-            self.player_b.set_log(status)
             self.player_b.save()
 
     def delete_status(self):
@@ -407,20 +473,24 @@ class Log(models.Model):
             turn=turn
         )
         log.check(4)
+        log.save()
+
+    @classmethod
+    def create_from_player_pairs(cls, turn, player_pairs):
+        for pair in player_pairs:
+            p1 = pair[0]
+            p2 = pair[1]
+            if p2 is None:
+                cls.create_bye(turn, p1)
+            else:
+                cls.create_from_player(turn, p1, p2)
 
     @classmethod
     def create_from_players(cls, turn, players):
-        for i in xrange(1, len(players) / 2 + 1):
-            p1 = players[i * 2 - 1]
-            p2 = players[i * 2]
-            if p1.exited:
-                if not p2.exited:
-                    cls.create_bye(turn, p2)
-            else:
-                if p2.exted:
-                    cls.create_bye(turn, p1)
-                else:
-                    cls.create_from_player(turn, p1, p2)
+        for i in xrange(0, len(players) / 2):
+            p1 = players[i * 2]
+            p2 = players[i * 2 + 1]
+            cls.create_from_player(turn, p1, p2)
 
         if len(players) & 1 == 1:
             p1 = players[-1]

@@ -77,3 +77,7 @@ label{
 .text-highlight{
     color: red;
 }
+
+.clickable:hover{
+    cursor: pointer;
+}

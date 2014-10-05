@@ -15,12 +15,6 @@ $(document).ready(function(){
 
 window.onhashchange = function () {
     var turn_number = location.hash.substr(1);
-    $.get(turn_number+"/standings/", function(data, status){
-        if(status == "success")
-            $("#result-standings").load(data)
-    });
-    $.get(turn_number+"/bracket/", function(data, status){
-        if(status == "success")
-            $("#result-bracket").load(data)
-    });
+    $("#result-standings").load(turn_number+"/standings/");
+    $("#result-bracket").load(turn_number+"/bracket/");
 };

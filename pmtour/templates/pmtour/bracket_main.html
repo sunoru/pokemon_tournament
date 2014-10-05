@@ -1,7 +1,7 @@
 <table class="report">
 {% if has_perm %}
     <a href="/{{ tour.alias }}/check" target="_blank">检查</a>
-    <form action="/{{ tour.alias }}" method="post">
+    <form action="/{{ tour.alias }}/" method="post">
         {% csrf_token %}
         <button cls="btn" type="submit" name="commit" value="start">开始第下轮</button>
     </form>
@@ -9,18 +9,6 @@
     <tbody>
     {% for log in logs %}
     <tr>
-        {% if has_perm or log.status == 0 and player == log.player_a or log.status == 0 and log.player_b and player == log.player_b %}
-            <form class="controls" method="post" action="/{{ tour.alias }}/bracket">
-                <button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>
-                <button type="submit" name="commit" value="2">{{ log.player_a.user.name }}</button>
-                <button type="submit" name="commit" value="3">平手</button>
-                {% if has_perm %}
-                    <button type="submit" name="commit" value="4">删除记录</button>
-                {% endif %}
-                <input type="hidden" name="log" value="{{ log.id }}">
-                {% csrf_token %}
-            </form>
-        {% endif %}
 		<td align="left" class="matches"><b>
             {% if log.status == 4 %}轮空{% else %}{{ forloop.counter }}{% endif %}
         </b></td>
@@ -38,6 +26,20 @@
             {% elif log.status != 4 %}
                 {{ log.player_b}}
             {% endif %}
+        </td>
+        <td>
+        {% if has_perm and log.status != 4 or log.status == 0 and player == log.player_a or log.status == 0 and log.player_b and player == log.player_b %}
+            <form class="controls" method="post" action="/{{ tour.alias }}/bracket/">
+                <button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>
+                <button type="submit" name="commit" value="2">{{ log.player_b.user.name }}</button>
+                <button type="submit" name="commit" value="3">平手</button>
+                {% if has_perm %}
+                    <button type="submit" name="commit" value="4">删除记录</button>
+                {% endif %}
+                <input type="hidden" name="log" value="{{ log.id }}">
+                {% csrf_token %}
+            </form>
+        {% endif %}
         </td>
 	</tr>
     {% endfor %}

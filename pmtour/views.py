@@ -37,6 +37,8 @@ def _get_atour(request, tour_id):
 
 
 def _get_player_by_request(request, tour):
+    if request.user.is_anonymous():
+        return None
     try:
         return tour.player_set.get(user=request.user.playeruser)
     except Player.DoesNotExist:
@@ -59,8 +61,9 @@ def _get_standings(request, tour, has_perm, player=None, turn=None):
     if turn is None:
         turn = tour.get_last_turn()
     standings_set = turn.get_standing()
-    for s in standings_set:
-        s["name"] = tour.player_set.get(playerid=s["pid"])
+    if standings_set is not None:
+        for s in standings_set:
+            s["name"] = tour.player_set.get(playerid=s["pid"])
     if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
     elimed = 0
@@ -149,10 +152,11 @@ def standings(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     turn = tour.get_last_turn()
     standing = None
-    if turn.type == Tournament.SWISS:
+    if turn is not None and turn.type == Tournament.SWISS:
         standing = _get_standings(request, tour, has_perm, None)
     temp = loader.get_template("pmtour/standings.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "standings": standing})
+    return HttpResponse(temp.render(cont))
 
 
 def get_standings(request, tour_id, turn_number):
@@ -177,7 +181,7 @@ def log(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     temp = loader.get_template("pmtour/log.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
-    return temp.render(cont)
+    return HttpResponse(temp.render(cont))
 
 
 def participants(request, tour_id):
@@ -197,10 +201,12 @@ def add_player(request, tour_id):
 
     if request.method == "POST":
         q = request.POST.getlist("selected_players")
-        random.shuffle(q)
+        not_shuffle = request.POST.get("not_shuffle", False)
+        if not not_shuffle:
+            random.shuffle(q)
         for sp in q:
             pu = PlayerUser.objects.get(player_id=sp)
-            Player.objects.create(
+            Player.create(
                 user=pu,
                 tournament=tour,
                 playerid=tour.players_count() + 1
