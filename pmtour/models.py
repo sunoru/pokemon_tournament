@@ -354,7 +354,6 @@ class Turn(models.Model):
 #TODO:test
     def _get_standings(self, on_swiss_over=False):
         tmp = [x for x in self.tournament.player_set.all()]
-        print tmp
         if on_swiss_over:
             tmp.sort(Turn._compare2, reverse=True)
         else:
@@ -372,7 +371,6 @@ class Turn(models.Model):
                 "opsopswin": "{0:.2%}".format(tmp[i].get_opps_opps_wp()),
             }
             standings.append(p)
-        print standings
         return standings
 
     def get_standing(self):
