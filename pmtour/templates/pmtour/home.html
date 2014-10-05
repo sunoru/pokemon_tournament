@@ -29,6 +29,12 @@
             </form>
         {% endif %}
     {% else %}
+        {% if has_perm %}
+            <form action="#" method="post">
+                {% csrf_token %}
+                <button cls="btn" type="submit" name="commit" value="stop">结束比赛</button>
+            </form>
+        {% endif %}
         <h3>现在进行第{{ tour.status }}轮</h3>
         {{ bracket }}
     {% endif %}

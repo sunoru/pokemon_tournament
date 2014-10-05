@@ -61,7 +61,18 @@ class Tournament(models.Model):
         return pst.get(option_name, None)
 
     def get_current_turn(self):
-        return self.turn_set.get(turn_number=self.status)
+        if self.is_over():
+            return self.turn_set.last()
+        else:
+            return self.turn_set.get(turn_number=self.status)
+
+    def get_last_turn(self):
+        try:
+            if self.is_over():
+                return self.turn_set.last()
+            return self.turn_set.get(turn_number=self.status - 1)
+        except Turn.DoesNotExist:
+            return None
 
     def players_count(self):
         return self.player_set.count()
@@ -80,6 +91,14 @@ class Tournament(models.Model):
         else:
             raise Tournament.NoTypeError
 
+    def ready(self):
+        self.status = -1
+
+    def begin(self):
+        t = timezone.now()
+        self.start_time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
+        self.status = 0
+
     def start(self, turn_number):
         self.status = turn_number
         turn = Turn.objects.create(
@@ -95,6 +114,13 @@ class Tournament(models.Model):
     def end(self):
         turn = self.get_current_turn()
         turn.gen_standings()
+        turn.save()
+
+    def stop(self):
+        self.status = -3
+
+    def is_over(self):
+        return self.status == -3
 
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)
@@ -272,14 +298,20 @@ class Turn(models.Model):
             tmp[i].save()
             p = {
                 "standing": i + 1,
-                "name": tmp[i].user.name,
-                "match": "%s/%s/%s (%s)" % (tmp[i].wins, tmp[i].loses, tmp[i].ties, tmp[i].score),
-                "points": tmp[i].score,
+                "pid": tmp[i].playerid,
+                "match": tmp[i].get_printable(),
+                "score": tmp[i].score,
                 "opswin": "{0:.2%}".format(tmp[i].get_opponents_wp()),
                 "opsopswin": "{0:.2%}".format(tmp[i].get_opps_opps_wp()),
             }
             standings.append(p)
         return standings
+
+    def get_standing(self):
+        if self.standings == "":
+            return None
+        else:
+            return json.loads(self.standings)
 
     def check_all(self):
         rq = []

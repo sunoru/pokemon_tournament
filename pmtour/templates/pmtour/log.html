@@ -1,5 +1,23 @@
 {% extends "pmtour/index.html" %}
-{% block title %}{{ tour.name }} - 记录{% endblock %}
+{% load staticfiles %}
+{% block title %}{{ tour.name }} - 记录 - {{ turn.turn_number }}{% endblock %}
+{% block jss %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pmtour/log.js' %}"></script>
+{% endblock %}
 {% block content %}
     {# TODO: 之前各轮的记录 #}
+    <nav aria-label="navigation" class="round-selector">
+    <ul>
+    {% for turn in tour.turn_set.reverse %}
+        <li><a id="round-select" href="#{{ tour.turn_number }}">{% if tour.is_over and forloop.counter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a></li>
+    {% endfor %}
+    </ul>
+    <ul>
+        <li><a id="round-standing" class="control-hidden">排行榜</a></li>
+        <li><a id="round-bracket" class="control-hidden">对阵表</a></li>
+    </ul>
+    <div id="result-standings"></div>
+    <div id="result-bracket" class="control-hidden"></div>
+    </nav>
 {% endblock %}

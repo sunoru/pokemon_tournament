@@ -61,3 +61,19 @@ label{
 .selector{
     margin-left: 100px;
 }
+
+.table-left{
+    text-align: left;
+}
+
+.table-center{
+    text-align: center;
+}
+
+.text-bold{
+    font-weight: bold;
+}
+
+.text-highlight{
+    color: red;
+}

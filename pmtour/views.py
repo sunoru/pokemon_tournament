@@ -48,9 +48,29 @@ def _get_bracket(request, tour, has_perm, player=None, turn=None):
     if turn is None:
         turn = tour.get_current_turn()
     log_set = turn.log_set.all()
-    if player is None and not has_perm:
+    if not has_perm and player is None:
         player = _get_player_by_request(request, tour)
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "logs": log_set, "player": player})
+    return temp.render(cont)
+
+
+def _get_standings(request, tour, has_perm, player=None, turn=None):
+    temp = loader.get_template("pmtour/standings_main.html")
+    if turn is None:
+        turn = tour.get_last_turn()
+    standings_set = turn.get_standing()
+    for s in standings_set:
+        s["name"] = tour.player_set.get(playerid=s["pid"])
+    if not has_perm and player is None:
+        player = _get_player_by_request(request, tour)
+    elimed = 0
+    if tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+        turns = tour.get_option("turns")
+        if turns == turn.turn_number:
+            elimed = tour.get_option("elims")
+    cont = RequestContext(request, {
+        "tour": tour, "has_perm": has_perm, "standings": standings_set, "player": player, "elimed": elimed
+    })
     return temp.render(cont)
 
 
@@ -58,12 +78,10 @@ def home(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     if has_perm and request.method == "POST":
         if request.POST["commit"] == "ok" and tour.status == -2:
-            tour.status = -1
+            tour.ready()
             tour.save()
         elif request.POST["commit"] == "start_tour" and tour.status == -1:
-            t = timezone.now()
-            tour.start_time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
-            tour.status = 0
+            tour.begin()
             tour.save()
         elif request.POST["commit"] == "start":
             if tour.status == 0:
@@ -71,6 +89,11 @@ def home(request, tour_id):
             elif tour.status > 0:
                 tour.end()
                 tour.start(tour.status + 1)
+            tour.save()
+        elif request.POST["commit"] == "stop":
+            if tour.status > 0:
+                tour.end()
+            tour.stop()
             tour.save()
     if tour.status > 0:
         bracket_set = _get_bracket(request, tour, has_perm)
@@ -122,6 +145,41 @@ def bracket(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
+def standings(request, tour_id):
+    tour, has_perm = _get_atour(request, tour_id)
+    turn = tour.get_last_turn()
+    standing = None
+    if turn.type == Tournament.SWISS:
+        standing = _get_standings(request, tour, has_perm, None)
+    temp = loader.get_template("pmtour/standings.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "standings": standing})
+
+
+def get_standings(request, tour_id, turn_number):
+    tour, has_perm = _get_atour(request, tour_id)
+    try:
+        turn = tour.turn_set.get(turn_number=turn_number)
+    except:
+        raise 404
+    return HttpResponse(_get_standings(request, tour, has_perm, turn=turn))
+
+
+def get_bracket(request, tour_id, turn_number):
+    tour, has_perm = _get_atour(request, tour_id)
+    try:
+        turn = tour.turn_set.get(turn_number=turn_number)
+    except:
+        raise 404
+    return HttpResponse(_get_bracket(request, tour, has_perm, turn=turn))
+
+
+def log(request, tour_id):
+    tour, has_perm = _get_atour(request, tour_id)
+    temp = loader.get_template("pmtour/log.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
+    return temp.render(cont)
+
+
 def participants(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
     if not has_perm:
@@ -153,6 +211,15 @@ def add_player(request, tour_id):
     temp = loader.get_template("pmtour/add_player.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "playerusers": playerusers})
     return HttpResponse(temp.render(cont))
+
+
+# TODO: discussion
+def discussion(request, tour_id):
+    tour, has_perm = _get_atour(request, tour_id)
+    temp = loader.get_template("pmtour/discussion.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
+    return HttpResponse(temp.render(cont))
+
 
 
 def settings(request, tour_id):
