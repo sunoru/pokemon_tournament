@@ -52,6 +52,7 @@ def _get_player_printable(sts, player):
             return "%s (%s) %s" % (player.user.name, q["match"], q["score"])
     return ""
 
+
 def _get_bracket(request, tour, has_perm, player=None, turn=None):
     temp = loader.get_template("pmtour/bracket_main.html")
     if turn is None:
@@ -109,6 +110,7 @@ def home(request, tour_id):
                 tour.end()
                 tour.start(tour.status + 1)
             tour.save()
+            return redirect("bracket/")
         elif request.POST["commit"] == "stop":
             if tour.status > 0:
                 tour.end()
@@ -278,9 +280,9 @@ def settings(request, tour_id):
             tm = request.POST["tour_start_time"]
             tour.description = request.POST["tour_description"]
             if "tour_turns" in request.POST:
-                tour.set_option("turns", request.POST["tour_turns"])
+                tour.set_option("turns", int(request.POST["tour_turns"]))
             if "tour_elims" in request.POST:
-                tour.set_option("elims", request.POST["tour_elims"])
+                tour.set_option("elims", int(request.POST["tour_elims"]))
             tour.save()
             status = 1
         except Tournament.InvalidAliasError:
@@ -307,9 +309,10 @@ def delete(request, tour_id):
 
 def get_turns(request, tour_id):
     tour = _get_tour(tour_id)
-    if tour.tournament_type == Tournament.SWISS:
+    tp = int(request.GET.get("q", -1))
+    if tp == 0:
         return HttpResponse(_get_turns(tour.players_count()))
-    elif tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+    elif tp == 2:
         return HttpResponse(_get_turns_2(tour.players_count()))
     else:
         raise Http404
@@ -317,7 +320,7 @@ def get_turns(request, tour_id):
 
 def get_elims(request, tour_id):
     tour = _get_tour(tour_id)
-    if tour.tournament_type == Tournament.SWISS_PLUS_SINGLE:
+    if int(request.GET.get("q", -1)) == 2:
         return HttpResponse(_get_elims(tour.players_count()))
     else:
         raise Http404
