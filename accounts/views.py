@@ -34,8 +34,12 @@ def logout_view(request):
 
 @login_required
 def home(request):
-    return render_to_response("accounts/accounts.html", context_instance=RequestContext(request,
-        {'tours': [x for x in pmtour.models.Tournament.objects.all() if x.status >= 0]}))
+    return render_to_response("accounts/accounts.html", context_instance=RequestContext(request, {
+        'tours': [
+            x for x in pmtour.models.Tournament.objects.all()
+            if x.status >= 0 or x.status == -3 or x in request.user.playeruser.tournament_set.all()
+        ]
+    }))
 
 
 @login_required
