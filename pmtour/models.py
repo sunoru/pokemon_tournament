@@ -482,20 +482,20 @@ class Log(models.Model):
     time = models.DateTimeField("time", null=True)
     turn = models.ForeignKey(Turn)
 
+    _STATUS_DICT = {
+        1: 2,
+        2: 1,
+        3: 3
+    }
     def check(self, status):
         self.status = status
         t = timezone.now()
         self.time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
         if self.turn.type == Tournament.SWISS:
             self.player_a.set_log(status, self.player_b)
-            if status == 1:
-                self.player_b.set_log(2)
-            elif status == 2:
-                self.player_b.set_log(1)
-            elif status == 3:
-                self.player_b.set_log(3)
             self.player_a.save()
             if self.player_b is not None:
+                self.player_b.set_log(Log._STATUS_DICT[status])
                 self.player_b.save()
         elif self.turn.type == Tournament.SINGLE:
             self.player_a.set_log(status, self.player_b, False)
@@ -512,10 +512,12 @@ class Log(models.Model):
             self.player_b.save()
 
     def delete_status(self):
+        if self.status == 0 or self.status == 4:
+            return
         self.player_a.delete_log(self.status, self.player_b)
         self.player_a.save()
         if self.player_b is not None:
-            self.player_b.delete_log(self.status)
+            self.player_b.delete_log(Log._STATUS_DICT[self.status])
             self.player_b.save()
         self.status = 0
 
