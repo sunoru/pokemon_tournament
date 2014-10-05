@@ -20,7 +20,7 @@ def _get_tour(tour_id):
 
 
 def _get_perm(request, tour):
-    return not request.user.is_anonymous() and request.user.playeruser in tour.admins.all()
+    return request.user.is_staff or not request.user.is_anonymous() and request.user.playeruser in tour.admins.all()
 
 
 def _ret_no_perm(request, tour_id):

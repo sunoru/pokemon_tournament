@@ -488,6 +488,8 @@ class Log(models.Model):
         3: 3
     }
     def check(self, status):
+        if self.status != 0:
+            self.delete_status()
         self.status = status
         t = timezone.now()
         self.time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
