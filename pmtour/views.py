@@ -234,6 +234,7 @@ def add_player(request, tour_id):
                 tournament=tour,
                 playerid=tour.players_count() + 1
             )
+        tour.save()
         return redirect("/%s/participants/" % tour.alias)
 
     playerusers = PlayerUser.objects.all()

@@ -144,7 +144,7 @@ class Tournament(models.Model):
     def on_swiss_over(self, turn_number=None):
         if turn_number is None:
             turn_number = self.status
-        return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and self.get_option("turns") >= turn_number
+        return self.tournament_type == Tournament.SWISS_PLUS_SINGLE and self.get_option("turns") <= turn_number
 
     def stop(self):
         self.set_option("champion", self.get_current_champion().playerid)
