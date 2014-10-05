@@ -1,8 +1,11 @@
 *.pyc
 /.idea
 /test
-db.sqlite3
+/db.sqlite3
 /secret
 /tests
 /uwsgi.xml
 /django_wsgi.py
+/static/admin
+/static/pmtour
+/mysite/settings.py

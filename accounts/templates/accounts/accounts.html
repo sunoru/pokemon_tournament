@@ -5,7 +5,9 @@
     {% if user.playeruser %}
     <p id="player_edit"><a href="edit/{{ user.playeruser.player_id }}">编辑信息</a></p>
     <ul>
-        {% for tour in user.playeruser.tournament_set.all %}<li><a href="/{{ tour.alias }}">{{ tour.name }}</a></li>{% endfor %}
+        {#user.playeruser.tournament_set.all#}
+        {% for tour in tours %}
+        <li><a href="/{{ tour.alias }}">{{ tour.name }}</a></li>{% endfor %}
     </ul>
     {% endif %}
 {% endblock %}

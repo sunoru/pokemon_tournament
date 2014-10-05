@@ -4,13 +4,13 @@ from accounts.models import PlayerUser, Option
 import random
 
 
-def add_test_users(n):
-    for i in xrange(n):
+def add_test_users(n, m=0):
+    for i in xrange(m, n):
         pwd = "%s" % random.randint(100000, 999999)
-        user = User.objects.create(username="test%s" % (i + 1), password=pwd)
+        usr = "test%s" % (i + 1)
+        user = User.objects.create_user(usr, "%s@moon.moe" % usr, pwd)
         playeruser = PlayerUser.objects.create(user=user, name=user.username, player_id=user.username)
-        PlayerUser.objects.filter
-        print playeruser, pwd
+        print usr, pwd
 
 
 def init():
