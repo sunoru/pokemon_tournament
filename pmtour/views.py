@@ -120,6 +120,9 @@ def home(request, tour_id):
         bracket_set = _get_bracket(request, tour, has_perm)
     else:
         bracket_set = None
+    if tour.is_over():
+        bracket_set = _get_standings(request, tour, has_perm)
+
     temp = loader.get_template("pmtour/home.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "bracket": bracket_set})
     return HttpResponse(temp.render(cont))

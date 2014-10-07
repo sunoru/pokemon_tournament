@@ -11,10 +11,12 @@ $(document).ready(function(){
         $("#result-standings").addClass("control-hidden");
         $("#result-bracket").removeClass("control-hidden");
     })
+    hashChange()
 });
 
-window.onhashchange = function () {
+function hashChange() {
     var turn_number = location.hash.substr(1);
     $("#result-standings").load(turn_number+"/standings/");
     $("#result-bracket").load(turn_number+"/bracket/");
 };
+window.onhashchange = hashChange
