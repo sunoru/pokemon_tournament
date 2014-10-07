@@ -508,6 +508,7 @@ class Log(models.Model):
         2: 1,
         3: 3
     }
+
     def check(self, status):
         if self.status != 0:
             self.delete_status()

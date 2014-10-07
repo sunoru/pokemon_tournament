@@ -9,3 +9,4 @@
 /static/admin
 /static/pmtour
 /mysite/settings.py
+fixtures/
