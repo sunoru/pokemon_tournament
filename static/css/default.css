@@ -50,7 +50,7 @@ label{
 }
 
 .controls{
-    margin-left: 180px;
+    /*margin-left: 180px;*/
 }
 
 .filtered{
@@ -80,4 +80,91 @@ label{
 
 .clickable:hover{
     cursor: pointer;
+}
+
+
+
+
+
+/*button css*/
+.controls button, #tour_get_turns{
+    font-size: 100%;
+    padding: .5em 1.5em;
+    color: #444;
+    color: rgba(0,0,0,.8);
+    border: 1px solid #999;
+    border: 0 rgba(0,0,0,0);
+    background-color: #E6E6E6;
+    text-decoration: none;
+    border-radius: 2px;
+    -webkit-transition: .1s linear -webkit-box-shadow;
+    -moz-transition: .1s linear -moz-box-shadow;
+    -ms-transition: .1s linear box-shadow;
+    -o-transition: .1s linear box-shadow;
+    transition: .1s linear box-shadow;
+}
+
+/*adjust button width*/
+ .controls > button:nth-of-type(1){
+    width: 7em;
+    color: white;
+    background: rgb(202, 25, 25);
+    font-family: cursive;
+ }
+ .controls > button:nth-of-type(2){
+    width: 7em;
+    color: white;
+    background: rgb(202, 25, 25);
+    font-family: cursive;
+ }
+ .controls > button:nth-of-type(3){
+    width: 5em;
+    background: rgb(65, 138, 231);
+    font-family: cursive;
+    color: white;
+ }
+ .controls > button:nth-of-type(4){
+    width: 7em;
+
+ }
+
+
+ /*make winner shinny*/
+.matches > b{
+   text-shadow:0px 0px 0px black, 0 0 2em blue, 0 0 0.2em blue;
+   font: 1em Georgia, "Bitstream Charter", "URW Bookman L", "Century Schoolbook L", serif;
+}
+
+
+/*odd and even*/
+tr:nth-of-type(odd){
+    background-color: #f2f2f2;
+}
+tr:nth-of-type(even){
+    background-color: #ffffff;
+}
+
+
+/*some css for log.html*/
+#logtable-main{
+    margin: auto;
+    width: 1024px;
+    background: #EBEBEB;
+    font-family: '微软雅黑'!important;
+    border: 1px #E5E5EE solid;
+}
+
+#logtabel-menu{
+     width: 100px;
+    height: 100px;"
+}
+
+#logtabel-menu > div{
+    width: 100px;
+    height: 100%;
+    top: 0px;
+}
+
+#result-bracket{
+    text-align:left;
 }
