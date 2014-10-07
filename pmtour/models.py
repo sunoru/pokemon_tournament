@@ -427,6 +427,8 @@ class Turn(models.Model):
                     standings.remove(x)
                     standings.insert(0, x)
                     break
+            for i in xrange(len(standings)):
+                standings[i]["standing"] = i + 1
             self.standings = json.dumps(standings)
 
     def gen_bracket(self):
