@@ -131,8 +131,9 @@ label{
 
  /*make winner shinny*/
 .matches > b{
-   text-shadow:0px 0px 0px black, 0 0 2em blue, 0 0 0.2em blue;
-   font: 1em Georgia, "Bitstream Charter", "URW Bookman L", "Century Schoolbook L", serif;
+/*   text-shadow:0px 0px 0px black, 0 0 2em blue, 0 0 0.2em blue; */
+    font-weight: bold
+    font: 1em Georgia, "Bitstream Charter", "URW Bookman L", "Century Schoolbook L", serif;
 }
 
 
