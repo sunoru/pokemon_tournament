@@ -502,6 +502,7 @@ class Log(models.Model):
     player_a = models.ForeignKey(Player, related_name="player_a_log")
     player_b = models.ForeignKey(Player, related_name="player_b_log", null=True)
     status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie, 4 for bye
+    results = models.TextField("results")
     time = models.DateTimeField("time", null=True)
     turn = models.ForeignKey(Turn)
 
