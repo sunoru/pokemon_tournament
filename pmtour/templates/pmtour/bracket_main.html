@@ -48,7 +48,7 @@
 
                 <button type="submit" name="commit" value="3">平手</button>
                 {% if has_perm %}
-                    <button type="submit" name="commit" value="4">修改结果</button>
+                    <button type="submit" name="commit" value="4">撤销结果</button>
                 {% endif %}
                 <input type="hidden" name="log" value="{{ log.id }}">
                 {% csrf_token %}

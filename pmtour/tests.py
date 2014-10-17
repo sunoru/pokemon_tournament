@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from accounts.models import PlayerUser, Option
+import datetime
 import random
 
 
@@ -16,15 +17,5 @@ def add_test_users(n, m=0):
 def init():
     Option.objects.create(option_name="uid", option_value="-1")
     playeruser = PlayerUser.objects.create(user=User.objects.all()[0], name="admin", player_id="root")
-    import getpass
-    usr = raw_input("Username: ")
-    email = raw_input("Email(default: %s@moon.moe): " % usr)
-    if email == "":
-        email = "%s@moon.moe" % usr
-    pas = getpass.getpass()
-    newuser = User.objects.create_superuser(usr, email, pas)
-    print "add new superuser: %s" % newuser
     num = input("the number of test players: ")
     add_test_users(num)
-
-
