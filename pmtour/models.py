@@ -411,7 +411,7 @@ class Turn(models.Model):
 
     def gen_last_standings(self):
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-            standings = self._get_standings(True)
+            standings = self.tournament.turn_set.get(turn_number=self.tournament.get_option("turns")).standings
             alog = self.log_set.all()[0]
             a = alog.get_winner().playerid
             b = alog.get_loser().playerid
