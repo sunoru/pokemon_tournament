@@ -1,4 +1,5 @@
 *.pyc
+*.json
 /.idea
 /test
 /db.sqlite3

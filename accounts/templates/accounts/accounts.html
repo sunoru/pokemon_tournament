@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 {% block title %}个人中心{% endblock %}
 {% block body %}
+    {% if user.is_staff %}
     <p id="new_tour"><a href="create">新建比赛</a></p>
+    {% endif %}
     {% if user.playeruser %}
     <p id="player_edit"><a href="edit/{{ user.playeruser.player_id }}">编辑信息</a></p>
     <ul>

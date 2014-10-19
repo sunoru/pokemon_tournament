@@ -6,7 +6,10 @@
     <script type="text/javascript" src="{% static 'pmtour/participants.js' %}"></script>
 {% endblock %}
 {% block content %}
-    {% if not tour.is_over %}<a href="add">添加选手</a>{% endif %}
+    {% if not tour.is_over %}
+        <p><a href="add">添加选手</a></p>
+        <p><a href="add_test">添加测试选手</a></p>
+    {% endif %}
     <ul>
     {% for player in tour.player_set.all %}
         <li>{{ player.playerid }} - {{ player }}

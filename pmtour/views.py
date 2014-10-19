@@ -44,6 +44,7 @@ def _get_player_by_request(request, tour):
     except Player.DoesNotExist:
         return None
 
+
 def _get_player_printable(sts, player):
     if player is None:
         return ""
@@ -248,6 +249,15 @@ def add_player(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
+def export(request, tour_id):
+    tour, has_perm = _get_atour(request, tour_id)
+    if tour.is_over():
+        return HttpResponse(tour.dumpdata())
+    temp = loader.get_template("pmtour/participants.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
+    return redirect("/%s/participants/" % tour.alias)
+
+
 # TODO: discussion
 def discussion(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
@@ -261,6 +271,7 @@ INVALID_LIST = {
     "django_admin",
     "accounts"
 }
+
 
 def settings(request, tour_id):
     tour, has_perm = _get_atour(request, tour_id)
