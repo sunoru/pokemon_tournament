@@ -4,7 +4,7 @@
 /db.sqlite3
 /secret
 /tests
-/uwsgi.xml
+/uwsgi_pm.xml
 /django_wsgi.py
 /static/admin
 /static/pmtour
