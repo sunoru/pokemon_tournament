@@ -10,9 +10,9 @@
     <tbody>
         <tr>
 		<th scope="col"><strong>场次</strong></th>
-		<th scope="col"><strong>队伍A(胜/负/平)积分</strong></th>
+		<th scope="col"><strong>选手A(胜/负/平)积分</strong></th>
 		<th scope="col"><strong></strong></th>
-		<th scope="col"><strong>队伍B(胜/负/平)积分</strong></th>
+		<th scope="col"><strong>选手B(胜/负/平)积分</strong></th>
         <th scope="col"><strong></strong></th>
 	</tr>
     {% for log in logs %}
@@ -43,8 +43,8 @@
             <form class="controls" method="post" action="/{{ tour.alias }}/bracket/">
                 <!--<button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>-->
                 <!--<button type="submit" name="commit" value="2">{{ log.player_b.user.name }}</button>-->
-                <button type="submit" name="commit" value="1">队伍A胜</button>
-                <button type="submit" name="commit" value="2">队伍B胜</button>
+                <button type="submit" name="commit" value="1">A胜</button>
+                <button type="submit" name="commit" value="2">B胜</button>
 
                 <button type="submit" name="commit" value="3">平手</button>
                 {% if has_perm %}

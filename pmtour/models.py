@@ -55,6 +55,59 @@ class Tournament(models.Model):
         tour.admins.add(admin)
         return tour
 
+    def dumpdata(self):
+        data = {
+            "name": self.name,
+            "alias": self.alias,
+            "tournament_type": self.tournament_type,
+            "start_time": self.start_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            "description": self.description,
+            "remarks": self.remarks,
+        }
+        players = []
+        for player in self.player_set.all():
+            aplayer = {
+                "playerid": player.playerid,
+                "wins": player.wins,
+                "loses": player.loses,
+                "ties": player.ties,
+                "byes": player.byes,
+                "foes": json.dumps([x.playerid for x in player.foes.all()]),
+                "stading": player.standing,
+                "late": player.late,
+                "eliminated": player.eliminated,
+                "exited": player.exited,
+                "score": player.score
+            }
+            players.append(aplayer)
+        data["players"] = players
+        turns = []
+        for turn in self.turn_set.all():
+            aturn = {
+                "turn_number": turn.turn_number,
+                "standings": turn.standings,
+                "type": turn.type,
+            }
+            logs = []
+            for tlog in turn.log_set.all():
+                alog = {
+                    "player_a": tlog.player_a.playerid,
+                    "player_b": tlog.player_b.playerid if tlog.player_b is not None else None,
+                    "status": tlog.status,
+                    "results": tlog.results,
+                    "time": tlog.time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                }
+                logs.append(alog)
+            aturn["logs"] = logs
+            turns.append(aturn)
+        data["turns"] = turns
+        return json.dumps(data)
+
+    @classmethod
+    def loaddata(cls):
+        #TODO: load data here
+        pass
+
     def set_option(self, option_name, option_value=None):
         pst = json.loads(self.remarks)
         pst[option_name] = option_value
@@ -411,7 +464,7 @@ class Turn(models.Model):
 
     def gen_last_standings(self):
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-            standings = self._get_standings(True)
+            standings = self.tournament.turn_set.get(turn_number=self.tournament.get_option("turns")).standings
             alog = self.log_set.all()[0]
             a = alog.get_winner().playerid
             b = alog.get_loser().playerid
