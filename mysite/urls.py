@@ -6,5 +6,6 @@ admin.autodiscover()
 urlpatterns = patterns('',
                        url(r'^$', 'pmtour.views.home', name='home'),
                        url(r'^admin/', include(admin.site.urls)),
+                       url(r'^(.*)/', 'pmtour.views.tour', name='tour'),
 )
 
