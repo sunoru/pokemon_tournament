@@ -1,0 +1,74 @@
+{% extends "pmtour/index.html" %}
+{% load staticfiles %}
+{% block title %}{{ tour.name }} - 比赛设定{% endblock %}
+{% block jss %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pmtour/settings.js' %}"></script>
+{% endblock %}
+{% block content %}
+    {% if status == 1 %}
+        <p class="message">保存成功</p>
+    {% elif status == 2 %}
+        <p class="message">URL非法</p>
+    {% elif status == 3 %}
+        <p class="message">比赛已经结束！</p>
+    {% elif status == -1 %}
+        <p class="message">未知错误</p>
+    {% endif %}
+    <form accept-charset="UTF-8" action="#" class="form-horizontal" id="settings_form" method="post">
+        <div class="control-group">
+            <label class="control-label" for="tour_name">名称</label>
+            <div class="controls">
+                <input type="text" name="tour_name" id="tour_name" class="input" value="{{ tour.name }}" size="20">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="tour_alias">URL</label>
+            <div class="controls">
+                <span>http://pm.moon.moe/</span><input type="text" name="tour_alias" id="tour_alias" class="input" value="{{ tour.alias }}" size="20">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="tour_type">赛制</label>
+            <div class="controls">
+                <select id="tour_type" name="tour_type">
+                    <option value="swiss" {% if tour.tournament_type == "swiss" %}selected="true"{% endif %}>瑞士轮</option>
+                    <option value="single" {% if tour.tournament_type == "single" %}selected="true"{% endif %}>淘汰赛</option>
+                    <option value="swiss_single" {% if tour.tournament_type == "swiss_single" %}selected="true"{% endif %}>瑞士轮+淘汰赛</option>
+                </select>
+            </div>
+        </div>
+        <div class="control-group{% if tour.tournament_type == "single" %} control-disabled{% endif %}" id="control-turns">
+            <label class="control-label" for="tour_turns">轮数</label>
+            <div class="controls">
+                <input type="text" name="tour_turns" id="tour_turns" class="input" size="20"{% if tour.tournament_type == "single" %} disabled="true"{% endif %} value="{{ remarks.turns }}">
+                <input type="button" id="tour_get_turns" value="帮我选择">
+            </div>
+        </div>
+        <div class="control-group{% if tour.tournament_type != "swiss_single" %} control-disabled{% endif %}" id="control-elims">
+            <label class="control-label" for="tour_elims">淘汰赛人数</label>
+            <div class="controls">
+                <input type="text" name="tour_elims" id="tour_elims" class="input" size="20"{% if tour.tournament_type != "swiss_single" %} disabled="true"{% endif %} value="{{ remarks.elims }}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="tour_start_time">开始时间</label>
+            <div class="controls">
+                <input type="datetime-local" name="tour_start_time" id="tour_start_time" value="{{ starttime }}">
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="tour_description">比赛描述</label>
+            <div class="controls">
+                <textarea name="tour_description" id="tour_description" class="input" size="20">{{ tour.description }}</textarea>
+            </div>
+        </div>
+        <div class="control-group">
+            <div class="controls">
+                <button type="submit" class="btn">保存设置</button>
+            </div>
+        </div>
+        <input id="tour_id" type="hidden" value="{{ tour.tour_id }}">
+        {% csrf_token %}
+    </form>
+{% endblock %}

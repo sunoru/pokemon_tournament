@@ -1,0 +1,25 @@
+{% extends "pmtour/index.html" %}
+{% load staticfiles %}
+{% block title %}{{ tour.name }} - 选手设定{% endblock %}
+{% block jss %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pmtour/participants.js' %}"></script>
+{% endblock %}
+{% block content %}
+    {% if not tour.is_over %}
+        <p><a href="add">添加选手</a></p>
+        <p><a href="add_test">添加测试选手</a></p>
+    {% endif %}
+    <ul>
+    {% for player in tour.player_set.all %}
+        <li>{{ player.playerid }} - {{ player }}
+            {% if has_perm and not tour.is_over %}
+            <form method="post" action="#">
+                <button type="submit" name="commit" value="exit">退出比赛</button>
+                <input type="hidden" name="playerid" value="{{ player.playerid }}">
+                {% csrf_token %}
+            </form>
+        {% endif %}</li>
+    {% endfor %}
+    </ul>
+{% endblock %}

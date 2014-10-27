@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block body %}
+    <div id="container">
+        <div id="content">
+            <h2>{{ tour.name }}</h2>
+            {% block content %}{% endblock %}
+        </div>
+        <div id="sidebar">
+        {% block sidebar %}
+            <ul class="nav">
+                <li id="nav-home"><a href="/{{ tour.alias }}">比赛主页</a></li>
+                <li id="nav-bracket"><a href="/{{ tour.alias }}/bracket">对阵表</a></li>
+                <li id="nav-standings"><a href="/{{ tour.alias }}/standings">排行榜</a></li>
+                <li id="nav-discussion"><a href="/{{ tour.alias }}/discussion">讨论区</a></li>
+                <li id="nav-log"><a href="/{{ tour.alias }}/log">记录</a></li>
+                {% if has_perm %}
+                    <li class="nav-header"><span>管理</span></li>
+                    <li id="nav-settings"><a href="/{{ tour.alias }}/settings">设置</a></li>
+                    <li id="nav-participants"><a href="/{{ tour.alias }}/participants">选手</a></li>
+                    <li id="nav-export"><a href="/{{ tour.alias }}/export">导出比赛</a></li>
+                    <li id="nav-delete"><a href="/{{ tour.alias }}/delete" onclick="javascript:if (confirm('您真的确定要删除吗？\n\n请确认！')==true)return true;else return false;">删除比赛</a></li>
+                {% endif %}
+            </ul>
+        {% endblock %}
+        </div>
+    </div>
+{% endblock %}

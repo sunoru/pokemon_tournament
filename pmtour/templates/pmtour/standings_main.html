@@ -1,0 +1,28 @@
+{% if standings %}
+<table class="report border pure-table pure-table-horizontal">
+    <tbody>
+    <tr>
+		<th scope="col"><strong>排名</strong></th>
+		<th scope="col"><strong>名字</strong></th>
+		<th scope="col"><strong>比赛记录</strong></th>
+		<th scope="col"><strong>得分</strong></th>
+		<th scope="col"><strong>对手的胜率</strong></th>
+		<th scope="col"><strong>对手的对手的胜率</strong></th>
+	</tr>
+    {% for standing in standings %}
+    <tr>
+		<td class="table-left">{{ standing.standing }}</td>
+		<td class="table-left
+		{% if player and player.playerid == standing.pid %}text-highlight{% endif %}
+		{% if forloop.counter0 < elimed %}text-bold{% endif %}">{{ standing.name }}</td>
+		<td class="table-center">{{ standing.match }} ({{ standing.score }})</td>
+		<td class="table-center">{{ standing.score }}</td>
+		<td class="table-center">{{ standing.opswin }}</td>
+		<td class="table-center">{{ standing.opsopswin }}</td>
+	</tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+    <p>没有排行榜。</p>
+{% endif %}

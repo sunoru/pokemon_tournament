@@ -1,0 +1,44 @@
+{% extends "pmtour/index.html" %}
+{% block title %}{{ tour.name }}{% endblock %}
+{% block content %}
+    {% if tour.is_over %}
+        <h3>冠军：{{ tour.get_current_champion }}</h3>
+        {{ bracket }}
+        <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+    {% elif tour.status == -2 %}
+        {% if has_perm %}
+            <p>快去<a href="settings">设置页</a>完善比赛信息~</p>
+            <form action="#" method="post">
+                {% csrf_token %}
+                <button cls="btn" type="submit" name="commit" value="ok">准备完毕</button>
+            </form>
+        {% else %}
+            <p>比赛还在准备中……</p>
+        {% endif %}
+    {% elif tour.status == -1 %}
+        <p>比赛还没有开始……</p>
+        {% if has_perm %}
+            <form action="#" method="post">
+                {% csrf_token %}
+                <button cls="btn" type="submit" name="commit" value="start_tour">提前开始</button>
+            </form>
+        {% endif %}
+    {% elif tour.status == 0 %}
+        <p>比赛即将开始……</p>
+        {% if has_perm %}
+            <form action="#" method="post">
+                {% csrf_token %}
+                <button cls="btn" type="submit" name="commit" value="start">开始第一轮</button>
+            </form>
+        {% endif %}
+    {% else %}
+        {% if has_perm %}
+            <form action="#" method="post">
+                {% csrf_token %}
+                <button cls="btn" type="submit" name="commit" value="stop">结束比赛</button>
+            </form>
+        {% endif %}
+        <h3>现在进行第{{ tour.status }}轮</h3>
+        {{ bracket }}
+    {% endif %}
+{% endblock %}
