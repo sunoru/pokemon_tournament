@@ -139,7 +139,6 @@ class Tournament(models.Model):
 
     def get_available_playerid(self):
         playerids = [x.playerid for x in self.player_set.all()]
-        print playerids
         if len(playerids) == 0:
             return 1
         playerids.sort()
