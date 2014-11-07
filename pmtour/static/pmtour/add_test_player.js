@@ -8,4 +8,11 @@ $(document).ready(function(){
         $("#test_name")[0].value="";
         $("#test_name")[0].focus();
     });
+    document.onkeydown = function (e) {
+        var theEvent = window.event || e;
+        var code = theEvent.keyCode || theEvent.which;
+        if (code == 13) {
+            $("#add_name").click();
+        }
+}
 });

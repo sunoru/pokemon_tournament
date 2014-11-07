@@ -250,7 +250,6 @@ def add_player(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
-#TODO: add test players
 def add_test_player(request, tour_id):
     tour, has_perm = _get_a_tour(request, tour_id)
     if not has_perm:
@@ -261,16 +260,16 @@ def add_test_player(request, tour_id):
         not_shuffle = request.POST.get("not_shuffle", False)
         if not not_shuffle:
             random.shuffle(q)
-        print q
         for sp in q:
             pwd = "%s" % random.randint(100000, 999999)
-            usr = "test_%s" % sp
+            pid = tour.get_available_playerid()
+            usr = "test_%s_%s" % (tour.tour_id, pid)
             user = User.objects.create_user(usr, "%s@moon.moe" % usr, pwd)
             playeruser = PlayerUser.objects.create(user=user, name=sp, player_id=user.username)
             Player.create(
                 user=playeruser,
                 tournament=tour,
-                playerid=tour.get_available_playerid()
+                playerid=pid
             )
         tour.save()
         return redirect("/%s/participants/" % tour.alias)
@@ -327,13 +326,18 @@ def settings(request, tour_id):
             if "tour_turns" in request.POST:
                 tour.set_option("turns", int(request.POST["tour_turns"]))
             if "tour_elims" in request.POST:
-                tour.set_option("elims", int(request.POST["tour_elims"]))
+                tour_elims = int(request.POST["tour_elims"])
+                if tour_elims not in {2, 4, 8}:
+                    raise Tournament.InvalidNumberError
+                tour.set_option("elims", tour_elims)
             tour.save()
             status = 1
         except Tournament.InvalidAliasError:
             status = 2
         except Tournament.TourOverError:
             status = 3
+        except Tournament.InvalidNumberError:
+            status = 4
         except:
             status = -1
     mj = json.loads(tour.remarks)

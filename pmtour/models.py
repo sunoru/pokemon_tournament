@@ -33,6 +33,9 @@ class Tournament(models.Model):
     class InvalidAliasError(Exception):
         pass
 
+    class InvalidNumberError(Exception):
+        pass
+
     class TourOverError(Exception):
         pass
 
@@ -136,6 +139,7 @@ class Tournament(models.Model):
 
     def get_available_playerid(self):
         playerids = [x.playerid for x in self.player_set.all()]
+        print playerids
         if len(playerids) == 0:
             return 1
         playerids.sort()
@@ -224,7 +228,7 @@ class Tournament(models.Model):
 class Player(models.Model):
     user = models.ForeignKey(accounts.models.PlayerUser)
     tournament = models.ForeignKey(Tournament)
-    playerid = models.SmallIntegerField(unique=True)
+    playerid = models.SmallIntegerField()
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)
@@ -474,7 +478,7 @@ class Turn(models.Model):
 
     def gen_last_standings(self):
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-            standings = self.tournament.turn_set.get(turn_number=self.tournament.get_option("turns")).standings
+            standings = self.tournament.turn_set.get(turn_number=self.tournament.get_option("turns")).get_standing()
             alog = self.log_set.all()[0]
             a = alog.get_winner().playerid
             b = alog.get_loser().playerid
