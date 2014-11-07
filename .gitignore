@@ -1,5 +1,6 @@
 *.pyc
 *.json
+*.zip
 /.idea
 /test
 /db.sqlite3*
