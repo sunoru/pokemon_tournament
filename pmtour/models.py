@@ -73,7 +73,7 @@ class Tournament(models.Model):
                 "ties": player.ties,
                 "byes": player.byes,
                 "foes": json.dumps([x.playerid for x in player.foes.all()]),
-                "stading": player.standing,
+                "standing": player.standing,
                 "late": player.late,
                 "eliminated": player.eliminated,
                 "exited": player.exited,
@@ -131,8 +131,16 @@ class Tournament(models.Model):
         except Turn.DoesNotExist:
             return None
 
-    def players_count(self):
+    def get_players_count(self):
         return self.player_set.count()
+
+    def get_available_playerid(self):
+        playerids = [x.playerid for x in self.player_set.all()]
+        playerids.sort()
+        for u in xrange(1, len(playerids)):
+            if playerids[u] != playerids[u - 1] + 1:
+                return playerids[u - 1] + 1
+        return playerids[-1] + 1
 
     def refresh(self):
         if self.status == -1 and (
@@ -210,11 +218,10 @@ class Tournament(models.Model):
     def __unicode__(self):
         return "%s (%s) %s" % (self.name, self.status, self.start_time)
 
-
 class Player(models.Model):
     user = models.ForeignKey(accounts.models.PlayerUser)
     tournament = models.ForeignKey(Tournament)
-    playerid = models.SmallIntegerField()
+    playerid = models.SmallIntegerField(unique=True)
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)
     ties = models.SmallIntegerField(default=0)

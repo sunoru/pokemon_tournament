@@ -29,7 +29,7 @@ def _ret_no_perm(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
-def _get_atour(request, tour_id):
+def _get_a_tour(request, tour_id):
     tour = _get_tour(tour_id)
     has_perm = _get_perm(request, tour)
     tour.refresh()
@@ -96,7 +96,7 @@ def _get_standings(request, tour, has_perm, player=None, turn=None):
 
 
 def home(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if has_perm and request.method == "POST":
         if request.POST["commit"] == "ok" and tour.status == -2:
             tour.ready()
@@ -130,7 +130,7 @@ def home(request, tour_id):
 
 
 def check(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
     turn = tour.get_current_turn()
@@ -142,7 +142,7 @@ def check(request, tour_id):
 
 
 def bracket(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     bracket_set = None
     if request.method == "POST":
         turn = tour.get_current_turn()
@@ -171,7 +171,7 @@ def bracket(request, tour_id):
 
 
 def standings(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     turn = tour.get_last_turn()
     standing = None
     if turn is not None and (turn.type == Tournament.SWISS or tour.is_over()):
@@ -182,7 +182,7 @@ def standings(request, tour_id):
 
 
 def get_standings(request, tour_id, turn_number):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     try:
         turn = tour.turn_set.get(turn_number=turn_number)
     except:
@@ -191,7 +191,7 @@ def get_standings(request, tour_id, turn_number):
 
 
 def get_bracket(request, tour_id, turn_number):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     try:
         turn = tour.turn_set.get(turn_number=turn_number)
     except:
@@ -200,14 +200,14 @@ def get_bracket(request, tour_id, turn_number):
 
 
 def log(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     temp = loader.get_template("pmtour/log.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
     return HttpResponse(temp.render(cont))
 
 
 def participants(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
     if has_perm and request.method == "POST":
@@ -224,7 +224,7 @@ def participants(request, tour_id):
 
 
 def add_player(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
 
@@ -238,7 +238,7 @@ def add_player(request, tour_id):
             Player.create(
                 user=pu,
                 tournament=tour,
-                playerid=tour.players_count() + 1
+                playerid=tour.get_available_playerid()
             )
         tour.save()
         return redirect("/%s/participants/" % tour.alias)
@@ -249,18 +249,44 @@ def add_player(request, tour_id):
     return HttpResponse(temp.render(cont))
 
 
+#TODO: add test players
+def add_test_player(request, tour_id):
+    tour, has_perm = _get_a_tour(request, tour_id)
+    if not has_perm:
+        return _ret_no_perm(request, tour_id)
+
+    if request.method == "POST":
+        q = request.POST.getlist("selected_players")
+        not_shuffle = request.POST.get("not_shuffle", False)
+        if not not_shuffle:
+            random.shuffle(q)
+        for sp in q:
+            pu = PlayerUser.objects.get(player_id=sp)
+            Player.create(
+                user=pu,
+                tournament=tour,
+                playerid=tour.get_available_playerid()
+            )
+        tour.save()
+        return redirect("/%s/participants/" % tour.alias)
+
+    playerusers = PlayerUser.objects.all()
+    temp = loader.get_template("pmtour/add_test_player.html")
+    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm, "playerusers": playerusers})
+    return HttpResponse(temp.render(cont))
+
+
 def export(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if tour.is_over():
-        return HttpResponse(tour.dumpdata())
-    temp = loader.get_template("pmtour/participants.html")
-    cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
-    return redirect("/%s/participants/" % tour.alias)
+        response = HttpResponse(tour.dumpdata(), content_type='text/plain')
+        response['Content-Disposition'] = 'attachment; filename="%s.json"' % tour.alias
+        return response
 
 
 # TODO: discussion
 def discussion(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     temp = loader.get_template("pmtour/discussion.html")
     cont = RequestContext(request, {"tour": tour, "has_perm": has_perm})
     return HttpResponse(temp.render(cont))
@@ -274,7 +300,7 @@ INVALID_LIST = {
 
 
 def settings(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
 
@@ -314,7 +340,7 @@ def settings(request, tour_id):
 
 
 def delete(request, tour_id):
-    tour, has_perm = _get_atour(request, tour_id)
+    tour, has_perm = _get_a_tour(request, tour_id)
     if not has_perm:
         return _ret_no_perm(request, tour_id)
     tour.delete()
@@ -325,9 +351,9 @@ def get_turns(request, tour_id):
     tour = _get_tour(tour_id)
     tp = int(request.GET.get("q", -1))
     if tp == 0:
-        return HttpResponse(_get_turns(tour.players_count()))
+        return HttpResponse(_get_turns(tour.get_players_count()))
     elif tp == 2:
-        return HttpResponse(_get_turns_2(tour.players_count()))
+        return HttpResponse(_get_turns_2(tour.get_players_count()))
     else:
         raise Http404
 
@@ -335,7 +361,7 @@ def get_turns(request, tour_id):
 def get_elims(request, tour_id):
     tour = _get_tour(tour_id)
     if int(request.GET.get("q", -1)) == 2:
-        return HttpResponse(_get_elims(tour.players_count()))
+        return HttpResponse(_get_elims(tour.get_players_count()))
     else:
         raise Http404
 

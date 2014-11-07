@@ -2,7 +2,7 @@
 *.json
 /.idea
 /test
-/db.sqlite3
+/db.sqlite3*
 /secret
 /tests
 /uwsgi_pm.xml

@@ -1,0 +1,22 @@
+{% extends "pmtour/index.html" %}
+{% load staticfiles %}
+{% block title %}{{ tour.name }} - 添加临时选手{% endblock %}
+{% block jss %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'pmtour/add_test_player.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <div id="div_name">
+        <input type="text" id="test_name">
+        <button class="btn" id="add_name">添加</button>
+    </div>
+    <form id="test_add" action="#" method="post" accept-charset="UTF-8">
+        {% csrf_token %}
+        <div class="selector">
+            <select multiple="multiple" class="filtered" id="players_from" name="selected_players">
+
+            </select>
+        </div>
+        <button class="btn">完成</button>
+    </form>
+{% endblock %}

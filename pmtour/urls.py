@@ -15,6 +15,7 @@ urlpatterns = patterns(
     url(r'^settings/get_elims/$', 'pmtour.views.get_elims', name='get_elims'),
     url(r'^participants/$', 'pmtour.views.participants', name='participants'),
     url(r'^participants/add/$', 'pmtour.views.add_player', name='add_player'),
+    url(r'^participants/add_test/$', 'pmtour.views.add_test_player', name='add_test_player'),
     url(r'^export/$', 'pmtour.views.export', name='export'),
     url(r'^delete/$', 'pmtour.views.delete', name='delete'),
 )
