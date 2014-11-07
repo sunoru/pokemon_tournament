@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.shortcuts import loader, redirect
 from django.http import HttpResponse, Http404
 from django.template import RequestContext
@@ -260,10 +261,14 @@ def add_test_player(request, tour_id):
         not_shuffle = request.POST.get("not_shuffle", False)
         if not not_shuffle:
             random.shuffle(q)
+        print q
         for sp in q:
-            pu = PlayerUser.objects.get(player_id=sp)
+            pwd = "%s" % random.randint(100000, 999999)
+            usr = "test_%s" % sp
+            user = User.objects.create_user(usr, "%s@moon.moe" % usr, pwd)
+            playeruser = PlayerUser.objects.create(user=user, name=sp, player_id=user.username)
             Player.create(
-                user=pu,
+                user=playeruser,
                 tournament=tour,
                 playerid=tour.get_available_playerid()
             )
