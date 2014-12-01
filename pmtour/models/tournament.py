@@ -1,12 +1,16 @@
 # coding=utf-8
 from django.db import models
 from django.utils import timezone
-import accounts.models
+from accounts.models import PlayerUser, Option
 import datetime
 import json
 
 
 class Tournament(models.Model):
+    try:
+        DEfAULT_ADMIN = PlayerUser.objects.all()[0]
+    except IndexError:
+        DEfAULT_ADMIN = None
     SWISS = "swiss"
     SINGLE = "single"
     SWISS_PLUS_SINGLE = "swiss_single"
@@ -22,7 +26,7 @@ class Tournament(models.Model):
     start_time = models.DateTimeField("start time", default=datetime.datetime(2014, 10, 6, 13, 0))
     description = models.TextField("description", default="")
     status = models.SmallIntegerField("status", default=-2)
-    admins = models.ManyToManyField(accounts.models.PlayerUser)
+    admins = models.ManyToManyField(PlayerUser)
     remarks = models.TextField(default="{}")  # use for the age separated swiss, swiss plus turns, etc
     # the format for each turn
 
@@ -47,7 +51,7 @@ class Tournament(models.Model):
 
     @classmethod
     def create(cls, admin, **kwargs):
-        uid = accounts.models.Option.objects.get(option_name="uid")
+        uid = Option.objects.get(option_name="uid")
         uid.option_value = str(int(uid.option_value) + 1)
         kwargs["tour_id"] = str(100000 + int(uid.option_value))
         uid.save()
@@ -108,12 +112,22 @@ class Tournament(models.Model):
         data["turns"] = turns
         return json.dumps(data)
 
-    @staticmethod
-    def loaddata(datas):
+    @classmethod
+    def loaddata(cls, datas):
+        from pmtour.models import Player, Turn, Log
         data = json.loads(datas)
-
+        tour = cls.create(cls.DEfAULT_ADMIN)
+        tour.name = data["name"]
+        tour.alias = data["alias"]
+        tour.tournament_type = data["tournament_type"]
+        tour.start_time = data["start_time"]
+        tour.description = data["description"]
+        tour.remarks = data["remarks"]
+        players = Player.loaddata(data["players"])
+        turns = Turn.loaddata(data["turns"])
+        logs = Log.loaddata(data["logs"])
         #TODO: load data here
-        pass
+        return tour
 
     def set_option(self, option_name, option_value=None):
         pst = json.loads(self.remarks)

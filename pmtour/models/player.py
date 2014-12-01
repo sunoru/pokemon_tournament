@@ -1,11 +1,11 @@
 # coding=utf-8
 from django.db import models
-import accounts.models
+from accounts.models import PlayerUser
 from pmtour.models import Tournament
 
 
 class Player(models.Model):
-    user = models.ForeignKey(accounts.models.PlayerUser)
+    user = models.ForeignKey(PlayerUser)
     tournament = models.ForeignKey(Tournament)
     playerid = models.SmallIntegerField()
     wins = models.SmallIntegerField(default=0)
