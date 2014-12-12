@@ -114,7 +114,7 @@ class Tournament(models.Model):
         # don't use this function
         from pmtour.models import Player, Turn, Log
         data = json.loads(datas)
-        tour = cls.create(cls.DEfAULT_ADMIN)
+        tour = cls.create(cls.get_default_admin())
         tour.name = data["name"]
         tour.alias = data["alias"]
         tour.tournament_type = data["tournament_type"]
@@ -144,8 +144,9 @@ class Tournament(models.Model):
 
     @classmethod
     def get_default_admin(cls):
+        # 可以写成Property
         if not cls.DEfAULT_ADMIN:
-            DEfAULT_ADMIN = PlayerUser.objects.all()[0]
+            cls.DEfAULT_ADMIN = PlayerUser.objects.all()[0]
         return cls.DEfAULT_ADMIN
 
     def get_last_turn(self):
