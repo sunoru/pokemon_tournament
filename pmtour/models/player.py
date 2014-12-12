@@ -52,6 +52,7 @@ class Player(models.Model):
         return re
 
     def get_opponents_wp(self):
+        # 有空写成Property
         if len(self.foes.all()) == 0:
             return 0.0
         else:
@@ -62,6 +63,16 @@ class Player(models.Model):
             return 0.0
         else:
             return sum([x.get_opponents_wp() for x in self.foes.all()]) / self.foes.count()
+
+    def gen_standing_dict(self):
+        return {
+            "standing": self.standing,
+            "pid": self.playerid,
+            "match": self.get_printable(),
+            "score": self.score,
+            "opswin": "{0:.2%}".format(self.get_opponents_wp()),
+            "opsopswin": "{0:.2%}".format(self.get_opps_opps_wp()),
+        }
 
     def set_log(self, status, foe=None, scored=True):
         if status == 4:

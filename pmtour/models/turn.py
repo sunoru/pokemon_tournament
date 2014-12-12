@@ -75,15 +75,7 @@ class Turn(models.Model):
         for i in xrange(len(tmp)):
             tmp[i].standing = i + 1
             tmp[i].save()
-            p = {
-                "standing": i + 1,
-                "pid": tmp[i].playerid,
-                "match": tmp[i].get_printable(),
-                "score": tmp[i].score,
-                "opswin": "{0:.2%}".format(tmp[i].get_opponents_wp()),
-                "opsopswin": "{0:.2%}".format(tmp[i].get_opps_opps_wp()),
-            }
-            standings.append(p)
+            standings.append(tmp[i].gen_standing_dict())
         return standings
 
     def get_standing(self):
@@ -123,25 +115,29 @@ class Turn(models.Model):
         self.standings = json.dumps(standings)
 
     def gen_last_standings(self):
+        # 暂时写得太不优雅了……
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE:
-            standings = self.tournament.turn_set.get(turn_number=self.tournament.get_option("turns")).get_standing()
+            s_turn = self.tournament.get_option("turns")
+            s_elim = self.tournament.get_option("elims")
+            standings = self.tournament.turn_set.get(turn_number=s_turn).get_standing()[s_elim:]
+            for i in xrange(s_turn+1, self.turn_number):
+                the_turn = self.tournament.turn_set.get(turn_number=i)
+                tmp_standings = [x.get_loser() for x in the_turn.log_set.all()]
+                tmp_standings.sort(Turn._compare2)
+                for tp in tmp_standings:
+                    tp.standing = s_elim
+                    s_elim -= 1
+                    tp.save()
+                    standings.insert(0, tp.gen_standing_dict())
+            assert s_elim == 2
             alog = self.log_set.all()[0]
-            a = alog.get_winner().playerid
-            b = alog.get_loser().playerid
-            for i in xrange(len(standings)):
-                x = standings[i]
-                if x["pid"] == b:
-                    standings.remove(x)
-                    standings.insert(0, x)
-                    break
-            for i in xrange(len(standings)):
-                x = standings[i]
-                if x["pid"] == a:
-                    standings.remove(x)
-                    standings.insert(0, x)
-                    break
-            for i in xrange(len(standings)):
-                standings[i]["standing"] = i + 1
+            a = alog.get_loser()
+            a.standing = 2
+            a.save()
+            standings.insert(0, a.gen_standing_dict())
+            a = alog.get_winner()
+            a.standing = 1
+            standings.insert(0, a.gen_standing_dict())
             self.standings = json.dumps(standings)
 
     def gen_bracket(self):
