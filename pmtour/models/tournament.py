@@ -7,10 +7,7 @@ import json
 
 
 class Tournament(models.Model):
-    try:
-        DEfAULT_ADMIN = PlayerUser.objects.all()[0]
-    except IndexError:
-        DEfAULT_ADMIN = None
+    DEfAULT_ADMIN = None
     SWISS = "swiss"
     SINGLE = "single"
     SWISS_PLUS_SINGLE = "swiss_single"
@@ -114,6 +111,7 @@ class Tournament(models.Model):
 
     @classmethod
     def loaddata(cls, datas):
+        # don't use this function
         from pmtour.models import Player, Turn, Log
         data = json.loads(datas)
         tour = cls.create(cls.DEfAULT_ADMIN)
@@ -143,6 +141,12 @@ class Tournament(models.Model):
             return self.turn_set.last()
         else:
             return self.turn_set.get(turn_number=self.status)
+
+    @classmethod
+    def get_default_admin(cls):
+        if not cls.DEfAULT_ADMIN:
+            DEfAULT_ADMIN = PlayerUser.objects.all()[0]
+        return cls.DEfAULT_ADMIN
 
     def get_last_turn(self):
         from pmtour.models import Turn

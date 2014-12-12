@@ -127,6 +127,6 @@ def _get_elims(number):
         return 0
     elif number <= 20:
         return 4
-    elif number > 21:
+    elif number >= 21:
         return 8
 
