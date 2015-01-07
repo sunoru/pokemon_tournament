@@ -73,6 +73,8 @@ class Tournament(models.Model):
         players = []
         for player in self.player_set.all():
             aplayer = {
+                "name": player.user.name,
+                "player_id": player.user.player_id,
                 "playerid": player.playerid,
                 "wins": player.wins,
                 "loses": player.loses,
