@@ -132,7 +132,10 @@ class Log(BaseModel):
     def create_from_data(cls, turn, data):
         try:
             player_a = turn.tournament.player_set.get(playerid=data["player_a"])
-            player_b = turn.tournament.player_set.get(playerid=data["player_b"])
+            if data["player_b"]:
+                player_b = turn.tournament.player_set.get(playerid=data["player_b"])
+            else:
+                player_b = None
         except Player.DoesNotExist:
             raise cls.LoaddataError
         try:
@@ -145,7 +148,7 @@ class Log(BaseModel):
                 turn=turn
             )
         except Exception:
-            raise cls.LoaddataError
+            raise cls.LoaddataError("Error creating logs")
         return log
 
     @classmethod
@@ -171,9 +174,9 @@ class Log(BaseModel):
         for log_data in logs_data:
             try:
                 log = cls.create_from_data(turn, log_data)
-            except cls.LoaddataError:
+            except cls.LoaddataError as e:
                 cancel_load(logs)
-                return False
+                return e.message
             log.save()
             logs.append(log)
-        return True
+        return ""

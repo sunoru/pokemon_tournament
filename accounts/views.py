@@ -60,11 +60,11 @@ def load(request):
         if datas == "":
             status = -1
         else:
-            try:
+            #try:
                 tour = pmtour.models.Tournament.loaddata(datas, request.user.playeruser)
                 return redirect("/%s/" % tour.alias)
-            except pmtour.models.Tournament.LoaddataError:
-                status = -1
+            # except pmtour.models.Tournament.LoaddataError:
+            #     status = -1
     temp = loader.get_template("accounts/load.html")
     cont = RequestContext(request, {"status": status})
     return HttpResponse(temp.render(cont))

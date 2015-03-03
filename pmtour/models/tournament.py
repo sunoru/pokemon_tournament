@@ -99,11 +99,14 @@ class Tournament(BaseModel):
             raise Tournament.LoaddataError
         if not Tournament.objects.filter(alias=data["alias"]):
             tour.alias = data["alias"]
-        t = Player.loaddata(tour, data["players"])
-        p = Turn.loaddata(tour, data["turns"])
-        if not t or not p:
+        p = Player.loaddata(tour, data["players"])
+        if p:
             tour.delete()
-            raise Tournament.LoaddataError
+            raise Tournament.LoaddataError(p)
+        p = Turn.loaddata(tour, data["turns"])
+        if p:
+            tour.delete()
+            raise Tournament.LoaddataError(p)
         tour.save()
         #TODO: load data here
         return tour

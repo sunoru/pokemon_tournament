@@ -101,7 +101,7 @@ class Player(BaseModel):
                 player = cls.create_from_data(tour, player_data)
             except cls.LoaddataError:
                 cancel_load(players)
-                return False
+                return "Error creating players."
             players.append((player, player_data["foes"]))
         for player, foes_data in players:
             foes = json.loads(foes_data)
@@ -110,10 +110,10 @@ class Player(BaseModel):
                     foe = tour.player_set.get(playerid=foe_id)
                 except cls.DoesNotExist:
                     cancel_load(players)
-                    return False
+                    return "Error loading foes."
                 player.foes.add(foe)
             player.save()
-        return True
+        return False
 
 
     def __unicode__(self):

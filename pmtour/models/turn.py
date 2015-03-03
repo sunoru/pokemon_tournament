@@ -104,14 +104,15 @@ class Turn(BaseModel):
                 turn = cls.create_from_data(tour, turn_data)
             except cls.LoaddataError:
                 cancel_load(turns)
-                return False
+                return "Error creating turn."
             turns.append((turn, turn_data["logs"]))
         for turn, log_data in turns:
-            if not Log.loaddata(turn, log_data):
+            mg = Log.loaddata(turn, log_data)
+            if mg:
                 cancel_load(turns)
-                return False
+                return mg
             turn.save()
-        return True
+        return ""
 
     def _get_standings(self, on_swiss_over=False):
         #TODO:test
@@ -148,7 +149,7 @@ class Turn(BaseModel):
         if self.type != Tournament.SINGLE:
             self.gen_standings()
         else:
-            self.standings = json.dumps(None)
+            self.standings = ""
         if self.tournament.tournament_type == Tournament.SWISS_PLUS_SINGLE and\
                 self.turn_number == self.tournament.get_option("turns"):
             lp = self.tournament.get_option("elims")
