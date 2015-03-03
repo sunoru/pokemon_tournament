@@ -1,0 +1,39 @@
+.editable{
+    width: 300px
+}
+
+
+.editable .editing{
+    opacity: 0;
+    width: 0;
+    transition: opacity 1s;
+    -moz-transition: opacity 1s;
+    -webkit-transition: opacity 1s;
+    -o-transition: opacity 1s;
+    transition: width 1s;
+    -moz-transition: width 1s;
+    -webkit-transition: width 1s;
+    -o-transition: width 1s;
+}
+
+.editable:hover .editing{
+    opacity: 1;
+    width: 50px;
+}
+
+.editable .edited{
+    opacity: 1;
+    width: 50px;
+    transition: opacity 1s;
+    -moz-transition: opacity 1s;
+    -webkit-transition: opacity 1s;
+    -o-transition: opacity 1s;
+    transition: width 1s;
+    -moz-transition: width 1s;
+    -webkit-transition: width 1s;
+    -o-transition: width 1s;
+}
+
+.editable:hover .edited{
+    width: 0;
+}

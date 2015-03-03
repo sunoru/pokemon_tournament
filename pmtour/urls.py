@@ -16,6 +16,7 @@ urlpatterns = patterns(
     url(r'^participants/$', 'pmtour.views.participants', name='participants'),
     url(r'^participants/add/$', 'pmtour.views.add_player', name='add_player'),
     url(r'^participants/add_test/$', 'pmtour.views.add_test_player', name='add_test_player'),
+    url(r'^participants/edit_name/$', 'pmtour.views.edit_name', name='edit_name'),
     url(r'^export/$', 'pmtour.views.export', name='export'),
     url(r'^delete/$', 'pmtour.views.delete', name='delete'),
 )

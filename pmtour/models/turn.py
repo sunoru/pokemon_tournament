@@ -1,11 +1,11 @@
 # coding=utf-8
 from django.db import models
-from pmtour.models import Tournament, Player
 import json
 import random
+from pmtour.models import BaseModel, Tournament, Player
 
 
-class Turn(models.Model):
+class Turn(BaseModel):
     tournament = models.ForeignKey(Tournament)
     turn_number = models.SmallIntegerField("turn number")
     standings = models.TextField("standings")  # the results
@@ -64,8 +64,57 @@ class Turn(models.Model):
                     return 1
         return 0
 
-#TODO:test
+    @classmethod
+    def create_from_data(cls, tour, data):
+        try:
+            turn = cls.objects.create(
+                tournament=tour,
+                turn_number=data["turn_number"],
+                standings=data["standings"],
+                type=data["type"],
+                status=-1
+            )
+        except Exception:  # 不知道怎样写才优雅
+            raise cls.LoaddataError
+        return turn
+
+    @classmethod
+    def dumpdata(cls, tour):
+        from pmtour.models import Log
+        turns = []
+        for turn in tour.turn_set.all():
+            aturn = {
+                "turn_number": turn.turn_number,
+                "standings": turn.standings,
+                "type": turn.type,
+                "logs": Log.dumpdata(turn)
+            }
+            turns.append(aturn)
+        return turns
+
+    @classmethod
+    def loaddata(cls, tour, turns_data):
+        def cancel_load(data):
+            for p in data:
+                p[0].delete()
+        from pmtour.models import Log
+        turns = []
+        for turn_data in turns_data:
+            try:
+                turn = cls.create_from_data(tour, turn_data)
+            except cls.LoaddataError:
+                cancel_load(turns)
+                return False
+            turns.append((turn, turn_data["logs"]))
+        for turn, log_data in turns:
+            if not Log.loaddata(turn, log_data):
+                cancel_load(turns)
+                return False
+            turn.save()
+        return True
+
     def _get_standings(self, on_swiss_over=False):
+        #TODO:test
         tmp = [x for x in self.tournament.player_set.all()]
         if on_swiss_over:
             tmp.sort(Turn._compare2, reverse=True)

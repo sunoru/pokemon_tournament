@@ -1,11 +1,13 @@
 # coding=utf-8
 from django.db import models
+import json
 from accounts.models import PlayerUser
-from pmtour.models import Tournament
+from pmtour.models import BaseModel, Tournament
 
 
-class Player(models.Model):
+class Player(BaseModel):
     user = models.ForeignKey(PlayerUser)
+    name = models.CharField("name", max_length=100, default="")  # 参赛时候的名字，可以跟self.user.name不一样
     tournament = models.ForeignKey(Tournament)
     playerid = models.SmallIntegerField()
     wins = models.SmallIntegerField(default=0)
@@ -25,17 +27,97 @@ class Player(models.Model):
     @classmethod
     def create(cls, **kwargs):
         player = cls.objects.create(**kwargs)
-        if player.late:
+        if player.late and player.tournament.status > 0:
             player.loses += player.tournament.status
             player.save()
         return player
 
     @classmethod
-    def create_from_data(cls, data):
-        pass
+    def create_from_data(cls, tour, data):
+        if not data["player_id"].find("test") == -1:
+            q = PlayerUser.objects.filter(player_id=data["player_id"])
+            if q:
+                if data.get("username", data["player_id"]) == q[0].name:
+                    playeruser = q[0]
+                else:
+                    raise cls.LoaddataError("the username doesn't match to the player id.")
+            else:
+                playeruser = PlayerUser.create_existed_player(
+                    player_id=data["player_id"],
+                    name=data.get("username", data["player_id"])
+                )
+        else:
+            pid = tour.get_available_playerid()
+            playeruser = PlayerUser.create_test_player(tour, data["name"], pid)
+        player = cls.create(
+            user=playeruser,
+            name=data.get("name", data["playerid"]),
+            tournament=tour,
+            playerid=data["playerid"],
+            wins=data["wins"],
+            loses=data["loses"],
+            ties=data["ties"],
+            byes=data["byes"],
+            standing=data["standing"],
+            late=data["late"],
+            eliminated=data["eliminated"],
+            exited=data["exited"],
+            score=data["score"]
+        )
+        return player
+
+    @classmethod
+    def dumpdata(cls, tour):
+        players = []
+        for player in tour.player_set.all():
+            aplayer = {
+                "username": player.user.name,
+                "player_id": player.user.player_id,
+                "name": player.name,
+                "playerid": player.playerid,
+                "wins": player.wins,
+                "loses": player.loses,
+                "ties": player.ties,
+                "byes": player.byes,
+                "foes": json.dumps([x.playerid for x in player.foes.all()]),
+                "standing": player.standing,
+                "late": player.late,
+                "eliminated": player.eliminated,
+                "exited": player.exited,
+                "score": player.score
+            }
+            players.append(aplayer)
+        return players
+
+    @classmethod
+    def loaddata(cls, tour, players_data):
+        def cancel_load(data):
+            for p in data:
+                p[0].user.delete()
+                p[0].delete()
+        players = []
+        for player_data in players_data:
+            try:
+                player = cls.create_from_data(tour, player_data)
+            except cls.LoaddataError:
+                cancel_load(players)
+                return False
+            players.append((player, player_data["foes"]))
+        for player, foes_data in players:
+            foes = json.loads(foes_data)
+            for foe_id in foes:
+                try:
+                    foe = tour.player_set.get(playerid=foe_id)
+                except cls.DoesNotExist:
+                    cancel_load(players)
+                    return False
+                player.foes.add(foe)
+            player.save()
+        return True
+
 
     def __unicode__(self):
-        return "%s (%s) %s" % (self.user.name, self.get_printable(), self.score)
+        return "%s(%s) (%s) %s" % (self.name, self.user.name, self.get_printable(), self.score)
 
     def get_printable(self):
         return "%s/%s/%s" % (self.wins + self.byes, self.loses, self.ties)
@@ -158,3 +240,5 @@ class Player(models.Model):
             raise Tournament.NoTypeError("the number of players is wrong")
         players = [players[i - 1] for i in q if not players[i - 1].eliminated]
         return players
+
+

@@ -1,4 +1,4 @@
-{% extends "pmtour/index.html" %}
+{% extends "pmtour/base.html" %}
 {% load staticfiles %}
 {% block title %}{{ tour.name }} - 比赛设定{% endblock %}
 {% block jss %}
@@ -40,14 +40,14 @@
                 </select>
             </div>
         </div>
-        <div class="control-group{% if tour.tournament_type == "single" %} control-disabled{% endif %}" id="control-turns">
+        <div class="control-group{% if tour.tournament_type == "single" %} control-hidden{% endif %}" id="control-turns">
             <label class="control-label" for="tour_turns">轮数</label>
             <div class="controls">
                 <input type="text" name="tour_turns" id="tour_turns" class="input" size="20"{% if tour.tournament_type == "single" %} disabled="true"{% endif %} value="{{ remarks.turns }}">
                 <input type="button" id="tour_get_turns" value="帮我选择">
             </div>
         </div>
-        <div class="control-group{% if tour.tournament_type != "swiss_single" %} control-disabled{% endif %}" id="control-elims">
+        <div class="control-group{% if tour.tournament_type != "swiss_single" %} control-hidden{% endif %}" id="control-elims">
             <label class="control-label" for="tour_elims">淘汰赛人数</label>
             <div class="controls">
                 <input type="text" name="tour_elims" id="tour_elims" class="input" size="20"{% if tour.tournament_type != "swiss_single" %} disabled="true"{% endif %} value="{{ remarks.elims }}">

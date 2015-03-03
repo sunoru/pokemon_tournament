@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 import datetime
+import random
 
 
 class PlayerUser(models.Model):
@@ -14,6 +15,28 @@ class PlayerUser(models.Model):
         playeruser = cls.objects.create(**kwargs)
         if playeruser.name == "":
             playeruser.name = playeruser.user.username
+        return playeruser
+
+    @classmethod
+    def create_test_player(cls, tour, name, pid, **kwargs):
+        pwd = "%s" % random.randint(100000, 999999)
+        usr = "test_%s_%s" % (tour.tour_id, pid)
+        q = 0
+        while User.objects.filter(username=usr):
+            q += 1
+            usr = "test_%s_%s_%s" % (tour.tour_id, pid, q)
+        user = User.objects.create_user(usr, "%s@moon.moe" % usr, pwd)
+        playeruser = cls.objects.create(user=user, name=name, player_id=usr, **kwargs)
+        return playeruser
+
+    @classmethod
+    def create_existed_player(cls, player_id, name):
+        user = User.objects.create_user(player_id, "%s@moon.moe" % player_id, "%s" % random.randint(100000,999999))
+        playeruser = cls.objects.create(
+            user=user,
+            player_id=player_id,
+            name=name
+        )
         return playeruser
 
     def get_age_division(self):

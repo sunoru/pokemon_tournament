@@ -3,13 +3,14 @@
 {% block body %}
     {% if user.is_staff %}
     <p id="new_tour"><a href="create">新建比赛</a></p>
+    <p id="new_tour"><a href="load">导入比赛</a></p>
     {% endif %}
     {% if user.playeruser %}
     <p id="player_edit"><a href="edit/{{ user.playeruser.player_id }}">编辑信息</a></p>
     <ul>
         {#user.playeruser.tournament_set.all#}
         {% for tour in tours %}
-        <li><a href="/{{ tour.alias }}">{{ tour.name }}</a></li>{% endfor %}
+        <li><a href="/{{ tour.alias }}/">{{ tour.name }}</a></li>{% endfor %}
     </ul>
     {% endif %}
 {% endblock %}

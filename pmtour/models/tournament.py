@@ -1,12 +1,13 @@
 # coding=utf-8
 from django.db import models
 from django.utils import timezone
-from accounts.models import PlayerUser, Option
 import datetime
 import json
+from accounts.models import PlayerUser, Option
+from pmtour.models.bases import BaseModel
 
 
-class Tournament(models.Model):
+class Tournament(BaseModel):
     DEfAULT_ADMIN = None
     SWISS = "swiss"
     SINGLE = "single"
@@ -54,78 +55,56 @@ class Tournament(models.Model):
         uid.save()
         if "alias" not in kwargs:
             kwargs["alias"] = kwargs["tour_id"]
+            while Tournament.objects.filter(alias=kwargs["alias"]):
+                kwargs["alias"] = str(int(kwargs["alias"]) + 1)
         else:
-            if Tournament.is_unique(kwargs["alias"]):
+            if Tournament.objects.filter(alias=kwargs["alias"]):
                 raise Tournament.InvalidAliasError
         tour = cls.objects.create(**kwargs)
         tour.admins.add(admin)
         return tour
 
     def dumpdata(self):
+        from pmtour.models import Player, Turn
         data = {
-            "name": self.name,
-            "alias": self.alias,
-            "tournament_type": self.tournament_type,
-            "start_time": self.start_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-            "description": self.description,
-            "remarks": self.remarks,
+            'name': self.name,
+            'alias': self.alias,
+            'tournament_type': self.tournament_type,
+            'start_time': self.start_time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            'description': self.description,
+            'remarks': self.remarks,
+            'players': Player.dumpdata(self),
+            'turns': Turn.dumpdata(self)
         }
-        players = []
-        for player in self.player_set.all():
-            aplayer = {
-                "name": player.user.name,
-                "player_id": player.user.player_id,
-                "playerid": player.playerid,
-                "wins": player.wins,
-                "loses": player.loses,
-                "ties": player.ties,
-                "byes": player.byes,
-                "foes": json.dumps([x.playerid for x in player.foes.all()]),
-                "standing": player.standing,
-                "late": player.late,
-                "eliminated": player.eliminated,
-                "exited": player.exited,
-                "score": player.score
-            }
-            players.append(aplayer)
-        data["players"] = players
-        turns = []
-        for turn in self.turn_set.all():
-            aturn = {
-                "turn_number": turn.turn_number,
-                "standings": turn.standings,
-                "type": turn.type,
-            }
-            logs = []
-            for tlog in turn.log_set.all():
-                alog = {
-                    "player_a": tlog.player_a.playerid,
-                    "player_b": tlog.player_b.playerid if tlog.player_b is not None else None,
-                    "status": tlog.status,
-                    "results": tlog.results,
-                    "time": tlog.time.strftime("%Y-%m-%dT%H:%M:%S%z"),
-                }
-                logs.append(alog)
-            aturn["logs"] = logs
-            turns.append(aturn)
-        data["turns"] = turns
         return json.dumps(data)
 
     @classmethod
-    def loaddata(cls, datas):
+    def loaddata(cls, datas, admin=None):
         # don't use this function
-        from pmtour.models import Player, Turn, Log
+        from pmtour.models import Player, Turn
+        if not admin:
+            admin = cls.get_default_admin()
         data = json.loads(datas)
-        tour = cls.create(cls.get_default_admin())
-        tour.name = data["name"]
-        tour.alias = data["alias"]
-        tour.tournament_type = data["tournament_type"]
-        tour.start_time = data["start_time"]
-        tour.description = data["description"]
-        tour.remarks = data["remarks"]
-        players = Player.loaddata(data["players"])
-        turns = Turn.loaddata(data["turns"])
-        logs = Log.loaddata(data["logs"])
+        try:
+            tour = cls.create(
+                admin,
+                name=data["name"],
+                tournament_type=data["tournament_type"],
+                start_time=data["start_time"],
+                description=data["description"],
+                remarks=data["remarks"],
+                status=-3
+            )
+        except KeyError:
+            raise Tournament.LoaddataError
+        if not Tournament.objects.filter(alias=data["alias"]):
+            tour.alias = data["alias"]
+        t = Player.loaddata(tour, data["players"])
+        p = Turn.loaddata(tour, data["turns"])
+        if not t or not p:
+            tour.delete()
+            raise Tournament.LoaddataError
+        tour.save()
         #TODO: load data here
         return tour
 
@@ -165,7 +144,7 @@ class Tournament(models.Model):
 
     def get_available_playerid(self):
         playerids = [x.playerid for x in self.player_set.all()]
-        if len(playerids) == 0:
+        if not playerids:
             return 1
         playerids.sort()
         for u in xrange(1, len(playerids)):

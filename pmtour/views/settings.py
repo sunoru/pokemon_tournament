@@ -1,4 +1,5 @@
 # coding=utf-8
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, Http404
 from django.utils import timezone
 import json
@@ -16,6 +17,7 @@ INVALID_LIST = {
 }
 
 
+@login_required
 def settings(request, tour_id):
     tour, has_perm = get_a_tour(request, tour_id)
     if not has_perm:

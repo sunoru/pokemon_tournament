@@ -14,5 +14,5 @@ $(document).ready(function(){
         if (code == 13) {
             $("#add_name").click();
         }
-}
+    };
 });

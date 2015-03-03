@@ -38,10 +38,6 @@ label{
     margin-bottom: 20px;
 }
 
-.control-disabled{
-    display: none;
-}
-
 .control-label{
     float: left;
     text-align: right;

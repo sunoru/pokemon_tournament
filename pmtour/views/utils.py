@@ -2,6 +2,7 @@
 from django.http import HttpResponse, Http404
 from django.shortcuts import loader
 from django.template import RequestContext
+import json
 from pmtour.models import Tournament, Player
 
 
@@ -41,7 +42,7 @@ def get_player_printable(sts, player):
         return ""
     for q in sts:
         if q["pid"] == player.playerid:
-            return "%s (%s) %s" % (player.user.name, q["match"], q["score"])
+            return "%s(%s) (%s) %s" % (player.name, player.user.name, q["match"], q["score"])
     return ""
 
 
@@ -71,10 +72,16 @@ def get_standings(request, tour, has_perm, player=None, turn=None):
     temp = loader.get_template("pmtour/standings_main.html")
     if turn is None:
         turn = tour.get_last_turn()
+    if turn is None:
+        cont = RequestContext(request, {
+            "tour": tour, "has_perm": has_perm, "standings": None
+        })
+        return temp.render(cont)
     standings_set = turn.get_standing()
     if standings_set is not None:
         for s in standings_set:
-            s["name"] = tour.player_set.get(playerid=s["pid"]).user.name
+            p = tour.player_set.get(playerid=s["pid"])
+            s["name"] = "%s (%s)" % (p.name, p.user.name)
     if not has_perm and player is None:
         player = get_player_by_request(request, tour)
     elimed = 0
@@ -96,3 +103,6 @@ def ret_tempcont(request, template_path, context_dict):
     temp = loader.get_template(template_path)
     cont = RequestContext(request, context_dict)
     return HttpResponse(temp.render(cont))
+
+def ret_json_data(data):
+    return HttpResponse(json.dumps(data))

@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="control-group">
-            <label class="control-label" for="player_id">内部ID</label>
+            <label class="control-label" for="player_id">Player ID</label>
             <div class="controls">
                 <input type="text" name="player_id" id="player_id" class="input" value="{{ playeruser.player_id }}" disabled="true" size="20">
             </div>
@@ -27,6 +27,18 @@
                 <input type="date" name="player_birthday" id="player_birthday" class="input" value="{{ playeruser.birthday.isoformat }}" size="20">
             </div>
         </div>
+        {% if player_set %}
+        <div class="control-group">
+            <label class="control-label" for="joined_tournaments">曾参加比赛</label>
+            <div class="controls">
+                <ul>
+                    {% for player in player_set %}
+                    <li>{{ player.tournament.name }} - {{ player.name }} {{ player.get_printable}} {{ self.score }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        {% endif %}
         <!--<button type="submit" name="commit" value="next">保存并编辑下一个</button>-->
         <button type="submit" name="commit" value="return">保存并返回</button>
         {% csrf_token %}

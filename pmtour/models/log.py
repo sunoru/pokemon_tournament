@@ -1,14 +1,14 @@
 # coding=utf-8
 from django.db import models
 from django.utils import timezone
-from pmtour.models import Tournament, Player, Turn
+from pmtour.models import BaseModel, Tournament, Player, Turn
 
 
-class Log(models.Model):
+class Log(BaseModel):
     player_a = models.ForeignKey(Player, related_name="player_a_log")
     player_b = models.ForeignKey(Player, related_name="player_b_log", null=True)
     status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie, 4 for bye
-    results = models.TextField("results", null=True)
+    results = models.TextField("results", default="")
     time = models.DateTimeField("time", null=True)
     turn = models.ForeignKey(Turn)
 
@@ -37,15 +37,13 @@ class Log(models.Model):
             self.player_a.set_log(status, self.player_b, False)
             if status == 1:
                 self.player_b.eliminated = True
-                self.player_b.set_log(2, scored=False)
+                self.player_b.set_log(Log._STATUS_DICT[status], scored=False)
+                self.player_b.save()
             elif status == 2:
                 self.player_a.eliminated = True
-                self.player_b.set_log(1, scored=False)
-            elif status == 3:
-                # impossible
-                self.player_b.set_log(3, scored=False)
+                self.player_b.set_log(Log._STATUS_DICT[status], scored=False)
+                self.player_b.save()
             self.player_a.save()
-            self.player_b.save()
 
     def delete_status(self):
         if self.status == 0 or self.status == 4:
@@ -129,3 +127,53 @@ class Log(models.Model):
         if len(players) & 1 == 1:
             p1 = players[-1]
             cls.create_bye(turn, p1)
+
+    @classmethod
+    def create_from_data(cls, turn, data):
+        try:
+            player_a = turn.tournament.player_set.get(playerid=data["player_a"])
+            player_b = turn.tournament.player_set.get(playerid=data["player_b"])
+        except Player.DoesNotExist:
+            raise cls.LoaddataError
+        try:
+            log = cls.objects.create(
+                player_a=player_a,
+                player_b=player_b,
+                status=data["status"],
+                results=data["results"],
+                time=data["time"],
+                turn=turn
+            )
+        except Exception:
+            raise cls.LoaddataError
+        return log
+
+    @classmethod
+    def dumpdata(cls, turn):
+        logs = []
+        for tlog in turn.log_set.all():
+            alog = {
+                "player_a": tlog.player_a.playerid,
+                "player_b": tlog.player_b.playerid if tlog.player_b is not None else None,
+                "status": tlog.status,
+                "results": tlog.results,
+                "time": tlog.time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+            }
+            logs.append(alog)
+        return logs
+
+    @classmethod
+    def loaddata(cls, turn, logs_data):
+        def cancel_load(data):
+            for p in data:
+                p.delete()
+        logs = []
+        for log_data in logs_data:
+            try:
+                log = cls.create_from_data(turn, log_data)
+            except cls.LoaddataError:
+                cancel_load(logs)
+                return False
+            log.save()
+            logs.append(log)
+        return True

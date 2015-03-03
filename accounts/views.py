@@ -44,8 +44,30 @@ def home(request):
 
 @login_required
 def create(request):
+    if not request.user.is_staff:
+        raise Http404
     tour = pmtour.models.Tournament.create(request.user.playeruser)
     return redirect("/%s/" % tour.alias)
+
+
+@login_required
+def load(request):
+    if not request.user.is_staff:
+        raise Http404
+    status = 0
+    if request.method == "POST":
+        datas = request.POST.get("import_data", "")
+        if datas == "":
+            status = -1
+        else:
+            try:
+                tour = pmtour.models.Tournament.loaddata(datas, request.user.playeruser)
+                return redirect("/%s/" % tour.alias)
+            except pmtour.models.Tournament.LoaddataError:
+                status = -1
+    temp = loader.get_template("accounts/load.html")
+    cont = RequestContext(request, {"status": status})
+    return HttpResponse(temp.render(cont))
 
 
 @login_required
@@ -55,7 +77,6 @@ def edit(request):
     temp = loader.get_template("accounts/edit.html")
     cont = RequestContext(request, {"playerusers": PlayerUser.objects.all()})
     return HttpResponse(temp.render(cont))
-
 
 
 @login_required
@@ -72,7 +93,8 @@ def player_setting(request, player_id):
         playeruser.save()
         return redirect(request.POST["obj_url"])
     obj_url = request.META.get('HTTP_REFERER', "/")
+    player_set = playeruser.player_set.all()
     temp = loader.get_template("accounts/player_setting.html")
-    cont = RequestContext(request, {"playeruser": playeruser, "obj_url": obj_url})
+    cont = RequestContext(request, {"playeruser": playeruser, "obj_url": obj_url, "player_set": player_set})
     return HttpResponse(temp.render(cont))
 
