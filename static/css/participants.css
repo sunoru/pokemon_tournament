@@ -6,34 +6,21 @@
 .editable .editing{
     opacity: 0;
     width: 0;
-    transition: opacity 1s;
-    -moz-transition: opacity 1s;
-    -webkit-transition: opacity 1s;
-    -o-transition: opacity 1s;
-    transition: width 1s;
-    -moz-transition: width 1s;
-    -webkit-transition: width 1s;
-    -o-transition: width 1s;
+    transition: width 0s;
+    -moz-transition: width 0s;
+    -webkit-transition: width 0s;
+    -o-transition: width 0s;
 }
 
 .editable:hover .editing{
     opacity: 1;
     width: 50px;
-}
-
-.editable .edited{
-    opacity: 1;
-    width: 50px;
-    transition: opacity 1s;
-    -moz-transition: opacity 1s;
-    -webkit-transition: opacity 1s;
-    -o-transition: opacity 1s;
-    transition: width 1s;
-    -moz-transition: width 1s;
-    -webkit-transition: width 1s;
-    -o-transition: width 1s;
+    transition: opacity 400ms, width 400ms;
+    -moz-transition: opacity 400ms, width 400ms;
+    -webkit-transition: opacity 400ms, width 400ms;
+    -o-transition: opacity 400ms, width 400ms;
 }
 
 .editable:hover .edited{
-    width: 0;
+    display: none;
 }

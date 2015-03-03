@@ -22,10 +22,10 @@
     <ul>
     {% for player in tour.player_set.all %}
         <li>
-            <div class="editable" id="p_{{ player.playerid }}">
+            <div class="editable">
                 <span>{{ player.playerid }} - </span>
-                <span class="edited">{{ player.name }}</span>
-                <input class="editing" type="text" id="p_{{ player.playerid }}_t" value="{{ player.name }}">
+                <span class="edited" id="p_{{ player.playerid }}">{{ player.name }}</span>
+                <input class="editing" type="text" id="p_{{ player.playerid }}" value="{{ player.name }}">
                 <span>({{ player.user.name }})</span>
             {% if has_perm and not tour.is_over %}
             <form method="post" action="#">

@@ -109,4 +109,5 @@ def edit_name(request, tour_id):
             player.save()
         except Exception:
             return ret_json_data({"status": False})
-        return ret_json_data({"status": True, "name": player.name})
+        return ret_json_data({"status": True, "name": player.name, "playerid": player.playerid})
+    raise Http404
