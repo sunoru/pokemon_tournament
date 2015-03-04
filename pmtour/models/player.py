@@ -34,7 +34,7 @@ class Player(BaseModel):
 
     @classmethod
     def create_from_data(cls, tour, data):
-        if not data["player_id"].find("test") == -1:
+        if data["player_id"].find("test") == -1:
             q = PlayerUser.objects.filter(player_id=data["player_id"])
             if q:
                 if data.get("username", data["player_id"]) == q[0].name:
@@ -47,8 +47,7 @@ class Player(BaseModel):
                     name=data.get("username", data["player_id"])
                 )
         else:
-            pid = tour.get_available_playerid()
-            playeruser = PlayerUser.create_test_player(tour, data["name"], pid)
+            playeruser = PlayerUser.create_test_player(tour, data["name"], data["playerid"])
         if not data["standing"]:
             data["standing"] = ""
         player = cls.create(

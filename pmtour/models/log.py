@@ -130,6 +130,7 @@ class Log(BaseModel):
 
     @classmethod
     def create_from_data(cls, turn, data):
+        print data
         try:
             player_a = turn.tournament.player_set.get(playerid=data["player_a"])
             if data["player_b"]:
@@ -138,7 +139,7 @@ class Log(BaseModel):
                 player_b = None
         except Player.DoesNotExist:
             raise cls.LoaddataError
-        if "results" not in data:
+        if "results" not in data or not data["results"]:
             data["results"] = ""
         try:
             log = cls.objects.create(
