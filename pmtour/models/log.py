@@ -138,6 +138,8 @@ class Log(BaseModel):
                 player_b = None
         except Player.DoesNotExist:
             raise cls.LoaddataError
+        if "results" not in data:
+            data["results"] = ""
         try:
             log = cls.objects.create(
                 player_a=player_a,

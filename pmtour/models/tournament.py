@@ -85,6 +85,10 @@ class Tournament(BaseModel):
         if not admin:
             admin = cls.get_default_admin()
         data = json.loads(datas)
+        if "description" not in data:
+            data["description"] = ""
+        if "remarks" not in data:
+            data["remarks"] = ""
         try:
             tour = cls.create(
                 admin,
@@ -95,9 +99,9 @@ class Tournament(BaseModel):
                 remarks=data["remarks"],
                 status=-3
             )
-        except KeyError:
-            raise Tournament.LoaddataError
-        if not Tournament.objects.filter(alias=data["alias"]):
+        except Exception as e:
+            raise Tournament.LoaddataError(e.message)
+        if "alias" in data and not Tournament.objects.filter(alias=data["alias"]):
             tour.alias = data["alias"]
         p = Player.loaddata(tour, data["players"])
         if p:

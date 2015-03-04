@@ -66,6 +66,8 @@ class Turn(BaseModel):
 
     @classmethod
     def create_from_data(cls, tour, data):
+        if "standings" not in data or not data["standings"]:
+            data["standings"] = ""
         try:
             turn = cls.objects.create(
                 tournament=tour,

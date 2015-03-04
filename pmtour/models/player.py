@@ -49,6 +49,8 @@ class Player(BaseModel):
         else:
             pid = tour.get_available_playerid()
             playeruser = PlayerUser.create_test_player(tour, data["name"], pid)
+        if not data["standing"]:
+            data["standing"] = ""
         player = cls.create(
             user=playeruser,
             name=data.get("name", data["playerid"]),
