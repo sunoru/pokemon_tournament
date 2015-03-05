@@ -134,7 +134,7 @@ class Tournament(BaseModel):
     def get_default_admin(cls):
         # 可以写成Property
         if not cls.DEfAULT_ADMIN:
-            cls.DEfAULT_ADMIN = PlayerUser.objects.all()[0]
+            cls.DEfAULT_ADMIN = PlayerUser.objects.get(player_id="root")
         return cls.DEfAULT_ADMIN
 
     def get_last_turn(self):
