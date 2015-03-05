@@ -130,7 +130,6 @@ class Log(BaseModel):
 
     @classmethod
     def create_from_data(cls, turn, data):
-        print data
         try:
             player_a = turn.tournament.player_set.get(playerid=data["player_a"])
             if data["player_b"]:

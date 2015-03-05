@@ -14,11 +14,21 @@
 		<td class="table-left">{{ standing.standing }}</td>
 		<td class="table-left
 		{% if player and player.playerid == standing.pid %}text-highlight{% endif %}
-		{% if forloop.counter0 < elimed %}text-bold{% endif %}">{{ standing.name }}</td>
-		<td class="table-center">{{ standing.match }} ({{ standing.score }})</td>
-		<td class="table-center">{{ standing.score }}</td>
-		<td class="table-center">{{ standing.opswin }}</td>
-		<td class="table-center">{{ standing.opsopswin }}</td>
+		{% if forloop.counter0 < elimed %}text-bold{% endif %}">
+            <span class="edited" id="p_name_{{ standing.pid }}">{{ standing.name }}</span>
+        </td>
+		<td class="table-center">
+            <span class="edited" id="p_match_{{ standing.pid }}">{{ standing.match }}</span>
+        </td>
+		<td class="table-center">
+            <span class="edited" id="p_score_{{ standing.pid }}">{{ standing.score }}</span>
+        </td>
+		<td class="table-center">
+            <span class="edited" id="p_opswin_{{ standing.pid }}">{{ standing.opswin }}</span>
+        </td>
+		<td class="table-center">
+            <span class="edited" id="p_opsopswin_{{ standing.pid }}">{{ standing.opsopswin }}</span>
+        </td>
 	</tr>
     {% endfor %}
     </tbody>

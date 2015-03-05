@@ -2,8 +2,8 @@
 {% load staticfiles %}
 {% block title %}{{ tour.name }} - 选手设定{% endblock %}
 {% block jss %}
-    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
     {% if has_perm and not tour.is_over %}
+    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'pmtour/participants.js' %}"></script>
     {% endif %}
 {% endblock %}
@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="{% static "css/default.css" %}">
     <link rel="stylesheet" type="text/css" href="{% static "css/pure-min.css" %}">
     {% if has_perm and not tour.is_over %}
-    <link rel="stylesheet" type="text/css" href="{% static "css/participants.css" %}">
+    <link rel="stylesheet" type="text/css" href="{% static "css/editable.css" %}">
     {% endif %}
 {% endblock %}
 {% block content %}
