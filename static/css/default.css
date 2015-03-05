@@ -166,6 +166,10 @@ tr:nth-of-type(even){
     text-align:left;
 }
 
+.list-player{
+    width: 250px;
+}
+
 .editable .editing{
     opacity: 0;
     width: 0;

@@ -21,7 +21,7 @@
     {% endif %}
     <ul>
     {% for player in tour.player_set.all %}
-        <li>
+        <li class="list-player">
             <div class="editable">
                 <span>{{ player.playerid }} - </span>
                 <span class="edited" id="p_{{ player.playerid }}">{{ player.name }}</span>

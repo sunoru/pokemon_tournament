@@ -1,6 +1,6 @@
 .editable:hover .editing{
     opacity: 1;
-    width: 80%;
+    width: 50%;
     transition: opacity 400ms, width 400ms;
     -moz-transition: opacity 400ms, width 400ms;
     -webkit-transition: opacity 400ms, width 400ms;
