@@ -7,6 +7,15 @@
 {% endblock %}
 {% block content %}
     {# TODO: 之前各轮的记录 #}
+<div class="list-group">
+    <a href="#" class="list-group-item active">
+        记录
+    </a>
+    {% for turn in tour.turn_set.reverse %}
+    <a class ="list-group-item" id="round-select" href="#{{ turn.turn_number }}">{% if tour.is_over and forloop.revcounter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a>
+    {% endfor %}
+</div>
+
     <nav aria-label="navigation" class="round-selector">
     <table id="logtable-main">
         <tbody><tr>

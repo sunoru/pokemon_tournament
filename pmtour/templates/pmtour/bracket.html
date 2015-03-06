@@ -2,22 +2,27 @@
 {% block title %}{{ tour.name }} - 对阵表{% endblock %}
 {% block content %}
     {% if tour.is_over %}
-        <h3>冠军：{{ tour.get_current_champion }}</h3>
-        <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+
+<div class="jumbotron">
+    <h1>冠军：{{ tour.get_current_champion }}</h1>
+    <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+</div>
     {% elif tour.status == -2 %}
-        {% if has_perm %}
-            <p>快去<a href="settings">设置页</a>完善比赛信息~</p>
-            <form action="/{{ tour.alias }}/" method="post">
-                {% csrf_token %}
-                <button cls="btn" type="submit" name="commit" value="ok">准备完毕</button>
-            </form>
-        {% else %}
-            <p>比赛还在准备中……</p>
-        {% endif %}
-    {% elif tour.status <= 0 %}
-        <p>比赛还未开始</p>
+    {% if has_perm %}
+<p>快去<a href="settings">设置页</a>完善比赛信息~</p>
+<div class="jumbotron">
+    <form action="/{{ tour.alias }}/" method="post">
+        {% csrf_token %}
+        <button class="btn btn-primary" type="submit" name="commit" value="ok">准备完毕</button>
+    </form>
+</div>
     {% else %}
-        <h3>现在进行第{{ tour.status }}轮</h3>
-        {{ bracket }}
+<div class="alert alert-info">比赛还在准备中……</div>
     {% endif %}
-{% endblock %}
+    {% elif tour.status <= 0 %}
+<div class="alert alert-info">比赛还未开始</div>
+    {% else %}
+<div class="alert alert-info">现在进行第{{ tour.status }}轮</div>
+{{ bracket }}
+    {% endif %}
+    {% endblock %}

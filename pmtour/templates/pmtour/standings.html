@@ -2,14 +2,19 @@
 {% block title %}{{ tour.name }} - 排行榜{% endblock %}
 {% block content %}
     {% if tour.is_over %}
-        <h3>冠军：{{ tour.get_current_champion }}</h3>
-        {{ standings }}
-        <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+<div class="jumbotron">
+    <h3>冠军：{{ tour.get_current_champion }}</h3>
+    {{ standings }}
+    <p>比赛已经结束，请到 <a href="/{{ tour.alias }}/log">历史记录</a> 里查看</p>
+</div>
     {% else %}
     {% if standings %}
+
+<div class="jumbotron">
     {{ standings }}
+</div>
     {% else %}
-    <p>上回合没有排行榜，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
+<div class="alert alert-info">上回合没有排行榜，请到 <a href="/{{ tour.alias }}/log">历史记录</a> 里查看</div>
     {% endif %}
     {% endif %}
-{% endblock %}
+    {% endblock %}

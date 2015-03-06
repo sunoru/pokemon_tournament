@@ -1,62 +1,73 @@
-<table class="report border pure-table pure-table-horizontal">
 {% if has_perm and turn.status == 1 %}
 
-    <form action="/{{ tour.alias }}/" method="post">
-        {% csrf_token %}
-        <button cls="btn" type="submit" name="commit" value="start">开始第下轮</button>
-    </form>
-       <a href="/{{ tour.alias }}/check" target="_blank">检查</a>
-{% endif %}
-    <tbody>
-        <tr>
-		<th scope="col"><strong>场次</strong></th>
-		<th scope="col"><strong>选手A(胜/负/平)积分</strong></th>
-		<th scope="col"><strong></strong></th>
-		<th scope="col"><strong>选手B(胜/负/平)积分</strong></th>
-        <th scope="col"><strong></strong></th>
-	</tr>
-    {% for log in logs %}
-    <tr>
-		<td align="left" class="matches">
-            {{ forloop.counter }}
-        </td>
-		<td align="left" class="matches">
-            {% if log.status == 1 or log.status == 4%}
-                <b>{{ log.player_a}}</b>
-            {% else %}
-                {{ log.player_a}}
-            {% endif %}
-        </td>
-		<td align="center" class="matches">{% if log.status != 4 %}vs.{% endif %}</td>
-		<td align="left" class="matches">
-            {% if log.status == 2 %}
-                <b>{{ log.player_b}}</b>
-            {% elif log.status == 4 %}
-                轮空
-            {% else %}
-                {{ log.player_b}}
-            {% endif %}
-        </td>
-        <td>
-        {% if turn.status == 1 %}
-        {% if has_perm and log.status != 4 or log.status == 0 and player == log.player_a or log.status == 0 and log.player_b and player == log.player_b %}
-            <form class="controls" method="post" action="/{{ tour.alias }}/bracket/">
-                <!--<button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>-->
-                <!--<button type="submit" name="commit" value="2">{{ log.player_b.user.name }}</button>-->
-                <button type="submit" name="commit" value="1">A胜</button>
-                <button type="submit" name="commit" value="2">B胜</button>
 
-                <button type="submit" name="commit" value="3">平手</button>
-                {% if has_perm %}
-                    <button type="submit" name="commit" value="4">撤销结果</button>
-                {% endif %}
-                <input type="hidden" name="log" value="{{ log.id }}">
-                {% csrf_token %}
-            </form>
-        {% endif %}
-        {% endif %}
-        </td>
-	</tr>
-    {% endfor %}
-    </tbody>
-</table>
+{% endif %}
+<div class="panel panel-primary">
+    <div class="panel-body">
+        <form action="/{{ tour.alias }}/" method="post">
+            {% csrf_token %}
+            <a class="btn btn-primary pull-right" href="/{{ tour.alias }}/check" target="_blank">检查</a>
+            <button class="btn btn-success" type="submit" name="commit" value="start">开始下一轮</button>
+        </form>
+
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col"><strong>场次</strong></th>
+                <th scope="col"><strong>选手A(胜/负/平)积分</strong></th>
+                <th scope="col"><strong></strong></th>
+                <th scope="col"><strong>选手B(胜/负/平)积分</strong></th>
+                <th scope="col"><strong></strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td align="left" class="matches">
+                    {{ forloop.counter }}
+                </td>
+                <td align="left" class="matches">
+                    {% if log.status == 1 or log.status == 4%}
+                    <b>{{ log.player_a}}</b>
+                    {% else %}
+                    {{ log.player_a}}
+                    {% endif %}
+                </td>
+                <td align="center" class="matches">{% if log.status != 4 %}vs.{% endif %}</td>
+                <td align="left" class="matches">
+                    {% if log.status == 2 %}
+                    <b>{{ log.player_b}}</b>
+                    {% elif log.status == 4 %}
+                    轮空
+                    {% else %}
+                    {{ log.player_b}}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if turn.status == 1 %}
+                    {% if has_perm and log.status != 4 or log.status == 0 and player == log.player_a or log.status == 0 and log.player_b and player == log.player_b %}
+                    <form class="controls" method="post" action="/{{ tour.alias }}/bracket/">
+                        <!--<button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>-->
+                        <!--<button type="submit" name="commit" value="2">{{ log.player_b.user.name }}</button>-->
+                        <button type="submit" name="commit" value="1" class="btn btn-xs btn-primary">A胜</button>
+                        <button type="submit" name="commit" value="2" class="btn btn-xs btn-primary">B胜</button>
+
+                        tt
+                        bu
+
+                        <button type="submit" name="commit" value="3" class="btn btn-xs btn-primary">平手</button>
+                        {% if has_perm %}
+                        <button type="submit" name="commit" value="4" class="btn btn-xs btn-primary">撤销结果</button>
+                        {% endif %}
+                        <input type="hidden" name="log" value="{{ log.id }}">
+                        {% csrf_token %}
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

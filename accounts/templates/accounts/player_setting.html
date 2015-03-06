@@ -1,47 +1,62 @@
 {% extends "base.html" %}
 {% block title %}编辑信息{% endblock %}
 {% block body %}
-    <h2>编辑信息</h2>
-    <form id="test_add" class="form-horizontal" action="#" method="post">
-        <div class="control-group">
-            <label class="control-label" for="player_username">用户名</label>
-            <div class="controls">
-                <input type="text" name="player_username" id="player_username" class="input" value="{{ playeruser.user.username }}" disabled="true" size="20">
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-default">
+                <div class="panel-heading">编辑信息</div>
+                <div class="panel-body">
+                    <form class="form-horizontal" id="test_add" action="#" method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">用户名</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="player_username" id="player_username" class="form-control" value="{{ playeruser.user.username }}" disabled size="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">PlayerID</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="player_id" id="player_id" class="form-control" value="{{ playeruser.player_id }}" disabled size="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">昵称</label>
+                            <div class="col-sm-10">
+                                <input type="text" name="player_name" id="player_name" class="form-control" value="{{ playeruser.name }}" size="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">生日</label>
+                            <div class="col-sm-10">
+                                <input type="date" name="player_birthday" id="player_birthday" class="form-control" value="{{ playeruser.birthday.isoformat }}" size="20">
+                            </div>
+                        </div>
+                        {% if player_set %}
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">参与比赛</label>
+                            <div class="col-sm-10">
+                                <ul class="list-group">
+                                    {% for player in player_set %}
+                                    <li class="list-group-item">{{ player.tournament.name }} - {{ player.name }} {{ player.get_printable}} {{ self.score }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+
+                                <button type="submit" name="commit" value="return" class="btn btn-primary">保存并返回</button>
+                                <input type="hidden" name="obj_url" value="{{ obj_url }}">
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
+
         </div>
-        <div class="control-group">
-            <label class="control-label" for="player_id">Player ID</label>
-            <div class="controls">
-                <input type="text" name="player_id" id="player_id" class="input" value="{{ playeruser.player_id }}" disabled="true" size="20">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="player_name">显示昵称</label>
-            <div class="controls">
-                <input type="text" name="player_name" id="player_name" class="input" value="{{ playeruser.name }}" size="20">
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="player_birthday">生日</label>
-            <div class="controls">
-                <input type="date" name="player_birthday" id="player_birthday" class="input" value="{{ playeruser.birthday.isoformat }}" size="20">
-            </div>
-        </div>
-        {% if player_set %}
-        <div class="control-group">
-            <label class="control-label" for="joined_tournaments">曾参加比赛</label>
-            <div class="controls">
-                <ul>
-                    {% for player in player_set %}
-                    <li>{{ player.tournament.name }} - {{ player.name }} {{ player.get_printable}} {{ self.score }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-        {% endif %}
-        <!--<button type="submit" name="commit" value="next">保存并编辑下一个</button>-->
-        <button type="submit" name="commit" value="return">保存并返回</button>
-        {% csrf_token %}
-        <input type="hidden" name="obj_url" value="{{ obj_url }}">
-    </form>
+    </div>
+</div>
 {% endblock %}

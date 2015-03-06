@@ -1,16 +1,45 @@
 {% extends "base.html" %}
 {% block title %}个人中心{% endblock %}
 {% block body %}
-    {% if user.is_staff %}
-    <p id="new_tour"><a href="create">新建比赛</a></p>
-    <p id="new_tour"><a href="load">导入比赛</a></p>
-    {% endif %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">个人中心</div>
+                <!-- List group -->
+                <ul class="list-group">
+                    {% if user.is_staff %}
+                    <li class="list-group-item"><a href="create">新建比赛</a></li>
+                    <li class="list-group-item"><a href="load">导入比赛</a></li>
+                    <li class="list-group-item"><a href="edit/{{ user.playeruser.player_id }}">编辑信息</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="list-group">
+                <a href="#" class="list-group-item active">
+                    我的比赛
+                </a>
+                {#user.playeruser.tournament_set.all#}
+                {% for tour in tours %}
+                <a class="list-group-item" href="/{{ tour.alias }}/">{{ tour.name }}</a>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<p id="new_tour"></p>
+<p id="new_tour"></p>
     {% if user.playeruser %}
-    <p id="player_edit"><a href="edit/{{ user.playeruser.player_id }}">编辑信息</a></p>
-    <ul>
-        {#user.playeruser.tournament_set.all#}
-        {% for tour in tours %}
-        <li><a href="/{{ tour.alias }}/">{{ tour.name }}</a></li>{% endfor %}
-    </ul>
+<p id="player_edit"></p>
+
+<ul>
+
+</ul>
     {% endif %}
 {% endblock %}

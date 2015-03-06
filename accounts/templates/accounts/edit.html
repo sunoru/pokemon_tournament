@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}编辑选手信息{% endblock %}
 {% block body %}
+
     <ul>
         {% for playeruser in playerusers %}<li>
             <a href="{{ playeruser.player_id }}">{{ playeruser.name }}</a>

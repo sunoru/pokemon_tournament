@@ -1,17 +1,22 @@
 {% extends "base.html" %}
 {% block title %}导入比赛{% endblock %}
 {% block body %}
-    {% if status == -1 %}
-    <p>出错啦</p>
-    {% endif %}
-    <form id="import_form" class="form-horizontal" action="#" method="post">
-        <div class="control-group">
-            <label class="control-label" for="import_data">json数据</label>
-            <div class="controls">
-                <textarea name="import_data" id="import_data" class="input"></textarea>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            {% if status == -1 %}
+            <div class="alert alert-danger">出错啦！</div>{% endif %}
+            <div class="form-group">
+                <form id="import_form" action="#" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>JSON数据</label>
+                        <textarea name="import_data" id="import_data" class="form-control" rows="8"></textarea>
+                    </div>
+                    <button type="submit" name="commit" class="btn btn-primary">导入比赛</button>
+                </form>
             </div>
         </div>
-        <button type="submit" name="commit">导入比赛</button>
-        {% csrf_token %}
-    </form>
+    </div>
+</div>
 {% endblock %}

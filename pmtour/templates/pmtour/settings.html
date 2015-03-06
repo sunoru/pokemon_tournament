@@ -6,71 +6,85 @@
     <script type="text/javascript" src="{% static 'pmtour/settings.js' %}"></script>
 {% endblock %}
 {% block content %}
-    {% if status == 1 %}
-        <p class="message">保存成功</p>
-    {% elif status == 2 %}
-        <p class="message">URL非法</p>
-    {% elif status == 3 %}
-        <p class="message">比赛已经结束！</p>
-    {% elif status == 4 %}
-        <p class="message">淘汰赛人数不合理！</p>
-    {% elif status == -1 %}
-        <p class="message">未知错误</p>
-    {% endif %}
-    <form accept-charset="UTF-8" action="#" class="form-horizontal" id="settings_form" method="post">
-        <div class="control-group">
-            <label class="control-label" for="tour_name">名称</label>
-            <div class="controls">
-                <input type="text" name="tour_name" id="tour_name" class="input" value="{{ tour.name }}" size="20">
+<div class="panel panel-default">
+    <div class="panel-heading">比赛设置</div>
+    <div class="panel-body">
+        <form class="form-horizontal" accept-charset="UTF-8" action="#" id="settings_form" method="post">
+            {% if status == 1 %}
+            <div class="alert alert-success">保存成功</div>
+            {% elif status == 2 %}
+            <div class="alert alert-danger">URL非法</div>
+            {% elif status == 3 %}
+            <div class="alert alert-info">比赛已经结束！</div>
+            {% elif status == 4 %}
+            <div class="alert alert-warning">淘汰赛人数不合理！</div>
+            {% elif status == -1 %}
+            <div class="alert alert-danger">未知错误</div>
+            {% endif %}
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="col-sm-2 control-label">名称</label>
+                <div class="col-sm-10">
+                    <input type="text" name="player_username" id="player_username" class="form-control" value="{{ playeruser.user.username }}" size="20">
+                </div>
             </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="tour_alias">URL</label>
-            <div class="controls">
-                <span>http://pm.moon.moe/</span><input type="text" name="tour_alias" id="tour_alias" class="input" value="{{ tour.alias }}" size="20">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">URL</label>
+
+                <label class="control-label col-sm-3">http://pm.moon.moe/</label>
+                <div class="col-sm-7">
+                    <input type="text" name="tour_alias" id="tour_alias" class="form-control" value="{{ tour.alias }}" size="20">
+                </div>
             </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="tour_type">赛制</label>
-            <div class="controls">
-                <select id="tour_type" name="tour_type">
-                    <option value="swiss" {% if tour.tournament_type == "swiss" %}selected="true"{% endif %}>瑞士轮</option>
-                    <option value="single" {% if tour.tournament_type == "single" %}selected="true"{% endif %}>淘汰赛</option>
-                    <option value="swiss_single" {% if tour.tournament_type == "swiss_single" %}selected="true"{% endif %}>瑞士轮+淘汰赛</option>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">昵称</label>
+                <div class="col-sm-10">
+                    <input type="text" name="player_name" id="player_name" class="form-control" value="{{ playeruser.name }}" size="20">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">赛制</label>
+                <div class="col-sm-10">
+                    <select id="tour_type" name="tour_type" class="form-control">
+                    <option value="swiss" {% if tour.tournament_type == 'swiss' %}selected{% endif %}>瑞士轮</option>
+                    <option value="single" {% if tour.tournament_type == 'single' %}selected{% endif %}>淘汰赛</option>
+                    <option value="swiss_single" {% if tour.tournament_type == 'swiss_single' %}selected{% endif %}>瑞士轮+淘汰赛</option>
                 </select>
+                   </div>
             </div>
-        </div>
-        <div class="control-group{% if tour.tournament_type == "single" %} control-hidden{% endif %}" id="control-turns">
-            <label class="control-label" for="tour_turns">轮数</label>
-            <div class="controls">
-                <input type="text" name="tour_turns" id="tour_turns" class="input" size="20"{% if tour.tournament_type == "single" %} disabled="true"{% endif %} value="{{ remarks.turns }}">
-                <input type="button" id="tour_get_turns" value="帮我选择">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">轮数</label>
+                <div class="col-sm-8">
+                    <input type="text" name="tour_turns" id="tour_turns" class="form-control" size="20" value="{{ remarks.turns }}" {% if tour.tournament_type == "single" %} disabled="true"{% endif %}>
+                </div>
+                <div class="col-sm-2"><input type="button" id="tour_get_turns" value="帮我选择" class="btn btn-default btn-block"></div>
             </div>
-        </div>
-        <div class="control-group{% if tour.tournament_type != "swiss_single" %} control-hidden{% endif %}" id="control-elims">
-            <label class="control-label" for="tour_elims">淘汰赛人数</label>
-            <div class="controls">
-                <input type="text" name="tour_elims" id="tour_elims" class="input" size="20"{% if tour.tournament_type != "swiss_single" %} disabled="true"{% endif %} value="{{ remarks.elims }}">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">淘汰赛人数</label>
+                <div class="col-sm-10">
+                    <input type="text" name="tour_elims" id="tour_elims" class="form-control" size="20"{% if tour.tournament_type != "swiss_single" %} disabled="true"{% endif %} value="{{ remarks.elims }}">
+                </div>
             </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="tour_start_time">开始时间</label>
-            <div class="controls">
-                <input type="datetime-local" name="tour_start_time" id="tour_start_time" value="{{ starttime }}">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">开始时间</label>
+                <div class="col-sm-10">
+                    <input type="datetime-local" name="tour_start_time" id="tour_start_time" value="{{ starttime }}" class="form-control">
+                </div>
             </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label" for="tour_description">比赛描述</label>
-            <div class="controls">
-                <textarea name="tour_description" id="tour_description" class="input" size="20">{{ tour.description }}</textarea>
+            <div class="form-group">
+                <label class="col-sm-2 control-label">比赛描述</label>
+                <div class="col-sm-10">
+                    <textarea name="tour_description" id="tour_description" class="form-control" rows="4">{{ tour.description }}</textarea>
+                </div>
             </div>
-        </div>
-        <div class="control-group">
-            <div class="controls">
-                <button type="submit" class="btn">保存设置</button>
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">保存设置</button>
+                    <input id="tour_id" type="hidden" value="{{ tour.tour_id }}">
+                </div>
+                {% csrf_token %}
             </div>
-        </div>
-        <input id="tour_id" type="hidden" value="{{ tour.tour_id }}">
-        {% csrf_token %}
-    </form>
+        </form>
+    </div>
+</div>
 {% endblock %}
