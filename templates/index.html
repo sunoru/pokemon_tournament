@@ -1,5 +1,21 @@
 {% extends "base.html" %}
-{% block title %}口袋妖怪比赛{% endblock %}
+{% block title %}Pokemon Tournament{% endblock %}
 {% block body %}
-    欢迎。
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="jumbotron">
+                <h1>欢迎</h1>
+                <p>Pokemon Tournament</p>
+                {% if user.is_staff %}
+                <p><a class="btn btn-primary btn-lg" href="/accounts/" role="button">开始比赛</a></p>
+                {% else %}
+                <p><a class="btn btn-primary btn-lg" href="/accounts/login?next={{ request.path }}" role="button">请登录</a></p>
+
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
