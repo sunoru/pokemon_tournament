@@ -5,17 +5,17 @@
 $(document).ready(function(){
     $("#tour_type").change(function () {
         if (this.selectedIndex == 0 || this.selectedIndex == 2) {
-            $("#control-turns").removeClass("control-disabled");
+            $("#control-turns").removeClass("control-hidden");
             $("#tour_turns")[0].disabled = false;
         }else{
-            $("#control-turns").addClass("control-disabled");
+            $("#control-turns").addClass("control-hidden");
             $("#tour_turns")[0].disabled = true;
         }
         if (this.selectedIndex == 2){
-            $("#control-elims").removeClass("control-disabled");
+            $("#control-elims").removeClass("control-hidden");
             $("#tour_elims")[0].disabled = false
         }else{
-            $("#control-elims").addClass("control-disabled");
+            $("#control-elims").addClass("control-hidden");
             $("#tour_elims")[0].disabled = true;
         }
     });
