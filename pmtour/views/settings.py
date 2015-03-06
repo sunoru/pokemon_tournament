@@ -30,17 +30,17 @@ def settings(request, tour_id):
             if request.POST["tour_alias"] != tour.alias:
                 if not tour.alias_unique(request.POST["tour_alias"]) or request.POST["tour_alias"] in INVALID_LIST:
                     raise Tournament.InvalidAliasError
-            #if tour.is_over():
-            #    raise Tournament.TourOverError
+            if tour.is_over():
+                raise Tournament.TourOverError
             tour.name = request.POST["tour_name"]
             tour.alias = request.POST["tour_alias"]
             tour.tournament_type = request.POST["tour_type"]
             tour.start_time = request.POST["tour_start_time"]  # TODO: time zone settings
             tm = request.POST["tour_start_time"]
             tour.description = request.POST["tour_description"]
-            if "tour_turns" in request.POST:
+            if "tour_turns" in request.POST and request.POST["tour_turns"]:
                 tour.set_option("turns", int(request.POST["tour_turns"]))
-            if "tour_elims" in request.POST:
+            if "tour_elims" in request.POST and request.POST["tour_elims"]:
                 tour_elims = int(request.POST["tour_elims"])
                 if tour_elims not in {2, 4, 8}:
                     raise Tournament.InvalidNumberError
