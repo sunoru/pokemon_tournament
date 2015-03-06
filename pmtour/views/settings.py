@@ -30,8 +30,8 @@ def settings(request, tour_id):
             if request.POST["tour_alias"] != tour.alias:
                 if not tour.alias_unique(request.POST["tour_alias"]) or request.POST["tour_alias"] in INVALID_LIST:
                     raise Tournament.InvalidAliasError
-            if tour.is_over():
-                raise Tournament.TourOverError
+            #if tour.is_over():
+            #    raise Tournament.TourOverError
             tour.name = request.POST["tour_name"]
             tour.alias = request.POST["tour_alias"]
             tour.tournament_type = request.POST["tour_type"]
