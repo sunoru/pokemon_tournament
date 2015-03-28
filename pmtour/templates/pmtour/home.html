@@ -36,7 +36,7 @@
     {% if has_perm %}
     <form action="#" method="post">
         {% csrf_token %}
-        <button cls="btn btn-primary btn-lg" type="submit" name="commit" value="stop">结束比赛</button>
+        <button class="btn btn-primary btn-lg" type="submit" name="commit" value="stop">结束比赛</button>
     </form>
     {% endif %}
     <h1>现在进行第{{ tour.status }}轮</h1>

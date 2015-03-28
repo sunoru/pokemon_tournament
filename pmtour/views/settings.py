@@ -53,8 +53,9 @@ def settings(request, tour_id):
             status = 3
         except Tournament.InvalidNumberError:
             status = 4
-        except:
-            status = -1
+        # except Exception as e:
+        #     raise e
+        #     status = -1
     mj = json.loads(tour.remarks)
     return ret_tempcont(
         request,

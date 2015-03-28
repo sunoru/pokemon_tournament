@@ -23,6 +23,14 @@
 <div class="alert alert-info">比赛还未开始</div>
     {% else %}
 <div class="alert alert-info">现在进行第{{ tour.status }}轮</div>
+            <div class="panel-body">
+        <form action="/{{ tour.alias }}/" method="post">
+            {% csrf_token %}
+            <a class="btn btn-primary pull-right" href="/{{ tour.alias }}/check" target="_blank">检查</a>
+            <button class="btn btn-success" type="submit" name="commit" value="start">开始下一轮</button>
+        </form>
+    </div>
+
 {{ bracket }}
     {% endif %}
     {% endblock %}

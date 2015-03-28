@@ -3,14 +3,6 @@
 
 {% endif %}
 <div class="panel panel-primary">
-    <div class="panel-body">
-        <form action="/{{ tour.alias }}/" method="post">
-            {% csrf_token %}
-            <a class="btn btn-primary pull-right" href="/{{ tour.alias }}/check" target="_blank">检查</a>
-            <button class="btn btn-success" type="submit" name="commit" value="start">开始下一轮</button>
-        </form>
-
-    </div>
     <table class="table table-striped">
         <thead>
             <tr>
@@ -52,10 +44,6 @@
                         <!--<button type="submit" name="commit" value="2">{{ log.player_b.user.name }}</button>-->
                         <button type="submit" name="commit" value="1" class="btn btn-xs btn-primary">A胜</button>
                         <button type="submit" name="commit" value="2" class="btn btn-xs btn-primary">B胜</button>
-
-                        tt
-                        bu
-
                         <button type="submit" name="commit" value="3" class="btn btn-xs btn-primary">平手</button>
                         {% if has_perm %}
                         <button type="submit" name="commit" value="4" class="btn btn-xs btn-primary">撤销结果</button>

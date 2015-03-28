@@ -19,19 +19,6 @@
     <nav aria-label="navigation" class="round-selector">
     <table id="logtable-main">
         <tbody><tr>
-            <td id="logtabel-menu">
-                <div>
-                    <ul class="round-list">
-                        {% for turn in tour.turn_set.reverse %}
-                        <li><a id="round-select" href="#{{ turn.turn_number }}">{% if tour.is_over and forloop.revcounter == 1 %}最终回合{% else %}回合{{ turn.turn_number }}{% endif %}</a></li>
-                        {% endfor %}
-                    </ul>
-                    <ul class="list-swicher">
-                        <li><div id="round-standing" class="clickable">排行榜</div></li>
-                        <li><div id="round-bracket" class="clickable">对阵表</div></li>
-                    </ul>
-                </div>
-            </td>
             <td>
                 <div>
                     <div class="pure-u-1">
