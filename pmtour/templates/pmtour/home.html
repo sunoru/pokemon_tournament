@@ -3,8 +3,8 @@
 {% block content %}
 <div class="jumbotron">
     {% if tour.is_over %}
-    <h1>冠军：{{ tour.get_current_champion }}</h1>
-    <h3>{{ bracket }}</h3>
+    <h2>冠军：{{ tour.get_current_champion }}</h2>
+    {{ bracket }}
     <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
     {% elif tour.status == -2 %}
     {% if has_perm %}

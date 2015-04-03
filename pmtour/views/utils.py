@@ -81,7 +81,7 @@ def get_standings(request, tour, has_perm, player=None, turn=None):
     if standings_set is not None:
         for s in standings_set:
             p = tour.player_set.get(playerid=s["pid"])
-            s["name"] = "%s (%s)" % (p.name, p.user.name)
+            s["name"] = p.name
     if not has_perm and player is None:
         player = get_player_by_request(request, tour)
     elimed = 0
