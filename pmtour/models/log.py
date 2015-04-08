@@ -21,7 +21,7 @@ class Log(BaseModel):
     class Meta:
         app_label = 'pmtour'
 
-    def check(self, status):
+    def check_status(self, status):
         if self.status != 0:
             self.delete_status()
         self.status = status
@@ -104,7 +104,7 @@ class Log(BaseModel):
             player_b=None,
             turn=turn
         )
-        log.check(4)
+        log.check_status(4)
         log.save()
 
     @classmethod

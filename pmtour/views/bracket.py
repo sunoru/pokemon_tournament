@@ -17,13 +17,13 @@ def bracket(request, tour_id):
         if has_perm or player == alog.player_a or player is not None and player == alog.player_b:
             commit = request.POST["commit"]
             if commit == "1":
-                alog.check(1)
+                alog.check_status(1)
                 alog.save()
             elif commit == "2":
-                alog.check(2)
+                alog.check_status(2)
                 alog.save()
             elif commit == "3":
-                alog.check(3)
+                alog.check_status(3)
                 alog.save()
             elif commit == "4":
                 alog.delete_status()
