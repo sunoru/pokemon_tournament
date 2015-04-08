@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-import datetime
+from django.utils import timezone
 import random
 
 
@@ -8,7 +8,7 @@ class PlayerUser(models.Model):
     user = models.OneToOneField(User)
     name = models.CharField("name", max_length=100, default="")
     player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
-    birthday = models.DateField("birthday", default=datetime.date.today())
+    birthday = models.DateField("birthday", auto_now_add=True)
 
     @classmethod
     def create(cls, **kwargs):
@@ -40,7 +40,7 @@ class PlayerUser(models.Model):
         return playeruser
 
     def get_age_division(self):
-        fy = datetime.date.today().year - 10
+        fy = timezone.now().year - 10
         if self.birthday.year >= fy:
             return 1  # for Junior
         fy -= 4
