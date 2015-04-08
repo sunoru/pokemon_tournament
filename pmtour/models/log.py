@@ -11,6 +11,7 @@ class Log(BaseModel):
     results = models.TextField("results", default="")
     time = models.DateTimeField("time", null=True)
     turn = models.ForeignKey(Turn)
+    table_id = models.SmallIntegerField("table id")
 
     _STATUS_DICT = {
         1: 2,
@@ -90,43 +91,47 @@ class Log(BaseModel):
         return log
 
     @classmethod
-    def create_from_player(cls, turn, p1, p2):
+    def create_from_player(cls, turn, table_id, p1, p2):
         cls.objects.create(
             player_a=p1,
             player_b=p2,
-            turn=turn
+            turn=turn,
+            table_id=table_id
         )
 
     @classmethod
-    def create_bye(cls, turn, p1):
+    def create_bye(cls, turn, table_id, p1):
         log = cls.objects.create(
             player_a=p1,
             player_b=None,
-            turn=turn
+            turn=turn,
+            table_id=table_id
         )
         log.check_status(4)
         log.save()
 
     @classmethod
-    def create_from_player_pairs(cls, turn, player_pairs):
+    def create_from_player_pairs(cls, turn, start_table_id, player_pairs):
+        table_id = start_table_id - 1
         for pair in player_pairs:
+            table_id += 1
             p1 = pair[0]
             p2 = pair[1]
             if p2 is None:
-                cls.create_bye(turn, p1)
+                cls.create_bye(turn, table_id, p1)
             else:
-                cls.create_from_player(turn, p1, p2)
+                cls.create_from_player(turn, table_id, p1, p2)
 
     @classmethod
     def create_from_players(cls, turn, players):
         for i in xrange(0, len(players) / 2):
             p1 = players[i * 2]
             p2 = players[i * 2 + 1]
-            cls.create_from_player(turn, p1, p2)
+            cls.create_from_player(turn, i+1, p1, p2)
 
         if len(players) & 1 == 1:
             p1 = players[-1]
-            cls.create_bye(turn, p1)
+            cls.create_bye(turn, len(players)/2+1, p1)
 
     @classmethod
     def create_from_data(cls, turn, data):
@@ -147,6 +152,7 @@ class Log(BaseModel):
                 status=data["status"],
                 results=data["results"],
                 time=data["time"],
+                table_id=data["table_id"],
                 turn=turn
             )
         except Exception:
@@ -163,6 +169,7 @@ class Log(BaseModel):
                 "status": tlog.status,
                 "results": tlog.results,
                 "time": tlog.time.strftime("%Y-%m-%dT%H:%M:%S%z"),
+                "table_id": tlog.table_id
             }
             logs.append(alog)
         return logs

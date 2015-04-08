@@ -4,7 +4,7 @@
     {% if tour.is_over %}
 
 <div class="jumbotron">
-    <h1>冠军：{{ tour.get_current_champion }}</h1>
+    <h2>冠军：{{ tour.get_current_champion }}</h2>
     <p>比赛已经结束，请到<a href="/{{ tour.alias }}/log">历史记录里查看</a></p>
 </div>
     {% elif tour.status == -2 %}
@@ -23,10 +23,10 @@
 <div class="alert alert-info">比赛还未开始</div>
     {% else %}
 <div class="alert alert-info">现在进行第{{ tour.status }}轮</div>
-            <div class="panel-body">
+    <div class="panel-body">
+        <button class="btn btn-primary pull-right" onclick="$.get('/{{ tour.alias }}/check', function (data){alert(data);})">检查</button>
         <form action="/{{ tour.alias }}/" method="post">
             {% csrf_token %}
-            <a class="btn btn-primary pull-right" href="/{{ tour.alias }}/check" target="_blank">检查</a>
             <button class="btn btn-success" type="submit" name="commit" value="start">开始下一轮</button>
         </form>
     </div>

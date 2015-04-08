@@ -20,7 +20,6 @@ class Player(BaseModel):
     eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
-
     class Meta:
         app_label = 'pmtour'
 
@@ -116,6 +115,11 @@ class Player(BaseModel):
             player.save()
         return False
 
+    def __init__(self, *arg, **kwargs):
+        BaseModel.__init__(self, *arg, **kwargs)
+        self._winning_percentage = {}
+        self._opponents_wp = {}
+        self._opps_opps_wp = {}
 
     def __unicode__(self):
         return "%s(%s) (%s) %s" % (self.name, self.user.name, self.get_printable(), self.score)
@@ -123,7 +127,7 @@ class Player(BaseModel):
     def get_printable(self):
         return "%s/%s/%s" % (self.wins + self.byes, self.loses, self.ties)
 
-    def get_winning_persentage(self):
+    def _get_winning_percentage(self):
         re = self.wins + self.loses + self.ties + self.byes
         if re == 0:
             return 0.0
@@ -134,18 +138,35 @@ class Player(BaseModel):
             re = 0.75
         return re
 
-    def get_opponents_wp(self):
-        # 有空写成Property
+    def _get_opponents_wp(self):
         if len(self.foes.all()) == 0:
             return 0.0
         else:
-            return sum([x.get_winning_persentage() for x in self.foes.all()]) / self.foes.count()
+            return sum([x.winning_percentage for x in self.foes.all()]) / self.foes.count()
 
-    def get_opps_opps_wp(self):
+    def _get_opps_opps_wp(self):
         if len(self.foes.all()) == 0:
             return 0.0
         else:
-            return sum([x.get_opponents_wp() for x in self.foes.all()]) / self.foes.count()
+            return sum([x.opponents_wp for x in self.foes.all()]) / self.foes.count()
+
+    @property
+    def winning_percentage(self):
+        if not self.tournament.status in self._winning_percentage:
+            self._winning_percentage[self.tournament.status] = self._get_winning_percentage()
+        return self._winning_percentage[self.tournament.status]
+
+    @property
+    def opponents_wp(self):
+        if not self.tournament.status in self._opponents_wp:
+            self._opponents_wp[self.tournament.status] = self._get_opponents_wp()
+        return self._opponents_wp[self.tournament.status]
+
+    @property
+    def opps_opps_wp(self):
+        if not self.tournament.status in self._opps_opps_wp:
+            self._opps_opps_wp[self.tournament.status] = self._get_opps_opps_wp()
+        return self._opps_opps_wp[self.tournament.status]
 
     def gen_standing_dict(self):
         return {
@@ -153,8 +174,8 @@ class Player(BaseModel):
             "pid": self.playerid,
             "match": self.get_printable(),
             "score": self.score,
-            "opswin": "{0:.2%}".format(self.get_opponents_wp()),
-            "opsopswin": "{0:.2%}".format(self.get_opps_opps_wp()),
+            "opswin": "{0:.2%}".format(self.opponents_wp),
+            "opsopswin": "{0:.2%}".format(self.opps_opps_wp),
         }
 
     def set_log(self, status, foe=None, scored=True):
@@ -241,5 +262,3 @@ class Player(BaseModel):
             raise Tournament.NoTypeError("the number of players is wrong")
         players = [players[i - 1] for i in q if not players[i - 1].eliminated]
         return players
-
-

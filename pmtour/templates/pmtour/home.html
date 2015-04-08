@@ -14,10 +14,10 @@
         <button type="submit" name="commit" value="ok" class="btn btn-primary btn-lg">准备完毕</button>
     </form>
     {% else %}
-    <h1>比赛还在准备中……</h1>
+    <h2>比赛还在准备中……</h2>
     {% endif %}
     {% elif tour.status == -1 %}
-    <h1>比赛还没有开始……</h1>
+    <h2>比赛还没有开始……</h2>
     {% if has_perm %}
     <form action="#" method="post">
         {% csrf_token %}
@@ -25,7 +25,7 @@
     </form>
     {% endif %}
     {% elif tour.status == 0 %}
-    <h1>比赛即将开始……</h1>
+    <h2>比赛即将开始……</h2>
     {% if has_perm %}
     <form action="#" method="post">
         {% csrf_token %}
@@ -39,7 +39,7 @@
         <button class="btn btn-primary btn-lg" type="submit" name="commit" value="stop">结束比赛</button>
     </form>
     {% endif %}
-    <h1>现在进行第{{ tour.status }}轮</h1>
+    <h2>现在进行第{{ tour.status }}轮</h2>
     <h3>{{ bracket }}</h3>
     {% endif %}
 </div>

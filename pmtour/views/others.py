@@ -7,7 +7,7 @@ from pmtour.views.utils import (
 )
 
 
-def check(request, tour_id):
+def check_status(request, tour_id):
     tour, has_perm = get_a_tour(request, tour_id)
     if not has_perm:
         return ret_no_perm(request, tour_id)

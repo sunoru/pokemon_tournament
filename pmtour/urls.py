@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 urlpatterns = patterns(
     '',
     url(r'^$', 'pmtour.views.home', name='home'),
-    url(r'^check_status/$', 'pmtour.views.check', name='check_status'),
+    url(r'^check/$', 'pmtour.views.check_status', name='check'),
     url(r'^bracket/$', 'pmtour.views.bracket', name='bracket'),
     url(r'^standings/$', 'pmtour.views.standings', name='standings'),
     url(r'^discussion/$', 'pmtour.views.discussion', name='discussion'),

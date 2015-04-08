@@ -37,14 +37,14 @@ class Turn(BaseModel):
             return 1
         if a.score < b.score:
             return -1
-        ta = a.get_opponents_wp()
-        tb = b.get_opponents_wp()
+        ta = a.opponents_wp
+        tb = b.opponents_wp
         if ta > tb:
             return 1
         if ta < tb:
             return -1
-        ta = a.get_opps_opps_wp()
-        tb = b.get_opps_opps_wp()
+        ta = a.opps_opps_wp
+        tb = b.opps_opps_wp
         if ta > tb:
             return 1
         if ta < tb:
@@ -108,7 +108,11 @@ class Turn(BaseModel):
                 cancel_load(turns)
                 return "Error creating turn."
             turns.append((turn, turn_data["logs"]))
+        i = 0
         for turn, log_data in turns:
+            i += 1
+            if "table_id" not in log_data:
+                log_data["table_id"] = i
             mg = Log.loaddata(turn, log_data)
             if mg:
                 cancel_load(turns)
@@ -209,7 +213,7 @@ class Turn(BaseModel):
             else:
                 players = Player.get_sorted_by_standing(self.tournament)
                 player_pairs = Turn.swissshuffle(players)
-                Log.create_from_player_pairs(self, player_pairs)
+                Log.create_from_player_pairs(self, 1, player_pairs)
         else:
             raise Tournament.NoTypeError("Unknown type.")
 
