@@ -20,6 +20,7 @@ class Player(BaseModel):
     eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
+
     class Meta:
         app_label = 'pmtour'
 
@@ -116,7 +117,7 @@ class Player(BaseModel):
         return False
 
     def __init__(self, *arg, **kwargs):
-        BaseModel.__init__(self, *arg, **kwargs)
+        super(Player, self).__init__(*arg, **kwargs)
         self._winning_percentage = {}
         self._opponents_wp = {}
         self._opps_opps_wp = {}

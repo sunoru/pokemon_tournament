@@ -20,13 +20,18 @@ def participants(request, tour_id):
     if not has_perm:
         return ret_no_perm(request, tour_id)
     if has_perm and request.method == "POST":
-        if request.POST["commit"] == "exit":
+        if request.POST.get("commit") == "exit":
+            playerid = request.POST["playerid"]
             try:
-                player = tour.player_set.get(playerid=request.POST["playerid"])
+                player = tour.player_set.get(playerid=playerid)
             except Player.DoesNotExist:
-                raise Http404
+                return ret_json_data({'status': False})
+            except Player.MultipleObjectsReturned:
+                return ret_json_data({'status': False})
             player.exit()
             player.save()
+            return ret_json_data({'status': True, 'playerid': playerid})
+        return ret_json_data({'status': False})
     return ret_tempcont(
         request,
         "pmtour/participants.html",

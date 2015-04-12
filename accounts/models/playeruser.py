@@ -11,7 +11,7 @@ class PlayerUser(models.Model):
     name = models.CharField("name", max_length=100, default="")
     player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
     birthday = models.DateField("birthday", auto_now_add=True)
-    information = models.TextField("information", default="", null=True)
+    information = models.TextField("information", default="{}", null=True)
     _tmp_info = None
 
     class Meta:
@@ -46,8 +46,10 @@ class PlayerUser(models.Model):
         )
         return playeruser
 
-    def __init__(self):
-        super(PlayerUser, self).__init__()
+    def __init__(self, *arg, **kwargs):
+        super(PlayerUser, self).__init__(*arg, **kwargs)
+        if not self.information:
+            self.information = "{}"
         self._tmp_info = json.loads(self.information)
 
     def get_age_division(self):
