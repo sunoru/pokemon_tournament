@@ -12,3 +12,5 @@
 /static/pmtour
 /mysite/settings.py
 fixtures/
+migrations/
+
