@@ -24,21 +24,18 @@
     </div>
         
     {% endif %}
+    {% csrf_token %}
     <ul class="list-group">
     {% for player in tour.player_set.all %}
         <li class="list-group-item">
             <div class="editable">
-
-                <form method="post" action="#">
-                    <span>{{ player.playerid }} - </span>
-                    <span class="edited" id="p_{{ player.playerid }}">{{ player.name }}</span>
-                    <input class="editing" type="text" id="p_{{ player.playerid }}" value="{{ player.name }}">
-                    <span>({{ player.user.name }})</span>
-                    {% if has_perm and not tour.is_over %}
-                    <button class="btn btn-danger btn-xs pull-right" type="submit" name="commit" value="exit">退出比赛</button>
-                    <input type="hidden" name="playerid" value="{{ player.playerid }}">
-                    {% csrf_token %}
-                </form>
+                <span>{{ player.playerid }} - </span>
+                <span class="edited" id="p_{{ player.playerid }}">{{ player.name }}</span>
+                <input class="editing" type="text" id="p_{{ player.playerid }}" value="{{ player.name }}">
+                <span>({{ player.user.name }})</span>
+                {% if has_perm and not tour.is_over %}
+                <button class="btn btn-danger btn-xs pull-right exit-button" id="p_{{ player.playerid }}" value="exit">退出比赛</button>
+                <input type="hidden" name="playerid" value="{{ player.playerid }}">
                 {% endif %}
             </div>
         </li>

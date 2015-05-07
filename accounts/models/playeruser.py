@@ -1,6 +1,8 @@
+# coding=utf-8
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+import json
 import random
 
 
@@ -16,6 +18,11 @@ class PlayerUser(BaseModel):
     name = models.CharField("name", max_length=100, default="")
     player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
     birthday = models.DateField("birthday", auto_now_add=True)
+    information = models.TextField("information", default="{}", null=True)
+    _tmp_info = None
+
+    class Meta:
+        app_label = 'accounts'
 
     @classmethod
     def create(cls, **kwargs):
@@ -46,6 +53,12 @@ class PlayerUser(BaseModel):
         )
         return playeruser
 
+    def __init__(self, *arg, **kwargs):
+        super(PlayerUser, self).__init__(*arg, **kwargs)
+        if not self.information:
+            self.information = "{}"
+        self._tmp_info = json.loads(self.information)
+
     def get_age_division(self):
         fy = timezone.now().year - 10
         if self.birthday.year >= fy:
@@ -55,16 +68,26 @@ class PlayerUser(BaseModel):
             return 2  # for Senior
         return 3  # for Masters
 
-    def __unicode__(self):
-        return "%s (%s)" % (self.name, self.player_id)
+    def get_info(self, key):
+        if key in self._tmp_info:
+            return self._tmp_info[key]
+        return None
 
+    def set_info(self, key, value):
+        self._tmp_info[key] = value
 
+<<<<<<< HEAD:accounts/models.py
 class Option(BaseModel):
     option_name = models.CharField("key", max_length=50, unique=True)
     option_value = models.TextField("value")
+=======
+    def save(self, **kwargs):
+        self.information = json.dumps(self._tmp_info)
+        super(PlayerUser, self).save(**kwargs)
+>>>>>>> d37bdc3027f0568946172fcab403b2fc4997432f:accounts/models/playeruser.py
 
     class Meta:
         app_label = 'accounts'
 
     def __unicode__(self):
-        return "%s %s" % (self.option_name, self.option_value)
+        return "%s (%s)" % (self.name, self.player_id)

@@ -207,6 +207,7 @@ class Tournament(BaseModel):
 
     def get_current_champion(self):
         from pmtour.models import Player
+        print 0
         if self.tournament_type == Tournament.SWISS:
             turn = self.get_last_turn()
             return self.player_set.get(playerid=turn.get_standing()[0]["pid"])
