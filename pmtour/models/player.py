@@ -20,8 +20,6 @@ class Player(BaseModel):
     eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
-    class Meta:
-        app_label = 'pmtour'
 
     @classmethod
     def create(cls, **kwargs):

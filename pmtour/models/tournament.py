@@ -40,9 +40,6 @@ class Tournament(BaseModel):
     class TourOverError(Exception):
         pass
 
-    class Meta:
-        app_label = 'pmtour'
-
     @classmethod
     def alias_unique(cls, alias):
         return cls.objects.filter(alias=alias).count() == 0

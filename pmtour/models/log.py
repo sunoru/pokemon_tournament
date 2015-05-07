@@ -19,9 +19,6 @@ class Log(BaseModel):
         3: 3
     }
 
-    class Meta:
-        app_label = 'pmtour'
-
     def check_status(self, status):
         if self.status != 0:
             self.delete_status()

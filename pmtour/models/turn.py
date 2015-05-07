@@ -13,9 +13,6 @@ class Turn(BaseModel):
     type = models.CharField("type", max_length=100)
     status = models.SmallIntegerField("status", default=0)  # count for log checked
 
-    class Meta:
-        app_label = 'pmtour'
-
     def __unicode__(self):
         return "Turn %s: %s (%s)" % (self.turn_number, self.type, self.status)
 
@@ -23,7 +20,10 @@ class Turn(BaseModel):
     def _compare2(a, b):
         p = Turn._compare(a, b)
         if p == 0:
-            return Turn._compare2(a.foes.last(), b.foes.last())
+            q = Turn._compare(a.foes.last(), b.foes.last())
+            while q == 0:
+                q = Turn._compare(a.foes)
+            return q
         return p
 
     @staticmethod

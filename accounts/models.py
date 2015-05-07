@@ -4,7 +4,14 @@ from django.utils import timezone
 import random
 
 
-class PlayerUser(models.Model):
+class BaseModel(models.Model):
+
+    class Meta:
+        abstract = True
+        app_label = "accounts"
+
+
+class PlayerUser(BaseModel):
     user = models.OneToOneField(User)
     name = models.CharField("name", max_length=100, default="")
     player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
@@ -52,9 +59,12 @@ class PlayerUser(models.Model):
         return "%s (%s)" % (self.name, self.player_id)
 
 
-class Option(models.Model):
+class Option(BaseModel):
     option_name = models.CharField("key", max_length=50, unique=True)
     option_value = models.TextField("value")
+
+    class Meta:
+        app_label = 'accounts'
 
     def __unicode__(self):
         return "%s %s" % (self.option_name, self.option_value)
