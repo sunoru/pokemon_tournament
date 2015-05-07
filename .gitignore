@@ -1,6 +1,8 @@
 *.pyc
 *.json
 *.zip
+/pm.log*
+/pro_static/
 /.idea
 /test
 /db.sqlite3*
@@ -8,8 +10,6 @@
 /tests
 /uwsgi_pm.xml
 /django_wsgi.py
-/static/admin
-/static/pmtour
 /mysite/settings.py
 fixtures/
 migrations/
