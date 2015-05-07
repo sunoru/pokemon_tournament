@@ -20,9 +20,13 @@ class Turn(BaseModel):
     def _compare2(a, b):
         p = Turn._compare(a, b)
         if p == 0:
-            q = Turn._compare(a.foes.last(), b.foes.last())
-            while q == 0:
-                q = Turn._compare(a.foes)
+            alist = a.foes.all()
+            blist = b.foes.all()
+            i = len(alist) - 1
+            q = Turn._compare(alist[i], blist[i])
+            while q == 0 and i > 0:
+                i -= 1
+                q = Turn._compare(alist[i], blist[i])
             return q
         return p
 
