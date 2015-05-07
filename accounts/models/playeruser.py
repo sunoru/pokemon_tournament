@@ -4,13 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import json
 import random
-
-
-class BaseModel(models.Model):
-
-    class Meta:
-        abstract = True
-        app_label = "accounts"
+from accounts.models.bases import BaseModel
 
 
 class PlayerUser(BaseModel):
@@ -75,19 +69,3 @@ class PlayerUser(BaseModel):
 
     def set_info(self, key, value):
         self._tmp_info[key] = value
-
-<<<<<<< HEAD:accounts/models.py
-class Option(BaseModel):
-    option_name = models.CharField("key", max_length=50, unique=True)
-    option_value = models.TextField("value")
-=======
-    def save(self, **kwargs):
-        self.information = json.dumps(self._tmp_info)
-        super(PlayerUser, self).save(**kwargs)
->>>>>>> d37bdc3027f0568946172fcab403b2fc4997432f:accounts/models/playeruser.py
-
-    class Meta:
-        app_label = 'accounts'
-
-    def __unicode__(self):
-        return "%s (%s)" % (self.name, self.player_id)
