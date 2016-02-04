@@ -1,6 +1,7 @@
 # coding=utf-8
 from django.db import models
 from django.utils import timezone
+from accounts.models import Option
 from pmtour.models import BaseModel, Tournament, Player, Turn
 
 
@@ -177,7 +178,11 @@ class Log(BaseModel):
             for p in data:
                 p.delete()
         logs = []
+        i = 0
         for log_data in logs_data:
+            i += 1
+            if 'table_id' not in log_data:
+                log_data['table_id'] = i
             try:
                 log = cls.create_from_data(turn, log_data)
             except cls.LoaddataError as e:

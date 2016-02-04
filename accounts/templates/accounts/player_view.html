@@ -1,0 +1,53 @@
+{% extends "accounts/base.html" %}
+{% block title %}{{ playeruser.player_id }} {{ playeruser.name }}{% endblock %}
+{% block content %}
+    <div class="panel panel-default">
+        <div class="panel-heading active">{{ playeruser.player_id }} {{ playeruser.name }}</div>
+        <div class="panel-body">
+            <div class="list-group">
+                <div class="list-group-item">
+                    Player ID：{{ playeruser.player_id }}
+                </div>
+                <div class="list-group-item">
+                    昵称：{{ playeruser.name }}
+                </div>
+                <div class="list-group-item">
+                    曾用参赛名：{{ used_name | default:"无" }}
+                </div>
+                <div class="list-group-item">
+                    参赛记录：（共 {{ played_tours_count }} 场）
+                </div>
+                <div class="list-group-item">
+                    冠军（{{ no1 | length }}）:
+                    <ul>{% for each in no1 %}
+                    <li>{{ each }}</li>
+                    {% endfor %}</ul>
+                </div>
+                <div class="list-group-item">
+                    亚军（{{ no2 | length }}）:
+                    <ul>{% for each in no2 %}
+                    <li>{{ each }}</li>
+                    {% endfor %}</ul>
+                </div>
+                <div class="list-group-item">
+                    四强（{{ top4 | length }}）:
+                    <ul>{% for each in top4 %}
+                    <li>{{ each }}</li>
+                    {% endfor %}</ul>
+                </div>
+                <div class="list-group-item">
+                    八强（{{ top8 | length }}）:
+                    <ul>{% for each in top8 %}
+                    <li>{{ each }}</li>
+                    {% endfor %}</ul>
+                </div>
+                <div class="list-group-item">
+                    其它（{{ tour_others | length }}）:
+                    <ul>{% for each in tour_others %}
+                    <li>{{ each }}</li>
+                    {% endfor %}</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

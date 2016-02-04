@@ -112,12 +112,8 @@ class Turn(BaseModel):
                 cancel_load(turns)
                 return "Error creating turn."
             turns.append((turn, turn_data["logs"]))
-        i = 0
-        for turn, log_data in turns:
-            i += 1
-            if "table_id" not in log_data:
-                log_data["table_id"] = i
-            mg = Log.loaddata(turn, log_data)
+        for turn, logs_data in turns:
+            mg = Log.loaddata(turn, logs_data)
             if mg:
                 cancel_load(turns)
                 return mg

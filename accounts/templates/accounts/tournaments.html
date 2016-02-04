@@ -1,0 +1,20 @@
+{% extends "accounts/base.html" %}
+{% block title %}我的比赛{% endblock %}
+{% block content %}
+    <div id="list-tours" class="list-group">
+        <a href="#" class="list-group-item active">
+            我的比赛
+        </a>
+        {% for tour in tours %}
+            <a class="list-group-item" href="/{{ tour.alias }}/">{{ tour.name }}</a>
+        {% endfor %}
+    </div>
+    <ul class="pager">
+        {% if prev %}
+            <li class="previous"><a href=".?page={{ prev }}">上一页</a></li>
+        {% endif %}
+        {% if next %}
+            <li class="next"><a href=".?page={{ next }}">下一页</a></li>
+        {% endif %}
+    </ul>
+{% endblock %}

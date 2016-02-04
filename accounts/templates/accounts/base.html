@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block body %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">导航</div>
+                <!-- List group -->
+                <ul class="list-group">
+                    <li class="list-group-item"><a id="nav-tours" href="/accounts/tournaments">我的比赛</a></li>
+                    <li class="list-group-item"><a id="nav-users" href="/accounts/playerusers">用户列表</a></li>
+                </ul>
+            </div>
+            <div class="panel panel-default">
+                <!-- Default panel contents -->
+                <div class="panel-heading">个人中心</div>
+                <!-- List group -->
+                <ul class="list-group">
+                    {% if user.is_staff %}
+                    <li class="list-group-item"><a href="/accounts/create">新建比赛</a></li>
+                    <li class="list-group-item"><a href="/accounts/load">导入比赛</a></li>
+                    {% endif %}
+                    <li class="list-group-item"><a href="/accounts/{{ user.playeruser.player_id }}">个人资料</a></li>
+                    <li class="list-group-item"><a href="/accounts/edit/{{ user.playeruser.player_id }}">编辑信息</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-9">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

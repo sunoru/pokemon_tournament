@@ -19,11 +19,8 @@ def player_setting(request, player_id):
         playeruser.name = request.POST["player_name"]
         playeruser.birthday = timezone.datetime.strptime(request.POST["player_birthday"], "%Y-%m-%d").date()
         playeruser.save()
-        return redirect(request.POST["obj_url"])
-    obj_url = request.META.get('HTTP_REFERER', "/")
-    player_set = playeruser.player_set.all()
     temp = loader.get_template("accounts/player_setting.html")
-    cont = RequestContext(request, {"playeruser": playeruser, "obj_url": obj_url, "player_set": player_set})
+    cont = RequestContext(request, {"playeruser": playeruser})
     return HttpResponse(temp.render(cont))
 
 

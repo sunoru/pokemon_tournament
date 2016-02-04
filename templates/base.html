@@ -11,8 +11,7 @@
         <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
 	    <script src="{% static 'js/bootstrap.min.js' %}"></script>
 
-        <!--link rel="stylesheet" type="text/css" href="{% static "css/default.css" %}">
-        <link rel="stylesheet" type="text/css" href="{% static "css/pure-min.css" %}"-->
+        <link rel="stylesheet" type="text/css" href="{% static "css/default.css" %}">
 
         {% endblock %}
         {% block jss %}{% endblock %}
@@ -44,7 +43,7 @@
                     
                     <ul class="nav navbar-nav navbar-right">
                         {% if user.is_authenticated %}
-                        <li><a href="/accounts/">{{ user.username }}</a></li>
+                        <li><a href="/accounts/{{ user.playeruser.player_id }}">{{ user.playeruser.name }}</a></li>
                         <li><a href="/accounts/logout?next={{ request.path }}">登出</a></li>
                         {% else %}
                         <li><a href="/accounts/login?next={{ request.path }}">登录</a></li>

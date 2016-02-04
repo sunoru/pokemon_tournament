@@ -2,7 +2,6 @@
 {% load staticfiles %}
 {% block title %}{{ tour.name }} - 比赛设定{% endblock %}
 {% block jss %}
-    <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'pmtour/settings.js' %}"></script>
 {% endblock %}
 {% block content %}
@@ -31,7 +30,7 @@
             <div class="form-group">
                 <label class="col-sm-2 control-label">URL</label>
 
-                <label class="control-label col-sm-3">http://pm.moon.moe/</label>
+                <label class="control-label col-sm-3">https://www.pokemonchina.com/</label>
                 <div class="col-sm-7">
                     <input type="text" name="tour_alias" id="tour_alias" class="form-control" value="{{ tour.alias }}" size="20">
                 </div>

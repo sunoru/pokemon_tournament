@@ -4,92 +4,73 @@
  */
 @charset "utf-8";
 
-body{
-    font-family: arial, sans-serif;
-}
-
-label{
-    display: block;
-    margin-bottom: 5px;
-}
-
-#container{
+#container {
     display: table;
     width: 100%;
     clear: both;
 }
 
-#content{
+#content {
     width: 65%;
     margin: 3px;
     float: left;
 }
-#sidebar{
+
+#sidebar {
     width: 30%;
     margin: 3px;
     float: right;
 }
 
-.control-hidden{
+.control-hidden {
     display: none;
 }
 
-.control-group{
+.control-group {
     margin-bottom: 20px;
 }
 
-.control-label{
-    float: left;
-    text-align: right;
-    width: 150px;
-    padding-top: 5px;
-}
-
-.controls{
+.controls {
     /*margin-left: 180px;*/
 }
 
-.filtered{
+.filtered {
     width: 250px;
     height: 300px;
 }
 
-.selector{
+.selector {
     margin-left: 100px;
 }
 
-.table-left{
+.table-left {
     text-align: left;
 }
 
-.table-center{
+.table-center {
     text-align: center;
 }
 
-.text-bold{
+.text-bold {
     font-weight: bold;
 }
 
-.text-highlight{
+.text-highlight {
     color: red;
 }
 
-.clickable:hover{
+.clickable:hover {
     cursor: pointer;
 }
 
-
-
-
-
 /*button css*/
-.controls button, #tour_get_turns{
+.controls button, #tour_get_turns {
     font-size: 100%;
     padding: .5em 1.5em;
     color: #444;
-    color: rgba(0,0,0,.8);
+    color: rgba(0, 0, 0, .8);
     border: 1px solid #999;
-    border: 0 rgba(0,0,0,0);
+    border: 0 rgba(0, 0, 0, 0);
     background-color: #E6E6E6;
     text-decoration: none;
     border-radius: 2px;
@@ -101,76 +82,77 @@ label{
 }
 
 /*adjust button width*/
- .controls > button:nth-of-type(1){
+.controls > button:nth-of-type(1) {
     width: 7em;
     color: white;
     background: rgb(202, 25, 25);
     font-family: cursive;
- }
- .controls > button:nth-of-type(2){
+}
+
+.controls > button:nth-of-type(2) {
     width: 7em;
     color: white;
     background: rgb(202, 25, 25);
     font-family: cursive;
- }
- .controls > button:nth-of-type(3){
+}
+
+.controls > button:nth-of-type(3) {
     width: 5em;
     background: rgb(65, 138, 231);
     font-family: cursive;
     color: white;
- }
- .controls > button:nth-of-type(4){
+}
+
+.controls > button:nth-of-type(4) {
     width: 7em;
 
- }
-
-
- /*make winner shinny*/
-.matches > b{
-/*   text-shadow:0px 0px 0px black, 0 0 2em blue, 0 0 0.2em blue; */
-    font-weight: bold
-    font: 1em Georgia, "Bitstream Charter", "URW Bookman L", "Century Schoolbook L", serif;
 }
 
+/*make winner shinny*/
+.matches > b {
+    /*   text-shadow:0px 0px 0px black, 0 0 2em blue, 0 0 0.2em blue; */
+    font-weight: bold font : 1 em Georgia, "Bitstream Charter", "URW Bookman L", "Century Schoolbook L", serif;
+}
 
 /*odd and even*/
-tr:nth-of-type(odd){
+tr:nth-of-type(odd) {
     background-color: #f2f2f2;
 }
-tr:nth-of-type(even){
+
+tr:nth-of-type(even) {
     background-color: #ffffff;
 }
 
-
 /*some css for log.html*/
-#logtable-main{
+#logtable-main {
     margin: auto;
     width: 1024px;
     background: #EBEBEB;
-    font-family: '微软雅黑'!important;
+    font-family: '微软雅黑' !important;
     border: 1px #E5E5EE solid;
 }
 
-#logtabel-menu{
-     width: 100px;
-    height: 100px;"
+#logtabel-menu {
+    width: 100px;
+    height: 100px;
+"
 }
 
-#logtabel-menu > div{
+#logtabel-menu > div {
     width: 100px;
     height: 100%;
     top: 0px;
 }
 
-#result-bracket{
-    text-align:left;
+#result-bracket {
+    text-align: left;
 }
 
-.list-player{
+.list-player {
     width: 250px;
 }
 
-.editable .editing{
+.editable .editing {
     opacity: 0;
     width: 0;
     transition: width 0s;
@@ -178,3 +160,4 @@ tr:nth-of-type(even){
     -webkit-transition: width 0s;
     -o-transition: width 0s;
 }
+

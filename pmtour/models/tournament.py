@@ -77,7 +77,6 @@ class Tournament(BaseModel):
 
     @classmethod
     def loaddata(cls, datas, admin=None):
-        # don't use this function
         from pmtour.models import Player, Turn
         if not admin:
             admin = cls.get_default_admin()
@@ -109,7 +108,6 @@ class Tournament(BaseModel):
             tour.delete()
             raise Tournament.LoaddataError(p)
         tour.save()
-        #TODO: load data here
         return tour
 
     def set_option(self, option_name, option_value=None):

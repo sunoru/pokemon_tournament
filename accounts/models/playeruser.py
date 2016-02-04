@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 import json
 import random
+import logging
 from accounts.models.bases import BaseModel
 
 
@@ -33,13 +34,15 @@ class PlayerUser(BaseModel):
         while User.objects.filter(username=usr):
             q += 1
             usr = "test_%s_%s_%s" % (tour.tour_id, pid, q)
-        user = User.objects.create_user(usr, "%s@moon.moe" % usr, pwd)
+        user = User.objects.create_user(usr, "%s@pokemonchina.com" % usr, pwd)
         playeruser = cls.objects.create(user=user, name=name, player_id=usr, **kwargs)
         return playeruser
 
     @classmethod
     def create_existed_player(cls, player_id, name):
-        user = User.objects.create_user(player_id, "%s@moon.moe" % player_id, "%s" % random.randint(100000,999999))
+        pwd = "%s" % random.randint(100000, 999999)
+        logging.warn("%s %s" % (player_id, pwd))
+        user = User.objects.create_user(player_id, "%s@pokemonchina.com" % player_id, pwd)
         playeruser = cls.objects.create(
             user=user,
             player_id=player_id,
@@ -52,6 +55,9 @@ class PlayerUser(BaseModel):
         if not self.information:
             self.information = "{}"
         self._tmp_info = json.loads(self.information)
+
+    def __unicode__(self):
+        return "%s %s" % (self.player_id, self.name)
 
     def get_age_division(self):
         fy = timezone.now().year - 10

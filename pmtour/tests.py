@@ -9,7 +9,7 @@ def add_test_users(n, m=0):
     for i in xrange(m, n):
         pwd = "%s" % random.randint(100000, 999999)
         usr = "%s_test%s" % (datetime.date.today().strftime("%y%m%d"), i + 1)
-        user = User.objects.create_user(usr, "%s@moon.moe" % usr, pwd)
+        user = User.objects.create_user(usr, "%s@pokemonchina.com" % usr, pwd)
         playeruser = PlayerUser.objects.create(user=user, name=user.username, player_id=user.username)
         print "add new user: %s %s" % (usr, pwd)
 

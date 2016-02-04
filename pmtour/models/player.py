@@ -21,7 +21,6 @@ class Player(BaseModel):
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
 
-
     @classmethod
     def create(cls, **kwargs):
         player = cls.objects.create(**kwargs)
@@ -94,6 +93,7 @@ class Player(BaseModel):
             for p in data:
                 p[0].user.delete()
                 p[0].delete()
+
         players = []
         for player_data in players_data:
             try:
