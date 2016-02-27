@@ -1,53 +1,111 @@
 {% extends "accounts/base.html" %}
+{% load staticfiles %}
+{% block jss %}
+    <script type="text/javascript" src="{% static 'accounts/player_view.js' %}"></script>
+{% endblock %}
 {% block title %}{{ playeruser.player_id }} {{ playeruser.name }}{% endblock %}
 {% block content %}
     <div class="panel panel-default">
-        <div class="panel-heading active">{{ playeruser.player_id }} {{ playeruser.name }}</div>
-        <div class="panel-body">
-            <div class="list-group">
-                <div class="list-group-item">
-                    Player ID：{{ playeruser.player_id }}
+        <div class="panel-heading active">查看信息</div>
+        <div id="player-info" class="panel-body">
+            <div class="row">
+                <div class="col-md-2 info-col">Player ID</div>
+                <div class="col-md-10 info-col">{{ playeruser.player_id }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 info-col">昵称</div>
+                <div class="col-md-10 info-col">{{ playeruser.name }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 info-col">曾用参赛名</div>
+                <div class="col-md-10 info-col">{{ used_name | default:"无" }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-2 info-col">个人简介</div>
+                <div class="col-md-10 info-col">{{ introduction | default:"无" | linebreaksbr }}</div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 info-col">
+                    <a href="#tours">参赛记录（共 {{ played_tours_count }} 场）</a>
                 </div>
-                <div class="list-group-item">
-                    昵称：{{ playeruser.name }}
+                <div class="col-md-4 info-col">
+                    <a href="#logs">交手记录（共 <span id="played-logs-count"></span> 场）</a>
                 </div>
-                <div class="list-group-item">
-                    曾用参赛名：{{ used_name | default:"无" }}
-                </div>
-                <div class="list-group-item">
-                    参赛记录：（共 {{ played_tours_count }} 场）
-                </div>
-                <div class="list-group-item">
-                    冠军（{{ no1 | length }}）:
-                    <ul>{% for each in no1 %}
-                    <li>{{ each }}</li>
-                    {% endfor %}</ul>
-                </div>
-                <div class="list-group-item">
-                    亚军（{{ no2 | length }}）:
-                    <ul>{% for each in no2 %}
-                    <li>{{ each }}</li>
-                    {% endfor %}</ul>
-                </div>
-                <div class="list-group-item">
-                    四强（{{ top4 | length }}）:
-                    <ul>{% for each in top4 %}
-                    <li>{{ each }}</li>
-                    {% endfor %}</ul>
-                </div>
-                <div class="list-group-item">
-                    八强（{{ top8 | length }}）:
-                    <ul>{% for each in top8 %}
-                    <li>{{ each }}</li>
-                    {% endfor %}</ul>
-                </div>
-                <div class="list-group-item">
-                    其它（{{ tour_others | length }}）:
-                    <ul>{% for each in tour_others %}
-                    <li>{{ each }}</li>
-                    {% endfor %}</ul>
+                <div class="col-md-4 info-col">
+                    <a href="#others">其它记录</a>
                 </div>
             </div>
+            <div class="tour-logs row">
+                <div class="col-md-2 info-col">冠军（{{ no1 | length }}）</div>
+                <div class="col-md-10 info-col">
+                    {% if no1 %}
+                        <ul class="tourlist">{% for each in no1 %}
+                            <li><a href="/{{ each.alias }}">{{ each.name }}</a></li>
+                        {% endfor %}</ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="tour-logs row">
+                <div class="col-md-2 info-col">亚军（{{ no2 | length }}）</div>
+                <div class="col-md-10 info-col">
+                    {% if no2 %}
+                        <ul class="tourlist">{% for each in no2 %}
+                            <li><a href="/{{ each.alias }}">{{ each.name }}</a></li>
+                        {% endfor %}</ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="tour-logs row">
+                <div class="col-md-2 info-col">四强（{{ top4 | length }}）</div>
+                <div class="col-md-10 info-col">
+                    {% if top4 %}
+                        <ul class="tourlist">{% for each in top4 %}
+                            <li><a href="/{{ each.alias }}">{{ each.name }}</a></li>
+                        {% endfor %}</ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="tour-logs row">
+                <div class="col-md-2 info-col">八强（{{ top8 | length }}）</div>
+                <div class="col-md-10 info-col">
+                    {% if top8 %}
+                        <ul class="tourlist">{% for each in top8 %}
+                            <li><a href="/{{ each.alias }}">{{ each.name }}</a></li>
+                        {% endfor %}</ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="tour-logs row row-last">
+                <div class="col-md-2 info-col">其它（{{ tour_others | length }}）</div>
+                <div class="col-md-10 info-col">
+                    {% if tour_others %}
+                        <ul class="tourlist">{% for each in tour_others %}
+                            <li><a href="/{{ each.alias }}">{{ each.name }}</a></li>
+                        {% endfor %}</ul>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="log-logs row">
+                <div class="col-md-12 info-col"><strong>瑞士轮</strong></div>
+            </div>
+            <div id="log-swiss" class="log-logs row">
+                <div class="col-md-3 info-col"></div>
+                <div class="col-md-2 info-col">胜</div>
+                <div class="col-md-2 info-col">负</div>
+                <div class="col-md-2 info-col">平</div>
+                <div class="col-md-2 info-col">合计</div>
+            </div>
+            <div class="log-logs row">
+                <div class="col-md-12 info-col"><strong>淘汰赛</strong></div>
+            </div>
+            <div id="log-single" class="log-logs row">
+                <div class="col-md-3 info-col"></div>
+                <div class="col-md-2 info-col">胜</div>
+                <div class="col-md-2 info-col">负</div>
+                <div class="col-md-2 info-col">平</div>
+                <div class="col-md-2 info-col">合计</div>
+            </div>
+            <div class="other-logs row"></div>
         </div>
     </div>
 {% endblock %}

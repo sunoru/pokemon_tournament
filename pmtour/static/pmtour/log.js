@@ -3,13 +3,13 @@
  */
 
 $(document).ready(function(){
-    $("#round-standing").click(function () {
+    $("#round-standings").click(function () {
         $("#result-standings").removeClass("control-hidden");
-        $("#result-bracket").addClass("control-hidden");
+        $("#result-brackets").addClass("control-hidden");
     });
-    $("#round-bracket").click(function () {
+    $("#round-brackets").click(function () {
         $("#result-standings").addClass("control-hidden");
-        $("#result-bracket").removeClass("control-hidden");
+        $("#result-brackets").removeClass("control-hidden");
     });
     hashChange()
 });
@@ -17,6 +17,6 @@ $(document).ready(function(){
 function hashChange() {
     var turn_number = location.hash.substr(1);
     $("#result-standings").load(turn_number+"/standings/");
-    $("#result-bracket").load(turn_number+"/bracket/");
+    $("#result-brackets").load(turn_number+"/bracket/");
 }
 window.onhashchange = hashChange;

@@ -14,7 +14,7 @@ class Turn(BaseModel):
     status = models.SmallIntegerField("status", default=0)  # count for log checked
 
     def __unicode__(self):
-        return "Turn %s: %s (%s)" % (self.turn_number, self.type, self.status)
+        return "%s Turn %s: %s (%s)" % (self.tournament.name, self.turn_number, self.type, self.status)
 
     @staticmethod
     def _compare2(a, b):
@@ -193,6 +193,7 @@ class Turn(BaseModel):
             standings.insert(0, a.gen_standing_dict())
             a = alog.get_winner()
             a.standing = 1
+            a.save()
             standings.insert(0, a.gen_standing_dict())
             self.standings = json.dumps(standings)
 

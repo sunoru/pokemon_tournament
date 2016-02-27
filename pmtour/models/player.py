@@ -1,4 +1,5 @@
 # coding=utf-8
+import math
 from django.db import models
 import json
 from accounts.models import PlayerUser
@@ -127,10 +128,36 @@ class Player(BaseModel):
         return "%s/%s/%s" % (self.wins + self.byes, self.loses, self.ties)
 
     def _get_winning_percentage(self):
-        re = self.wins + self.loses + self.ties + self.byes
+        wins, loses, ties, byes = self.wins, self.loses, self.ties, self.byes
+        s_turns = self.tournament.get_option("turns")
+        if self.tournament.status > s_turns:
+            turns = self.tournament.turn_set.filter(turn_number__gt=s_turns)
+            for turn in turns:
+                log = turn.log_set.filter(player_a=self)
+                if log.count() == 0:
+                    log = turn.log_set.filter(player_b=self)
+                if log.count() == 0:
+                    continue
+                log = log[0]
+                if log.status == 1:
+                    if log.player_a == self:
+                        wins -= 1
+                    else:
+                        loses -= 1
+                elif log.status == 2:
+                    if log.player_a == self:
+                        loses -= 1
+                    else:
+                        wins -= 1
+                elif log.status == 3:
+                    ties -= 1
+                elif log.status == 4:
+                    byes -= 1
+
+        re = wins + loses + ties + byes
         if re == 0:
             return 0.0
-        re = float(self.wins) / re
+        re = float(wins) / re
         if re < 0.25:
             re = 0.25
         if self.exited and re > 0.75:
@@ -192,22 +219,25 @@ class Player(BaseModel):
             if scored:
                 self.score += 3
             self.wins += 1
-        if foe is not None:
+        if scored and foe is not None:
             self.foes.add(foe)
 
-    def delete_log(self, status, foe=None):
+    def delete_log(self, status, foe=None, scored=True):
         if status == 4:
-            self.score -= 3
+            if scored:
+                self.score -= 3
             self.byes -= 1
         elif status == 3:
-            self.score -= 1
+            if scored:
+                self.score -= 1
             self.ties -= 1
         elif status == 2:
             self.loses -= 1
         elif status == 1:
-            self.score -= 3
+            if scored:
+                self.score -= 3
             self.wins -= 1
-        if foe is not None:
+        if scored and foe is not None:
             self.foes.remove(foe)
 
     def exit(self):
@@ -251,7 +281,11 @@ class Player(BaseModel):
     def get_sorted_for_elims(cls, tour):
         players = cls._get_sorted(tour, cls._by_standing)
         elims = tour.get_option("elims")
-        if elims == 8:
+        if 2 ** int(math.log(elims, 2)) != elims:
+            raise Tournament.NoTypeError("the number of players is wrong")
+        if elims == 16:
+            q = [1, 16, 8, 9, 5, 12, 4, 13, 6, 11, 3, 14, 7, 10, 2, 15]
+        elif elims == 8:
             q = [1, 8, 4, 5, 3, 6, 2, 7]
         elif elims == 4:
             q = [1, 4, 2, 3]

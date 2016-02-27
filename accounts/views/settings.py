@@ -15,12 +15,22 @@ def player_setting(request, player_id):
         return redirect("/accounts/")
     if request.user != playeruser.user and not request.user.is_staff:
         return redirect("/accounts/")
+    status = 0
     if request.method == "POST":
-        playeruser.name = request.POST["player_name"]
-        playeruser.birthday = timezone.datetime.strptime(request.POST["player_birthday"], "%Y-%m-%d").date()
-        playeruser.save()
+        try:
+            playeruser.name = request.POST["player_name"]
+            playeruser.birthday = timezone.datetime.strptime(request.POST["player_birthday"], "%Y-%m-%d").date()
+            playeruser.set_info("introduction", request.POST["player_introduction"])
+            playeruser.save()
+            status = 1
+        except:
+            status = 2
     temp = loader.get_template("accounts/player_setting.html")
-    cont = RequestContext(request, {"playeruser": playeruser})
+    cont = RequestContext(request, {
+        "playeruser": playeruser,
+        "introduction": playeruser.get_info("introduction"),
+        "status": status
+    })
     return HttpResponse(temp.render(cont))
 
 
@@ -31,4 +41,3 @@ def edit(request):
     temp = loader.get_template("accounts/edit.html")
     cont = RequestContext(request, {"playerusers": PlayerUser.objects.all()})
     return HttpResponse(temp.render(cont))
-

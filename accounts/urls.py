@@ -13,4 +13,5 @@ urlpatterns = patterns(
     url(r'^edit/$', 'accounts.views.edit', name='edit'),
     url(r'^edit/(?P<player_id>.+?)/$', 'accounts.views.player_setting', name='player_setting'),
     url(r'^(?P<player_id>.+?)/$', 'accounts.views.player_view', name='player_view'),
+    url(r'^(?P<player_id>.+?)/logs$', 'accounts.views.player_logs', name='player_view'),
 )

@@ -14,7 +14,6 @@ class PlayerUser(BaseModel):
     player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
     birthday = models.DateField("birthday", auto_now_add=True)
     information = models.TextField("information", default="{}", null=True)
-    _tmp_info = None
 
     class Meta:
         app_label = 'accounts'
@@ -54,7 +53,6 @@ class PlayerUser(BaseModel):
         super(PlayerUser, self).__init__(*arg, **kwargs)
         if not self.information:
             self.information = "{}"
-        self._tmp_info = json.loads(self.information)
 
     def __unicode__(self):
         return "%s %s" % (self.player_id, self.name)
@@ -69,9 +67,12 @@ class PlayerUser(BaseModel):
         return 3  # for Masters
 
     def get_info(self, key):
-        if key in self._tmp_info:
-            return self._tmp_info[key]
+        _tmp_info = json.loads(self.information)
+        if key in _tmp_info:
+            return _tmp_info[key]
         return None
 
     def set_info(self, key, value):
-        self._tmp_info[key] = value
+        _tmp_info = json.loads(self.information)
+        _tmp_info[key] = value
+        self.information = json.dumps(_tmp_info)

@@ -1,4 +1,5 @@
 {% if standings %}
+<div class="panel panel-primary">
 <table class="report border table table-striped">
     <tbody>
     <tr>
@@ -33,6 +34,7 @@
     {% endfor %}
     </tbody>
 </table>
+</div>
 {% else %}
     <div class="alert alert-info">没有排行榜。</div>
 {% endif %}

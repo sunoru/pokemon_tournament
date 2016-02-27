@@ -104,5 +104,6 @@ def ret_tempcont(request, template_path, context_dict):
     cont = RequestContext(request, context_dict)
     return HttpResponse(temp.render(cont))
 
+
 def ret_json_data(data):
     return HttpResponse(json.dumps(data))

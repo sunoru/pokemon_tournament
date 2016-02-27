@@ -40,13 +40,11 @@
                     {% if turn.status == 1 %}
                     {% if has_perm and log.status != 4 or log.status == 0 and player == log.player_a or log.status == 0 and log.player_b and player == log.player_b %}
                     <form class="controls" method="post" action="/{{ tour.alias }}/bracket/">
-                        <!--<button type="submit" name="commit" value="1">{{ log.player_a.user.name }}</button>-->
-                        <!--<button type="submit" name="commit" value="2">{{ log.player_b.user.name }}</button>-->
-                        <button type="submit" name="commit" value="1" class="btn btn-xs btn-primary">A胜</button>
-                        <button type="submit" name="commit" value="2" class="btn btn-xs btn-primary">B胜</button>
-                        <button type="submit" name="commit" value="3" class="btn btn-xs btn-primary">平手</button>
+                        <button type="submit" name="commit" value="1" class="btn btn-sm btn-danger">A胜</button>
+                        <button type="submit" name="commit" value="2" class="btn btn-sm btn-danger">B胜</button>
+                        <button type="submit" name="commit" value="3" class="btn btn-sm btn-info">平手</button>
                         {% if has_perm %}
-                        <button type="submit" name="commit" value="4" class="btn btn-xs btn-primary">撤销结果</button>
+                        <button type="submit" name="commit" value="4" class="btn btn-sm btn-primary">撤销结果</button>
                         {% endif %}
                         <input type="hidden" name="log" value="{{ log.id }}">
                         {% csrf_token %}

@@ -103,6 +103,8 @@ def _get_turns(number):
 
 
 def _get_turns_2(number):
+    # need to be modified: Players continue to be paired randomly by match record until only one player remains
+    # undefeated. This player is the winner of the event.
     if number < 8:
         return -1
     elif number == 8:
@@ -127,9 +129,13 @@ def _get_elims(number):
     if number < 8:
         return -1
     elif number == 8:
-        return 0
-    elif number <= 20:
+        return 2
+    elif number <= 16:
         return 4
-    elif number >= 21:
+    elif number <= 226:
         return 8
+    elif number <= 409:
+        return 16
+    elif number > 409:
+        return 32
 

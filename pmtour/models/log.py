@@ -14,14 +14,14 @@ class Log(BaseModel):
     turn = models.ForeignKey(Turn)
     table_id = models.SmallIntegerField("table id")
 
-    _STATUS_DICT = {
+    STATUS_DICT = {
         1: 2,
         2: 1,
-        3: 3
+        3: 3,
     }
 
     def check_status(self, status):
-        if self.status != 0:
+        if 0 < self.status < 4:
             self.delete_status()
         self.status = status
         t = timezone.now()
@@ -30,41 +30,51 @@ class Log(BaseModel):
             self.player_a.set_log(status, self.player_b)
             self.player_a.save()
             if self.player_b is not None:
-                self.player_b.set_log(Log._STATUS_DICT[status])
+                self.player_b.set_log(Log.STATUS_DICT[status])
                 self.player_b.save()
         elif self.turn.type == Tournament.SINGLE:
-            self.player_a.set_log(status, self.player_b, False)
             if status == 1:
                 self.player_b.eliminated = True
-                self.player_b.set_log(Log._STATUS_DICT[status], scored=False)
-                self.player_b.save()
             elif status == 2:
                 self.player_a.eliminated = True
-                self.player_b.set_log(Log._STATUS_DICT[status], scored=False)
-                self.player_b.save()
+            self.player_a.set_log(status, self.player_b, False)
             self.player_a.save()
+            if self.player_b is not None:
+                self.player_b.set_log(Log.STATUS_DICT[status], False)
+                self.player_b.save()
 
     def delete_status(self):
         if self.status == 0 or self.status == 4:
             return
-        self.player_a.delete_log(self.status, self.player_b)
-        self.player_a.save()
-        if self.player_b is not None:
-            self.player_b.delete_log(Log._STATUS_DICT[self.status])
-            self.player_b.save()
+        if self.turn.type == Tournament.SWISS:
+            self.player_a.delete_log(self.status, self.player_b)
+            self.player_a.save()
+            if self.player_b is not None:
+                self.player_b.delete_log(Log.STATUS_DICT[self.status])
+                self.player_b.save()
+        elif self.turn.type == Tournament.SINGLE:
+            if self.status == 1:
+                self.player_b.eliminated = False
+            elif self.status == 2:
+                self.player_a.eliminated = False
+            self.player_a.delete_log(self.status, self.player_b, False)
+            self.player_a.save()
+            if self.player_b is not None:
+                self.player_b.delete_log(Log.STATUS_DICT[self.status], self.player_a, False)
+                self.player_b.save()
         self.status = 0
 
     def __unicode__(self):
         if self.status == 0:
-            return "%s vs. %s" % (self.player_a, self.player_b)
+            return "%s %s vs. %s" % (unicode(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 1:
-            return "%s won against %s" % (self.player_a, self.player_b)
+            return "%s %s won against %s" % (unicode(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 2:
-            return "%s won against %s" % (self.player_b, self.player_a)
+            return "%s %s won against %s" % (unicode(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 3:
-            return "%s and %s tied" % (self.player_a, self.player_b)
+            return "%s %s and %s tied" % (unicode(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 4:
-            return "%s byed" % self.player_a
+            return "%s %s byed" % (unicode(self.turn), self.player_a.name)
 
     def get_winner(self):
         if self.status == 3:
