@@ -13,3 +13,4 @@
 /mysite/settings.py
 fixtures/
 migrations/
+/ENV/
