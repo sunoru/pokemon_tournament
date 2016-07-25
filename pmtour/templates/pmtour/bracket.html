@@ -23,6 +23,7 @@
 <div class="alert alert-info">比赛还未开始</div>
     {% else %}
 <div class="alert alert-info">现在进行第{{ tour.status }}轮</div>
+{% if has_perm %}
     <div class="panel-body">
         <button class="btn btn-primary pull-right" onclick="$.get('/{{ tour.alias }}/check', function (data){alert(data);})">检查</button>
         <form action="/{{ tour.alias }}/" method="post">
@@ -30,6 +31,7 @@
             <button class="btn btn-success" type="submit" name="commit" value="start">开始下一轮</button>
         </form>
     </div>
+{% endif %}
 
 {{ bracket }}
     {% endif %}
