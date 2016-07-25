@@ -42,7 +42,7 @@ def settings(request, tour_id):
                 tour.set_option("turns", int(request.POST["tour_turns"]))
             if "tour_elims" in request.POST and request.POST["tour_elims"]:
                 tour_elims = int(request.POST["tour_elims"])
-                if tour_elims not in {2, 4, 8}:
+                if tour_elims not in {2, 4, 8, 16}:
                     raise Tournament.InvalidNumberError
                 tour.set_option("elims", tour_elims)
             tour.save()

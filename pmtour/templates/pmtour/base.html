@@ -8,7 +8,6 @@
                 <div class="panel-heading">{{ tour.name }}</div>
                 <!-- List group -->
                 <ul class="list-group">
-                    {% if user.is_staff %}
                     <li class="list-group-item"><a href="/{{ tour.alias }}">比赛主页</a></li>
                     <li class="list-group-item"><a href="/{{ tour.alias }}/bracket">对阵表</a></li>
                     <li class="list-group-item"><a href="/{{ tour.alias }}/standings">排行榜</a></li>
@@ -16,7 +15,6 @@
                     <li class="list-group-item"><a href="/{{ tour.alias }}/discussion">讨论区</a></li>
 
                     <li class="list-group-item"><a href="/{{ tour.alias }}/log">记录</a></li>
-                    {% endif %}
                 </ul>
             </div>
             {% if has_perm %}
