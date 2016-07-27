@@ -58,6 +58,7 @@ def get_bracket(request, tour, has_perm, player=None, turn=None):
         log_set = []
         for logs in tmp_log_set:
             log_set.append({
+                "id": logs.id,
                 "player_a": get_player_printable(sts, logs.player_a),
                 "player_b": get_player_printable(sts, logs.player_b),
                 "status": logs.status

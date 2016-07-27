@@ -21,19 +21,19 @@
                 </td>
                 <td align="left" class="matches">
                     {% if log.status == 1 or log.status == 4%}
-                    <b>{{ log.player_a}}</b>
+                    <b>{{ log.player_a }}</b>
                     {% else %}
-                    {{ log.player_a}}
+                    {{ log.player_a }}
                     {% endif %}
                 </td>
                 <td align="center" class="matches">{% if log.status != 4 %}vs.{% endif %}</td>
                 <td align="left" class="matches">
                     {% if log.status == 2 %}
-                    <b>{{ log.player_b}}</b>
+                    <b>{{ log.player_b }}</b>
                     {% elif log.status == 4 %}
                     轮空
                     {% else %}
-                    {{ log.player_b}}
+                    {{ log.player_b }}
                     {% endif %}
                 </td>
                 <td>
