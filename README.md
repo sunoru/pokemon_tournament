@@ -19,7 +19,7 @@ $ python manage.py runserver --settings=mysite.settings_default
 ### Start by shell
 ```shell
 // Prepare
-$ sh setup.sh
+$ sudo sh setup.sh
 
 // Start
 $ sh start.sh
