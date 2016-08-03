@@ -18,7 +18,7 @@ $ init
 $ runserver
 ```
 
-### Start by shell
+### MAC / Linux
 ```shell
 $ cd tools
 
