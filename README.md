@@ -6,23 +6,28 @@ Django 1.8
 
 ## Develop
 
-### Start by command
+### Windows
 ```shell
+$ cd tools
+
 // Prepare
-$ sudo pip install -r requirement.txt
-$ python manage.py migrate --settings=mysite.settings_default
+$ pip install -r requirement.txt
+$ init
 
 // Start
-$ python manage.py runserver --settings=mysite.settings_default
+$ runserver
 ```
 
 ### Start by shell
 ```shell
+$ cd tools
+
 // Prepare
-$ sudo sh setup.sh
+$ sudo pip install -r requirement.txt
+$ sudo sh init.sh
 
 // Start
-$ sh start.sh
+$ sh runserver.sh
 ```
 
 ## License
