@@ -128,7 +128,7 @@ class Player(BaseModel):
         return "%s/%s/%s" % (self.wins + self.byes, self.loses, self.ties)
 
     def _get_winning_percentage(self):
-        wins, loses, ties, byes = self.wins, self.loses, self.ties, self.byes
+        wins, loses, byes = self.wins, self.loses, self.byes
         s_turns = self.tournament.get_option("turns")
         if self.tournament.status > s_turns:
             turns = self.tournament.turn_set.filter(turn_number__gt=s_turns)
@@ -149,12 +149,10 @@ class Player(BaseModel):
                         loses -= 1
                     else:
                         wins -= 1
-                elif log.status == 3:
-                    ties -= 1
                 elif log.status == 4:
                     byes -= 1
 
-        re = wins + loses + ties + byes
+        re = wins + loses + byes
         if re == 0:
             return 0.0
         re = float(wins) / re
