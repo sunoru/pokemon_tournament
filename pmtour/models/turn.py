@@ -13,7 +13,7 @@ class Turn(BaseModel):
     type = models.CharField("type", max_length=100)
     status = models.SmallIntegerField("status", default=0)  # count for log checked
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s Turn %s: %s (%s)" % (self.tournament.name, self.turn_number, self.type, self.status)
 
     @staticmethod

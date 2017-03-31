@@ -121,7 +121,7 @@ class Player(BaseModel):
         self._opponents_wp = {}
         self._opps_opps_wp = {}
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s(%s) (%s) %s" % (self.name, self.user.name, self.get_printable(), self.score)
 
     def get_printable(self):

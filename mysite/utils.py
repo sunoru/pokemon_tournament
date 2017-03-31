@@ -6,7 +6,7 @@ from accounts.models import PlayerUser
 def import_from_files(files):
     admin = PlayerUser.objects.get(player_id="root")
     for afile in files:
-        print "Parsing %s..." % afile,
+        print("Parsing %s..." % afile, end='')
         with open(afile) as f: datas = f.read()
         tour = Tournament.loaddata(datas, admin)
-        print tour.name
+        print(tour.name)

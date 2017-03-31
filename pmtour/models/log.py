@@ -64,17 +64,17 @@ class Log(BaseModel):
                 self.player_b.save()
         self.status = 0
 
-    def __unicode__(self):
+    def __str__(self):
         if self.status == 0:
-            return "%s %s vs. %s" % (unicode(self.turn), self.player_a.name, self.player_b.name)
+            return "%s %s vs. %s" % (str(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 1:
-            return "%s %s won against %s" % (unicode(self.turn), self.player_a.name, self.player_b.name)
+            return "%s %s won against %s" % (str(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 2:
-            return "%s %s won against %s" % (unicode(self.turn), self.player_a.name, self.player_b.name)
+            return "%s %s won against %s" % (str(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 3:
-            return "%s %s and %s tied" % (unicode(self.turn), self.player_a.name, self.player_b.name)
+            return "%s %s and %s tied" % (str(self.turn), self.player_a.name, self.player_b.name)
         if self.status == 4:
-            return "%s %s byed" % (unicode(self.turn), self.player_a.name)
+            return "%s %s byed" % (str(self.turn), self.player_a.name)
 
     def get_winner(self):
         if self.status == 3:

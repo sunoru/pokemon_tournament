@@ -7,7 +7,7 @@ class Option(BaseModel):
     option_name = models.CharField("key", max_length=50, unique=True)
     option_value = models.TextField("value", default="")
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s %s" % (self.option_name, self.option_value)
 
     @classmethod
