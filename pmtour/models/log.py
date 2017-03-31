@@ -132,7 +132,7 @@ class Log(BaseModel):
 
     @classmethod
     def create_from_players(cls, turn, players):
-        for i in xrange(0, len(players) / 2):
+        for i in range(0, len(players) / 2):
             p1 = players[i * 2]
             p2 = players[i * 2 + 1]
             cls.create_from_player(turn, i+1, p1, p2)

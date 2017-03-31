@@ -149,7 +149,7 @@ class Tournament(BaseModel):
         if not playerids:
             return 1
         playerids.sort()
-        for u in xrange(1, len(playerids)):
+        for u in range(1, len(playerids)):
             if playerids[u] != playerids[u - 1] + 1:
                 return playerids[u - 1] + 1
         return playerids[-1] + 1

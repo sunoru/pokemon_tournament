@@ -128,7 +128,7 @@ class Turn(BaseModel):
         else:
             tmp.sort(Turn._compare, reverse=True)
         standings = []
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             tmp[i].standing = i + 1
             tmp[i].save()
             standings.append(tmp[i].gen_standing_dict())
@@ -160,7 +160,7 @@ class Turn(BaseModel):
                 self.turn_number == self.tournament.get_option("turns"):
             lp = self.tournament.get_option("elims")
             sts = self.get_standing()
-            for i in xrange(lp, len(sts)):
+            for i in range(lp, len(sts)):
                 player = self.tournament.player_set.get(playerid=sts[i]["pid"])
                 player.eliminate()
                 player.save()
@@ -176,7 +176,7 @@ class Turn(BaseModel):
             s_turn = self.tournament.get_option("turns")
             s_elim = self.tournament.get_option("elims")
             standings = self.tournament.turn_set.get(turn_number=s_turn).get_standing()[s_elim:]
-            for i in xrange(s_turn+1, self.turn_number):
+            for i in range(s_turn+1, self.turn_number):
                 the_turn = self.tournament.turn_set.get(turn_number=i)
                 tmp_standings = [x.get_loser() for x in the_turn.log_set.all()]
                 tmp_standings.sort(Turn._compare2)
@@ -223,17 +223,17 @@ class Turn(BaseModel):
         tmp = []
         p1 = -1
         p2 = None
-        for i in xrange(len(players)):
+        for i in range(len(players)):
             if players[i].score == p1:
                 p2.append(players[i])
             else:
                 p1 = players[i].score
                 p2 = [players[i]]
                 tmp.append(p2)
-        for i in xrange(len(tmp)):
+        for i in range(len(tmp)):
             random.shuffle(tmp[i])
             k = -1
-            for j in xrange(len(tmp[i])):
+            for j in range(len(tmp[i])):
                 if tmp[i][j].byes > 0:
                     k += 1
                     t = tmp[i][k]

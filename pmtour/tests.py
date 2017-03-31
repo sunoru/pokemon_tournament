@@ -6,7 +6,7 @@ import random
 
 
 def add_test_users(n, m=0):
-    for i in xrange(m, n):
+    for i in range(m, n):
         pwd = "%s" % random.randint(100000, 999999)
         usr = "%s_test%s" % (datetime.date.today().strftime("%y%m%d"), i + 1)
         user = User.objects.create_user(usr, "%s@pokemonchina.com" % usr, pwd)
