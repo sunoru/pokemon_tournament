@@ -1,5 +1,6 @@
 # coding=utf-8
 import math
+from functools import cmp_to_key
 from django.db import models
 import json
 from accounts.models import PlayerUser
@@ -264,7 +265,7 @@ class Player(BaseModel):
     def _get_sorted(cls, tour, compare, **kwargs):
         players = tour.player_set.filter(**kwargs)
         players = [x for x in players]
-        players.sort(cmp=compare)
+        players.sort(key=cmp_to_key(compare))
         return players
 
     @classmethod
