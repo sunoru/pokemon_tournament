@@ -7,9 +7,11 @@
 /test
 /db.sqlite3*
 /secret
-/uwsgi_pm.xml
+/uwsgi_pmtour.xml
 /django_wsgi.py
 /mysite/settings.py
 fixtures/
 migrations/
 /ENV/
+/static
+/log
