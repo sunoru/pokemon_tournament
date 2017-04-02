@@ -125,9 +125,9 @@ class Turn(BaseModel):
         #TODO:test
         tmp = [x for x in self.tournament.player_set.all()]
         if on_swiss_over:
-            tmp.sort(cmp=cmp_to_key(Turn._compare2), reverse=True)
+            tmp.sort(key=cmp_to_key(Turn._compare2), reverse=True)
         else:
-            tmp.sort(cmp=cmp_to_key(Turn._compare), reverse=True)
+            tmp.sort(key=cmp_to_key(Turn._compare), reverse=True)
         standings = []
         for i in range(len(tmp)):
             tmp[i].standing = i + 1
@@ -180,7 +180,7 @@ class Turn(BaseModel):
             for i in range(s_turn+1, self.turn_number):
                 the_turn = self.tournament.turn_set.get(turn_number=i)
                 tmp_standings = [x.get_loser() for x in the_turn.log_set.all()]
-                tmp_standings.sort(cmp=cmp_to_key(Turn._compare2))
+                tmp_standings.sort(key=cmp_to_key(Turn._compare2))
                 for tp in tmp_standings:
                     tp.standing = s_elim
                     s_elim -= 1
