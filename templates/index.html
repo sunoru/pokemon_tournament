@@ -8,7 +8,7 @@
             <div class="jumbotron">
                 <h3>欢迎</h3>
                 <p>Pokemon Tournament</p>
-                {% if user.is_staff or user.tournament_set.count() > 0 %}
+                {% if user.is_staff or user.playeruser.tournament_set.count() > 0 %}
                 <p><a class="btn btn-primary btn-lg" href="/accounts/" role="button">开始比赛</a></p>
                 {% else %}
                 <p><a class="btn btn-primary btn-lg" href="/accounts/login?next={{ request.path }}" role="button">请登录</a></p>
