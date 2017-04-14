@@ -40,7 +40,7 @@ class Log(BaseModel):
             self.player_a.set_log(status, self.player_b, False)
             self.player_a.save()
             if self.player_b is not None:
-                self.player_b.set_log(Log.STATUS_DICT[status], False)
+                self.player_b.set_log(Log.STATUS_DICT[status], self.player_a, False)
                 self.player_b.save()
 
     def delete_status(self):
