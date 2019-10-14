@@ -1,4 +1,5 @@
 # coding=utf-8
+import math
 from django.shortcuts import render_to_response
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
@@ -20,7 +21,7 @@ def tournaments(request):
         x.player_set.filter(user=request.user.playeruser).count() > 0
         ]
     count = len(tours)
-    total_pages = count / 20
+    total_pages = int(math.ceil(count / 20))
     try:
         page = int(request.GET['page'])
     except (ValueError, KeyError):
