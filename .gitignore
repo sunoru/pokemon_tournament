@@ -24,3 +24,7 @@ migrations/
 /venv
 /ENV/
 *.sql
+
+ptmp/
+/dist
+/build

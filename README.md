@@ -1,33 +1,28 @@
 # Pokemon Tournament
 A tool for Pokemon tournament.
 
-## Dependency
-Django 1.8
+## Usage:
 
-## Develop
+Execute `pmtour.exe`, and open [127.0.0.1:8000](http://127.0.0.1:8000) in your browser.
 
-### Windows
+For the first run, just follow the instructions prompted.
+
+## Development
+
+### Dependency
+- Django 1.8
+- Python 3.5
+
+### Run
+
+It is recommended to use a virtual environment.
+
 ```shell
-$ cd tools
-
 // Prepare
 $ pip install -r requirement.txt
-$ init
 
-// Start
-$ runserver
-```
-
-### MAC / Linux
-```shell
-$ cd tools
-
-// Prepare
-$ sudo pip install -r requirement.txt
-$ sudo sh init.sh
-
-// Start
-$ sh runserver.sh
+// Run
+$ python run.py
 ```
 
 ## License

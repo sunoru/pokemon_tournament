@@ -1,5 +1,6 @@
 # coding=utf-8
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import timezone
 import json
@@ -33,7 +34,7 @@ class PlayerUser(BaseModel):
         while User.objects.filter(username=usr):
             q += 1
             usr = "test_%s_%s_%s" % (tour.tour_id, pid, q)
-        user = User.objects.create_user(usr, "%s@pokemonchina.com" % usr, pwd)
+        user = User.objects.create_user(usr, "%s@%s" % (usr, settings.EMAIL_SUFFIX), pwd)
         playeruser = cls.objects.create(user=user, name=name, player_id=usr, **kwargs)
         return playeruser
 
@@ -41,7 +42,7 @@ class PlayerUser(BaseModel):
     def create_existed_player(cls, player_id, name):
         pwd = "%s" % random.randint(100000, 999999)
         logging.warn("%s %s" % (player_id, pwd))
-        user = User.objects.create_user(player_id, "%s@pokemonchina.com" % player_id, pwd)
+        user = User.objects.create_user(player_id, "%s@%s" % (player_id, settings.EMAIL_SUFFIX), pwd)
         playeruser = cls.objects.create(
             user=user,
             player_id=player_id,

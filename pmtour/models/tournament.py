@@ -17,7 +17,7 @@ class Tournament(BaseModel):
         (SINGLE, "Single Elimination"),
         (SWISS_PLUS_SINGLE, "Swiss plus Single Elimination")
     )
-    name = models.CharField("name", max_length=100, default='a tournament')
+    name = models.CharField("name", max_length=100, default='A tournament')
     tour_id = models.CharField("tour_id", max_length=20, unique=True)
     alias = models.CharField("alias", max_length=20, unique=True)
     tournament_type = models.CharField("type", max_length=100, choices=TYPE_CHOICES)

@@ -5,12 +5,12 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
             <div class="panel panel-default">
-                <div class="panel-heading">登陆</div>
+                <div class="panel-heading">登录</div>
                 <div class="panel-body">
                     <form class="form-horizontal" method="post" action="#">
                         {% csrf_token %}
                         {% if mes == 1 %}
-                        <div class="alert alert-danger">您的账号已被停用！</div>
+                        <div class="alert alert-danger">你的账号已被停用！</div>
                         {% elif mes == 2 %}
                         <div class="alert alert-danger">账号密码错误！</div>
                         {% endif %}

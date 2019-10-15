@@ -30,4 +30,5 @@ $(document).ready(function(){
                     $("#tour_elims")[0].value = data;
             });
     })
+    $("#url-label").text(window.location.origin + "/")
 });
