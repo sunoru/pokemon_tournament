@@ -14,5 +14,5 @@ if __name__ == "__main__":
         execute_from_command_line(["django-admin", "migrate"])
         init.run()
     
-    print("Starting pmtour server...")
+    print("开启比赛服务器…")
     execute_from_command_line(["django-admin", "runserver", "--nothreading", "--noreload"])
