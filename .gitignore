@@ -28,3 +28,4 @@ migrations/
 ptmp/
 /dist
 /build
+.python-version

@@ -7,10 +7,6 @@
     {% endif %}
 {% endblock %}
 {% block csss %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/default.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/pure-min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap-theme.min.css' %}">
     {% if has_perm and not tour.is_over %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/editable.css' %}">
     {% endif %}
@@ -30,10 +26,14 @@
             <div class="editable">
                 <span>{{ player.playerid }} - </span>
                 <span class="edited" id="p_{{ player.playerid }}">{{ player.name }}</span>
-                <input class="editing" type="text" id="p_{{ player.playerid }}" value="{{ player.name }}">
+                <input class="editing" type="text" id="e_{{ player.playerid }}" value="{{ player.name }}">
                 <span>({{ player.user.name }})</span>
                 {% if has_perm and not tour.is_over %}
-                <button class="btn btn-danger btn-xs pull-right exit-button" id="p_{{ player.playerid }}" value="exit">退出比赛</button>
+		{% if player.exited %}
+		<button class="btn btn-danger btn-xs pull-right exit-button" id="q_{{ player.playerid }}" disabled>已退出</button>
+		{% else %}
+                <button class="btn btn-danger btn-xs pull-right exit-button" id="q_{{ player.playerid }}" value="exit">退出比赛</button>
+		{% endif %}
                 <input type="hidden" name="playerid" value="{{ player.playerid }}">
                 {% endif %}
             </div>

@@ -20,8 +20,10 @@
                     {{ forloop.counter }}
                 </td>
                 <td align="left" class="matches">
-                    {% if log.status == 1 or log.status == 4%}
+                    {% if log.status == 1 or log.status == 4 %}
                     <b>{{ log.player_a }}</b>
+                    {% elif log.player_a.exited %}
+		    <del>{{ log.player_a }}</del>
                     {% else %}
                     {{ log.player_a }}
                     {% endif %}
@@ -32,6 +34,8 @@
                     <b>{{ log.player_b }}</b>
                     {% elif log.status == 4 %}
                     轮空
+                    {% elif log.player_b.exited %}
+		    <del>{{ log.player_b }}</del>
                     {% else %}
                     {{ log.player_b }}
                     {% endif %}

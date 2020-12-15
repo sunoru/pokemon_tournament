@@ -22,12 +22,13 @@ def participants(request, tour_id):
     if has_perm and request.method == "POST":
         if request.POST.get("commit") == "exit":
             playerid = request.POST["playerid"]
-            try:
-                player = tour.player_set.get(playerid=playerid)
-            except Player.DoesNotExist:
-                return ret_json_data({'status': False})
-            except Player.MultipleObjectsReturned:
-                return ret_json_data({'status': False})
+            player = tour.player_set.get(playerid=playerid)
+            # try:
+            #     player = tour.player_set.get(playerid=playerid)
+            # except Player.DoesNotExist:
+            #     return ret_json_data({'status': False})
+            # except Player.MultipleObjectsReturned:
+            #     return ret_json_data({'status': False})
             player.exit()
             player.save()
             return ret_json_data({'status': True, 'playerid': playerid})

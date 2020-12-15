@@ -12,23 +12,26 @@ $(document).ready(function(){
             },
             function(data,status){
                 var md = JSON.parse(data);
-                if(md.status)
+                if (md.status)
                     $(".edited#p_"+md.playerid).text(md.name);
             });
         }
     });
     $(".exit-button").click(function(){
+        if (!confirm("确认退出？")) return;
         $.post("#",
             {
-                method: this.value,
+                commit: this.value,
                 playerid: this.id.substr(2),
                 csrfmiddlewaretoken: $("input[name='csrfmiddlewaretoken']")[0].value
             },
             function(data,status){
                 var md = JSON.parse(data);
-                if(md.status);
-                    //$(".exit-button#p_"+md.playerid).remove();
-                    //TODO: exit
+                if (md.status) {
+                    var b = $(".exit-button#q_" + md.playerid);
+                    b.text("已退出");
+                    b.prop("disabled", true);
+		}
             });
     })
 });
