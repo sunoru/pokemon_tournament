@@ -185,13 +185,13 @@ class Player(BaseModel):
     def opponents_wp(self):
         if not self.tournament.status in self._opponents_wp:
             self._opponents_wp[self.tournament.status] = self._get_opponents_wp()
-        return self._opponents_wp[self.tournament.status]
+        return round(self._opponents_wp[self.tournament.status], 5)
 
     @property
     def opps_opps_wp(self):
         if not self.tournament.status in self._opps_opps_wp:
             self._opps_opps_wp[self.tournament.status] = self._get_opps_opps_wp()
-        return self._opps_opps_wp[self.tournament.status]
+        return round(self._opps_opps_wp[self.tournament.status], 5)
 
     def gen_standing_dict(self):
         return {
