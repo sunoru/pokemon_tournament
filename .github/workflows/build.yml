@@ -28,8 +28,13 @@ jobs:
           pip install pyinstaller==4.4
           ./patch.sh
           ./dist.sh
+      - name: Zip dist
+        uses: papeloto/action-zip@v1
+        with:
+          files: ./dist/pmtour/
+          dest: ./pmtour.zip
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: pmtour
-          path: ./dist/pmtour.zip
+          name: pmtour-${{ matrix.os }}
+          path: ./pmtour.zip
