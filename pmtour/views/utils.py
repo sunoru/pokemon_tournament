@@ -17,7 +17,7 @@ def get_tour(tour_id):
 
 
 def get_perm(request, tour):
-    return request.user.is_staff or not request.user.is_anonymous() and request.user.playeruser in tour.admins.all()
+    return request.user.is_staff or not request.user.is_anonymous and request.user.playeruser in tour.admins.all()
 
 
 def get_a_tour(request, tour_id):
@@ -28,7 +28,7 @@ def get_a_tour(request, tour_id):
 
 
 def get_player_by_request(request, tour):
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         return None
     try:
         return tour.player_set.get(user=request.user.playeruser)
