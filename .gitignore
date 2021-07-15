@@ -29,3 +29,4 @@ ptmp/
 /dist
 /build
 .python-version
+/tmp
