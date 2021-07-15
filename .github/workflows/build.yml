@@ -23,13 +23,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
       - name: Use PyInstaller to pack
+        working-directory: scripts
         run: |
           pip install pyinstaller==4.4
           ./patch.sh
           ./dist.sh
-        working-directory: scripts
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: pmtour
-          path: ./dist/pmtour
+          path: ./dist/pmtour.zip
