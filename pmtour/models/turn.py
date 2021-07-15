@@ -7,7 +7,7 @@ from pmtour.models import BaseModel, Tournament, Player
 
 
 class Turn(BaseModel):
-    tournament = models.ForeignKey(Tournament)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     turn_number = models.SmallIntegerField("turn number")
     standings = models.TextField("standings")  # the results
     #bracket = models.TextField("bracket")

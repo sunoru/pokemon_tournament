@@ -10,7 +10,7 @@ from accounts.models.bases import BaseModel
 
 
 class PlayerUser(BaseModel):
-    user = models.OneToOneField(User)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     name = models.CharField("name", max_length=100, default="")
     player_id = models.CharField("Play Pokemon ID", max_length=100, default='test', unique=True)
     birthday = models.DateField("birthday", auto_now_add=True)

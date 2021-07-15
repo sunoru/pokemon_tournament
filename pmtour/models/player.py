@@ -8,9 +8,9 @@ from pmtour.models import BaseModel, Tournament
 
 
 class Player(BaseModel):
-    user = models.ForeignKey(PlayerUser)
+    user = models.ForeignKey(PlayerUser, on_delete=models.CASCADE)
     name = models.CharField("name", max_length=100, default="")  # 参赛时候的名字，可以跟self.user.name不一样
-    tournament = models.ForeignKey(Tournament)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     playerid = models.SmallIntegerField()
     wins = models.SmallIntegerField(default=0)
     loses = models.SmallIntegerField(default=0)

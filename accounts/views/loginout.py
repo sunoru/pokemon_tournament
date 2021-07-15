@@ -1,8 +1,6 @@
 # coding=utf-8
-from django.shortcuts import redirect, loader
+from django.shortcuts import redirect, render
 from django.contrib.auth import authenticate, login, logout
-from django.template import RequestContext
-from django.http import HttpResponse
 
 
 def login_view(request):
@@ -19,9 +17,9 @@ def login_view(request):
                 mes = 1
         else:
             mes = 2
-    temp = loader.get_template("accounts/login.html")
-    cont = RequestContext(request, {"mes": mes, "next": request.GET.get("next", "/")})
-    return HttpResponse(temp.render(cont))
+    return render(request, "accounts/login.html", {
+        "mes": mes, "next": request.GET.get("next", "/")
+    })
 
 
 def logout_view(request):

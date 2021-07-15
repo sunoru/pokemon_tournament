@@ -1,6 +1,6 @@
 # coding=utf-8
 import math
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 import pmtour.models
@@ -9,7 +9,7 @@ import accounts.models
 
 @login_required
 def home(request):
-    return render_to_response("accounts/home.html", context_instance=RequestContext(request))
+    return render(request, "accounts/home.html")
 
 
 @login_required
@@ -28,11 +28,11 @@ def tournaments(request):
         page = 1
     if page > total_pages or page < 1:
         page = 1
-    return render_to_response("accounts/tournaments.html", context_instance=RequestContext(request, {
+    return render(request, "accounts/tournaments.html", {
         'tours': tours[20 * (page - 1):min(count, 20 * page)],
         'prev': None if page == 1 else page - 1,
         'next': None if page == total_pages else page + 1,
-    }))
+    })
 
 
 @login_required
@@ -49,8 +49,8 @@ def playerusers(request):
         page = 1
     if page > total_pages or page < 1:
         page = 1
-    return render_to_response("accounts/playerusers.html", context_instance=RequestContext(request, {
+    return render(request, "accounts/playerusers.html", {
         'playerusers': playerusers[20 * (page - 1):min(count, 20 * page)],
         'prev': None if page == 1 else page - 1,
         'next': None if page == total_pages else page + 1,
-    }))
+    })

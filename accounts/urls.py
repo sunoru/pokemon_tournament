@@ -1,18 +1,18 @@
-from django.conf.urls import patterns, include, url
+from django.urls import re_path
 import accounts.views
 
-urlpatterns = patterns(
-    '',
-    url(r'^$', accounts.views.home, name='home'),
+app_name = 'accounts'
+urlpatterns = [
+    re_path(r'^$', accounts.views.home, name='home'),
 
-    url(r'^tournaments/$', accounts.views.tournaments, name='tournaments'),
-    url(r'^playerusers/$', accounts.views.playerusers, name='playerusers'),
-    url(r'^login/$', accounts.views.login_view, name='login'),
-    url(r'^logout/$', accounts.views.logout_view, name='logout'),
-    url(r'^create/$', accounts.views.create, name='create'),
-    url(r'^load/$', accounts.views.load, name='load'),
-    url(r'^edit/$', accounts.views.edit, name='edit'),
-    url(r'^edit/(?P<player_id>.+?)/$', accounts.views.player_setting, name='player_setting'),
-    url(r'^(?P<player_id>.+?)/$', accounts.views.player_view, name='player_view'),
-    url(r'^(?P<player_id>.+?)/logs$', accounts.views.player_logs, name='player_view'),
-)
+    re_path(r'^tournaments/$', accounts.views.tournaments, name='tournaments'),
+    re_path(r'^playerusers/$', accounts.views.playerusers, name='playerusers'),
+    re_path(r'^login/$', accounts.views.login_view, name='login'),
+    re_path(r'^logout/$', accounts.views.logout_view, name='logout'),
+    re_path(r'^create/$', accounts.views.create, name='create'),
+    re_path(r'^load/$', accounts.views.load, name='load'),
+    re_path(r'^edit/$', accounts.views.edit, name='edit'),
+    re_path(r'^edit/(?P<player_id>.+?)/$', accounts.views.player_setting, name='player_setting'),
+    re_path(r'^(?P<player_id>.+?)/$', accounts.views.player_view, name='player_view'),
+    re_path(r'^(?P<player_id>.+?)/logs$', accounts.views.player_logs, name='player_view'),
+]

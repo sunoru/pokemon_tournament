@@ -6,12 +6,12 @@ from pmtour.models import BaseModel, Tournament, Player, Turn
 
 
 class Log(BaseModel):
-    player_a = models.ForeignKey(Player, related_name="player_a_log")
-    player_b = models.ForeignKey(Player, related_name="player_b_log", null=True)
+    player_a = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="player_a_log")
+    player_b = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="player_b_log", null=True)
     status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie, 4 for bye
     results = models.TextField("results", default="")
     time = models.DateTimeField("time", null=True)
-    turn = models.ForeignKey(Turn)
+    turn = models.ForeignKey(Turn, on_delete=models.CASCADE)
     table_id = models.SmallIntegerField("table id")
 
     STATUS_DICT = {

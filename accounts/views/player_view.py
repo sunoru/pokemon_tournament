@@ -2,8 +2,7 @@
 import json
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 
 from accounts.models import PlayerUser
 from pmtour.models import Tournament, Log
@@ -72,4 +71,4 @@ def player_view(request, player_id):
     if request.user.is_staff or request.user.playeruser == playeruser:
         pass
 
-    return render_to_response("accounts/player_view.html", context_instance=RequestContext(request, render_dict))
+    return render(request, "accounts/player_view.html", render_dict)
