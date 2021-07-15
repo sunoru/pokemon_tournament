@@ -1,7 +1,7 @@
 block_cipher = None
 
 a = Analysis(
-    ['run.py'],
+    ['./run.py'],
     binaries=[],
     datas=[(x, x) for x in [
         './templates', './static',
@@ -28,7 +28,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='pmtour',
+    name='run',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
