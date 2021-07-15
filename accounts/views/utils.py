@@ -1,7 +1,6 @@
 # coding=utf-8
 from django.shortcuts import redirect, loader
 from django.contrib.auth.decorators import login_required
-from django.template import RequestContext
 from django.http import HttpResponse, Http404
 import pmtour.models
 
@@ -30,5 +29,5 @@ def load(request):
             # except pmtour.models.Tournament.LoaddataError:
             #     status = -1
     temp = loader.get_template("accounts/load.html")
-    cont = RequestContext(request, {"status": status})
-    return HttpResponse(temp.render(cont))
+    cont = {"status": status}
+    return HttpResponse(temp.render(cont, request))

@@ -1,7 +1,6 @@
 # coding=utf-8
 from django.http import HttpResponse, Http404
 from django.shortcuts import loader
-from django.template import RequestContext
 import json
 from pmtour.models import Tournament, Player
 
@@ -63,10 +62,10 @@ def get_bracket(request, tour, has_perm, player=None, turn=None):
                 "player_b": get_player_printable(sts, logs.player_b),
                 "status": logs.status
             })
-    cont = RequestContext(request, {
+    cont = {
         "tour": tour, "has_perm": has_perm, "turn": turn, "logs": log_set, "player": player
-    })
-    return temp.render(cont)
+    }
+    return temp.render(cont, request)
 
 
 def get_standings(request, tour, has_perm, player=None, turn=None):
@@ -74,10 +73,10 @@ def get_standings(request, tour, has_perm, player=None, turn=None):
     if turn is None:
         turn = tour.get_last_turn()
     if turn is None:
-        cont = RequestContext(request, {
+        cont = {
             "tour": tour, "has_perm": has_perm, "standings": None
-        })
-        return temp.render(cont)
+        }
+        return temp.render(cont, request)
     standings_set = turn.get_standing()
     if standings_set is not None:
         for s in standings_set:
@@ -88,22 +87,21 @@ def get_standings(request, tour, has_perm, player=None, turn=None):
     elimed = 0
     if tour.on_swiss_over(turn.turn_number):
         elimed = tour.get_option("elims")
-    cont = RequestContext(request, {
+    cont = {
         "tour": tour, "has_perm": has_perm, "standings": standings_set, "player": player, "elimed": elimed
-    })
-    return temp.render(cont)
+    }
+    return temp.render(cont, request)
 
 
 def ret_no_perm(request, tour_id):
     temp = loader.get_template("pmtour/no_perm.html")
-    cont = RequestContext(request, {"tour": get_tour(tour_id)})
-    return HttpResponse(temp.render(cont))
+    cont = {"tour": get_tour(tour_id)}
+    return HttpResponse(temp.render(cont, request))
 
 
 def ret_tempcont(request, template_path, context_dict):
     temp = loader.get_template(template_path)
-    cont = RequestContext(request, context_dict)
-    return HttpResponse(temp.render(cont))
+    return HttpResponse(temp.render(context_dict, request))
 
 
 def ret_json_data(data):

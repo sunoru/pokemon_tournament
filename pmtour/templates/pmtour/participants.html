@@ -1,5 +1,5 @@
 {% extends "pmtour/base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block title %}{{ tour.name }} - 选手设定{% endblock %}
 {% block jss %}
     {% if has_perm and not tour.is_over %}

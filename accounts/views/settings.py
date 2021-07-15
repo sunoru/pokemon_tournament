@@ -3,7 +3,6 @@ from accounts.models import PlayerUser
 from django.shortcuts import redirect, loader
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from django.template import RequestContext
 from django.http import HttpResponse, Http404
 
 
@@ -26,12 +25,12 @@ def player_setting(request, player_id):
         except:
             status = 2
     temp = loader.get_template("accounts/player_setting.html")
-    cont = RequestContext(request, {
+    cont = {
         "playeruser": playeruser,
         "introduction": playeruser.get_info("introduction"),
         "status": status
-    })
-    return HttpResponse(temp.render(cont))
+    }
+    return HttpResponse(temp.render(cont, request))
 
 
 @login_required
@@ -39,5 +38,5 @@ def edit(request):
     if not request.user.is_staff:
         raise Http404
     temp = loader.get_template("accounts/edit.html")
-    cont = RequestContext(request, {"playerusers": PlayerUser.objects.all()})
-    return HttpResponse(temp.render(cont))
+    cont = {"playerusers": PlayerUser.objects.all()}
+    return HttpResponse(temp.render(cont, request))

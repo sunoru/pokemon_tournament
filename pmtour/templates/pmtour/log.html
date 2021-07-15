@@ -1,5 +1,5 @@
 {% extends "pmtour/base.html" %}
-{% load staticfiles %}
+{% load static %}
 {% block title %}{{ tour.name }} - 记录 - {{ turn.turn_number }}{% endblock %}
 {% block jss %}
     <script type="text/javascript" src="{% static 'pmtour/log.js' %}"></script>
