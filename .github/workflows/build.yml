@@ -21,7 +21,7 @@ jobs:
       - name: Use PyInstaller to pack
         run: |
           pip install pyinstaller
-          pyinstaller .\pmtour.spec -y --debug all
+          pyinstaller ./pmtour.spec -y --debug all
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2
         with:
