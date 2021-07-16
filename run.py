@@ -1,3 +1,4 @@
+#!/bin/env python
 import os
 import pathlib
 import sys
@@ -14,10 +15,11 @@ if __name__ == "__main__":
     if not db_path.exists():
         print("开始初始化…")
         try:
+            execute_from_command_line(["django-admin", "makemigrations", "accounts", "pmtour"])
             execute_from_command_line(["django-admin", "migrate"])
             from mysite import init
             init.run()
-        except e:
+        except BaseException as e:
             print("初始化中断")
             if db_path.exists():
                 db_path.unlink()
