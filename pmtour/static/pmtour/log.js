@@ -16,6 +16,9 @@ $(document).ready(function(){
 
 function hashChange() {
     var turn_number = location.hash.substr(1);
+    if (turn_number === "") {
+        return;
+    }
     $("#result-standings").load(turn_number+"/standings/");
     $("#result-brackets").load(turn_number+"/bracket/");
 }
