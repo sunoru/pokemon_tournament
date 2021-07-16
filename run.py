@@ -17,11 +17,11 @@ if __name__ == "__main__":
             execute_from_command_line(["django-admin", "migrate"])
             from mysite import init
             init.run()
-        except:
+        except e:
             print("初始化中断")
             if db_path.exists():
                 db_path.unlink()
-            sys.exit(1)
+            raise e
 
     print("开启比赛服务器…")
     execute_from_command_line(["django-admin", "runserver", "--nothreading", "--noreload"])
