@@ -14,10 +14,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
     steps:
       - uses: actions/checkout@v2
-      - name: Set up Python 3.9
+      - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: 3.11
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -26,8 +26,7 @@ jobs:
       - name: Use PyInstaller to pack
         working-directory: scripts
         run: |
-          pip install pyinstaller==4.4
-          ./patch.sh
+          pip install pyinstaller==5.12
           ./dist.sh
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2

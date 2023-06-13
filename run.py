@@ -5,7 +5,7 @@ import sys
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")
-    from django.core.management import execute_from_command_line
+    from django.core.management import execute_from_command_line, call_command
 
     if len(sys.argv) > 1:
         execute_from_command_line(sys.argv)
@@ -25,5 +25,8 @@ if __name__ == "__main__":
                 db_path.unlink()
             raise e
 
+    import django
+    django.setup()
+
     print("开启比赛服务器…")
-    execute_from_command_line(["django-admin", "runserver", "--nothreading", "--noreload"])
+    call_command("runserver", "--nothreading", "--noreload")
