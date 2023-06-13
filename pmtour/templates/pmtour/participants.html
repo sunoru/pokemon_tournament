@@ -17,7 +17,7 @@
         <a class="btn btn-primary" href="add">添加选手</a>
         <a class="btn btn-primary" href="add_test">添加临时选手</a>
     </div>
-        
+
     {% endif %}
     {% csrf_token %}
     <ul class="list-group">
@@ -29,12 +29,12 @@
                 <input class="editing" type="text" id="e_{{ player.playerid }}" value="{{ player.name }}">
                 <span>({{ player.user.name }})</span>
                 {% if has_perm and not tour.is_over %}
-		{% if player.exited %}
-		<button class="btn btn-danger btn-xs pull-right exit-button" id="q_{{ player.playerid }}" disabled>已退出</button>
-		{% else %}
-                <button class="btn btn-danger btn-xs pull-right exit-button" id="q_{{ player.playerid }}" value="exit">退出比赛</button>
-		{% endif %}
-                <input type="hidden" name="playerid" value="{{ player.playerid }}">
+                    {% if player.exited %}
+                        <button class="btn btn-danger btn-xs pull-right exit-button" id="q_{{ player.playerid }}" disabled>已退出</button>
+                    {% else %}
+                        <button class="btn btn-danger btn-xs pull-right exit-button" id="q_{{ player.playerid }}" value="exit">退出比赛</button>
+                    {% endif %}
+                    <input type="hidden" name="playerid" value="{{ player.playerid }}">
                 {% endif %}
             </div>
         </li>

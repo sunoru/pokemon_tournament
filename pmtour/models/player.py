@@ -22,6 +22,7 @@ class Player(BaseModel):
     eliminated = models.BooleanField(default=False)
     exited = models.BooleanField(default=False)
     score = models.IntegerField(default=0)
+    byed_rounds = models.SmallIntegerField(default=0)
 
     @classmethod
     def create(cls, **kwargs):
