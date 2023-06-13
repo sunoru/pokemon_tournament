@@ -1,0 +1,32 @@
+{% extends "pmtour/base.html" %}
+{% load static %}
+{% block title %}{{ tour.name }} - 设置轮空{% endblock %}
+{% block jss %}
+<script type="text/javascript" src="{% static 'pmtour/bye_rounds.js' %}"></script>
+{% endblock %}
+{% block content %}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">设置轮空</div>
+    {% csrf_token %}
+    <ul class="list-group">
+    {% for player in tour.player_set.all %}
+        <li class="list-group-item">
+            <div class="editable">
+                <span>{{ player.playerid }} - {{ player.name }}</span>
+                <span class="edited" id="p_{{ player.playerid }}"></span>
+                <button class="btn btn-xs pull-right submit-button" id="q_{{ player.playerid }}" value="submit">提交</button>
+                <div class="pull-right">
+                    <span>轮空</span>
+                    <input class="rounds" style="width: 50px" min="0" type="number" id="e_{{ player.playerid }}" value="{{ player.bye_rounds }}">
+                    <span>轮</span>
+                </div>
+                <input type="hidden" name="playerid" value="{{ player.playerid }}">
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+
+
+{% endblock %}

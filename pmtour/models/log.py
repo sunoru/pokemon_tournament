@@ -119,8 +119,11 @@ class Log(BaseModel):
         log.save()
 
     @classmethod
-    def create_from_player_pairs(cls, turn, start_table_id, player_pairs):
+    def create_from_player_pairs(cls, turn, start_table_id, player_pairs, byed_players=[]):
         table_id = start_table_id - 1
+        for player in byed_players:
+            table_id += 1
+            cls.create_bye(turn, table_id, player)
         for pair in player_pairs:
             table_id += 1
             p1 = pair[0]
@@ -131,15 +134,20 @@ class Log(BaseModel):
                 cls.create_from_player(turn, table_id, p1, p2)
 
     @classmethod
-    def create_from_players(cls, turn, players):
+    def create_from_players(cls, turn, players, byed_players=[]):
+        table_id = 0
+        for player in byed_players:
+            table_id += 1
+            cls.create_bye(turn, table_id, player)
         for i in range(0, len(players) // 2):
+            table_id += 1
             p1 = players[i * 2]
             p2 = players[i * 2 + 1]
-            cls.create_from_player(turn, i+1, p1, p2)
-
+            cls.create_from_player(turn, table_id, p1, p2)
         if len(players) & 1 == 1:
+            table_id += 1
             p1 = players[-1]
-            cls.create_bye(turn, len(players) // 2 + 1, p1)
+            cls.create_bye(turn, table_id, p1)
 
     @classmethod
     def create_from_data(cls, turn, data):

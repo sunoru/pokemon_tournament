@@ -25,10 +25,10 @@
                 <ul class="list-group">
                     <li class="list-group-item"><a href="/{{ tour.alias }}/settings">设置</a></li>
                     <li class="list-group-item"><a href="/{{ tour.alias }}/participants">选手</a></li>
+                    <li class="list-group-item"><a href="/{{ tour.alias }}/advanced">高级设置</a></li>
                     {% if user.is_staff %}
                     <li class="list-group-item"><a href="/{{ tour.alias }}/export">导出比赛</a></li>
                     <li class="list-group-item"><a href="/{{ tour.alias }}/delete" onclick="javascript:if (confirm('您真的确定要删除吗？\n\n请确认！')==true)return true;else return false;">删除比赛</a></li>
-
                     {% endif %}
                 </ul>
             </div>

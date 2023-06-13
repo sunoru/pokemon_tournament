@@ -8,3 +8,5 @@ from pmtour.views.log import log, log_bracket, log_standings
 from pmtour.views.settings import settings, get_turns, get_elims
 from pmtour.views.participants import participants, add_player, add_test_player, edit_name
 from pmtour.views.others import check_status, export, delete
+
+from pmtour.views.advanced import advanced, bye_rounds

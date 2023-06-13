@@ -21,4 +21,8 @@ urlpatterns = [
     re_path(r'^participants/edit_name/$', pmtour.views.edit_name, name='edit_name'),
     re_path(r'^export/$', pmtour.views.export, name='export'),
     re_path(r'^delete/$', pmtour.views.delete, name='delete'),
+
+    # Advanced settings
+    re_path(r'^advanced/$', pmtour.views.advanced, name='advanced'),
+    re_path(r'^bye_rounds/$', pmtour.views.bye_rounds, name='bye_rounds'),
 ]

@@ -210,14 +210,26 @@ class Turn(BaseModel):
         elif self.type == Tournament.SWISS:
             if self.turn_number == 1:
                 players = Player.get_sorted_by_playerid(self.tournament)
-                random.shuffle(players)
-                Log.create_from_players(self, players)
+                byed_players, normal_players = self._seperate_byed(players)
+                random.shuffle(normal_players)
+                Log.create_from_players(self, normal_players, byed_players)
             else:
                 players = Player.get_sorted_by_standing(self.tournament)
-                player_pairs = Turn.swissshuffle(players)
-                Log.create_from_player_pairs(self, 1, player_pairs)
+                byed_players, normal_players = self._seperate_byed(players)
+                player_pairs = Turn.swissshuffle(normal_players)
+                Log.create_from_player_pairs(self, 1, player_pairs, byed_players)
         else:
             raise Tournament.NoTypeError("Unknown type.")
+
+    def _seperate_byed(self, players):
+        byed_players = []
+        normal_players = []
+        for p in players:
+            if p.bye_rounds >= self.turn_number:
+                byed_players.append(p)
+            else:
+                normal_players.append(p)
+        return byed_players, normal_players
 
     @staticmethod
     def swissshuffle(players):
