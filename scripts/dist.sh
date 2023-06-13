@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 set -ex
 
 cd ..
-pyinstaller ./pmtour.spec -y --debug all
+pyinstaller ./pmtour.spec
 cd dist
 cp ../README.md ./pmtour
 if [ "$RUNNER_OS" == "Windows" ]; then
