@@ -22,8 +22,10 @@
                 <td align="left" class="matches">
                     {% if log.status == 1 or log.status == 4 %}
                     <b>{{ log.player_a }}</b>
+                    {% elif log.status == 2 or log.status == 5 %}
+                    <span class="text-muted">{{ log.player_a }}</span>
                     {% elif log.player_a.exited %}
-		    <del>{{ log.player_a }}</del>
+		            <del>{{ log.player_a }}</del>
                     {% else %}
                     {{ log.player_a }}
                     {% endif %}
@@ -34,8 +36,10 @@
                     <b>{{ log.player_b }}</b>
                     {% elif log.status == 4 %}
                     轮空
+                    {% elif log.status == 1 or log.status == 5 %}
+                    <span class="text-muted">{{ log.player_b }}</span>
                     {% elif log.player_b.exited %}
-		    <del>{{ log.player_b }}</del>
+		            <del>{{ log.player_b }}</del>
                     {% else %}
                     {{ log.player_b }}
                     {% endif %}
@@ -48,6 +52,7 @@
                         <button type="submit" name="commit" value="2" class="btn btn-sm btn-danger">B胜</button>
                         <button type="submit" name="commit" value="3" class="btn btn-sm btn-info">平手</button>
                         {% if has_perm %}
+                        <button type="submit" name="commit" value="5" class="btn btn-sm btn-danger">双输</button>
                         <button type="submit" name="commit" value="4" class="btn btn-sm btn-primary">撤销结果</button>
                         {% endif %}
                         <input type="hidden" name="log" value="{{ log.id }}">

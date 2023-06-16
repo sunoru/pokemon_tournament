@@ -5,6 +5,12 @@ from pmtour.views.utils import (
     get_player_by_request,
     ret_tempcont,
 )
+from pmtour.models import (
+    LOG_STATUS_A_WIN,
+    LOG_STATUS_B_WIN,
+    LOG_STATUS_TIE,
+    LOG_STATUS_BOTH_LOSE
+)
 
 
 def bracket(request, tour_id):
@@ -17,16 +23,19 @@ def bracket(request, tour_id):
         if has_perm or player == alog.player_a or player is not None and player == alog.player_b:
             commit = request.POST["commit"]
             if commit == "1":
-                alog.check_status(1)
+                alog.check_status(LOG_STATUS_A_WIN)
                 alog.save()
             elif commit == "2":
-                alog.check_status(2)
+                alog.check_status(LOG_STATUS_B_WIN)
                 alog.save()
             elif commit == "3":
-                alog.check_status(3)
+                alog.check_status(LOG_STATUS_TIE)
                 alog.save()
             elif commit == "4":
                 alog.delete_status()
+                alog.save()
+            elif commit == "5":
+                alog.check_status(LOG_STATUS_BOTH_LOSE)
                 alog.save()
         bracket_set = get_bracket(request, tour, has_perm, player, turn)
     if bracket_set is None and tour.status > 0:

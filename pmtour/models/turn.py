@@ -3,7 +3,10 @@ from functools import cmp_to_key
 from django.db import models
 import json
 import random
-from pmtour.models import BaseModel, Tournament, Player
+from pmtour.models import (
+    BaseModel, Tournament, Player,
+    LOG_STATUS_UNKNOWN, LOG_STATUS_A_WIN, LOG_STATUS_B_WIN, LOG_STATUS_BYE, LOG_STATUS_BOTH_LOSE
+)
 
 
 class Turn(BaseModel):
@@ -56,16 +59,16 @@ class Turn(BaseModel):
             return -1
         ta = Log.search(a, b)
         if ta is not None:
-            if ta.status == 1:
+            if ta.status == LOG_STATUS_A_WIN:
                 return 1
-            elif ta.status == 2:
+            elif ta.status == LOG_STATUS_B_WIN:
                 return -1
         else:
             ta = Log.search(b, a)
             if ta is not None:
-                if ta.status == 1:
+                if ta.status == LOG_STATUS_A_WIN:
                     return -1
-                elif ta.status == 2:
+                elif ta.status == LOG_STATUS_B_WIN:
                     return 1
         return 0
 
@@ -144,7 +147,7 @@ class Turn(BaseModel):
     def check_all(self):
         rq = []
         for log in self.log_set.all():
-            if log.status == 0:
+            if log.status == LOG_STATUS_UNKNOWN:
                 rq.append(str(log))
         return rq
 
@@ -179,7 +182,13 @@ class Turn(BaseModel):
             standings = self.tournament.turn_set.get(turn_number=s_turn).get_standing()[s_elim:]
             for i in range(s_turn+1, self.turn_number):
                 the_turn = self.tournament.turn_set.get(turn_number=i)
-                tmp_standings = [x.get_loser() for x in the_turn.log_set.all()]
+                tmp_standings = []
+                for x in the_turn.log_set.all():
+                    if x.status == LOG_STATUS_BOTH_LOSE:
+                        tmp_standings.append(x.player_a)
+                        tmp_standings.append(x.player_b)
+                    elif x.status != LOG_STATUS_BYE:
+                        tmp_standings.append(x.get_loser())
                 tmp_standings.sort(key=cmp_to_key(Turn._compare2))
                 for tp in tmp_standings:
                     tp.standing = s_elim
@@ -188,10 +197,11 @@ class Turn(BaseModel):
                     standings.insert(0, tp.gen_standing_dict())
             assert s_elim == 2
             alog = self.log_set.all()[0]
-            a = alog.get_loser()
-            a.standing = 2
-            a.save()
-            standings.insert(0, a.gen_standing_dict())
+            if alog.status != LOG_STATUS_BYE:
+                a = alog.get_loser()
+                a.standing = 2
+                a.save()
+                standings.insert(0, a.gen_standing_dict())
             a = alog.get_winner()
             a.standing = 1
             a.save()

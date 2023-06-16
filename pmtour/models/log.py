@@ -2,27 +2,30 @@
 from django.db import models
 from django.utils import timezone
 from accounts.models import Option
-from pmtour.models import BaseModel, Tournament, Player, Turn
-
+from pmtour.models import (
+    BaseModel, Tournament, Player, Turn,
+    LOG_STATUS_UNKNOWN, LOG_STATUS_A_WIN, LOG_STATUS_B_WIN,
+    LOG_STATUS_TIE, LOG_STATUS_BYE, LOG_STATUS_BOTH_LOSE,
+)
 
 class Log(BaseModel):
     player_a = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="player_a_log")
     player_b = models.ForeignKey(Player, on_delete=models.CASCADE, related_name="player_b_log", null=True)
-    status = models.SmallIntegerField("status", default=0)  # 1 for a win, 2 for b win, 3 for tie, 4 for bye
+    status = models.SmallIntegerField("status", default=LOG_STATUS_UNKNOWN)
     results = models.TextField("results", default="")
     time = models.DateTimeField("time", null=True)
     turn = models.ForeignKey(Turn, on_delete=models.CASCADE)
     table_id = models.SmallIntegerField("table id")
 
     STATUS_DICT = {
-        1: 2,
-        2: 1,
-        3: 3,
+        LOG_STATUS_A_WIN: LOG_STATUS_B_WIN,
+        LOG_STATUS_B_WIN: LOG_STATUS_A_WIN,
+        LOG_STATUS_TIE: LOG_STATUS_TIE,
+        LOG_STATUS_BOTH_LOSE: LOG_STATUS_BOTH_LOSE,
     }
 
     def check_status(self, status):
-        if 0 < self.status < 4:
-            self.delete_status()
+        self.delete_status()
         self.status = status
         t = timezone.now()
         self.time = t.strftime("%Y-%m-%dT%H:%M:%S%z")
@@ -33,9 +36,9 @@ class Log(BaseModel):
                 self.player_b.set_log(Log.STATUS_DICT[status])
                 self.player_b.save()
         elif self.turn.type == Tournament.SINGLE:
-            if status == 1:
+            if status in (LOG_STATUS_A_WIN, LOG_STATUS_BOTH_LOSE):
                 self.player_b.eliminated = True
-            elif status == 2:
+            if status in (LOG_STATUS_B_WIN, LOG_STATUS_BOTH_LOSE):
                 self.player_a.eliminated = True
             self.player_a.set_log(status, self.player_b, False)
             self.player_a.save()
@@ -44,51 +47,55 @@ class Log(BaseModel):
                 self.player_b.save()
 
     def delete_status(self):
-        if self.status == 0 or self.status == 4:
+        status = self.status
+        if status in (LOG_STATUS_UNKNOWN, LOG_STATUS_BYE):
             return
+        pa, pb = self.player_a, self.player_b
         if self.turn.type == Tournament.SWISS:
-            self.player_a.delete_log(self.status, self.player_b)
-            self.player_a.save()
-            if self.player_b is not None:
-                self.player_b.delete_log(Log.STATUS_DICT[self.status])
-                self.player_b.save()
+            pa.delete_log(status, pb)
+            pa.save()
+            if pb is not None:
+                pb.delete_log(Log.STATUS_DICT[status])
+                pb.save()
         elif self.turn.type == Tournament.SINGLE:
-            if self.status == 1:
-                self.player_b.eliminated = False
-            elif self.status == 2:
-                self.player_a.eliminated = False
-            self.player_a.delete_log(self.status, self.player_b, False)
-            self.player_a.save()
-            if self.player_b is not None:
-                self.player_b.delete_log(Log.STATUS_DICT[self.status], self.player_a, False)
-                self.player_b.save()
-        self.status = 0
+            if status in (LOG_STATUS_A_WIN, LOG_STATUS_BOTH_LOSE):
+                pb.eliminated = False
+            if status in (LOG_STATUS_B_WIN, LOG_STATUS_BOTH_LOSE):
+                pa.eliminated = False
+            pa.delete_log(status, pb, False)
+            pa.save()
+            if pb is not None:
+                pb.delete_log(Log.STATUS_DICT[self.status], pa, False)
+                pb.save()
+        self.status = LOG_STATUS_UNKNOWN
 
     def __str__(self):
-        if self.status == 0:
+        if self.status == LOG_STATUS_UNKNOWN:
             return "%s %s vs. %s" % (str(self.turn), self.player_a.name, self.player_b.name)
-        if self.status == 1:
+        if self.status == LOG_STATUS_A_WIN:
             return "%s %s won against %s" % (str(self.turn), self.player_a.name, self.player_b.name)
-        if self.status == 2:
+        if self.status == LOG_STATUS_B_WIN:
             return "%s %s won against %s" % (str(self.turn), self.player_a.name, self.player_b.name)
-        if self.status == 3:
+        if self.status == LOG_STATUS_TIE:
             return "%s %s and %s tied" % (str(self.turn), self.player_a.name, self.player_b.name)
-        if self.status == 4:
+        if self.status == LOG_STATUS_BYE:
             return "%s %s byed" % (str(self.turn), self.player_a.name)
+        if self.status == LOG_STATUS_BOTH_LOSE:
+            return "%s %s and %s both lost" % (str(self.turn), self.player_a.name, self.player_b.name)
 
     def get_winner(self):
-        if self.status == 3:
-            return None
-        if self.status == 2:
+        if self.status == LOG_STATUS_A_WIN:
+            return self.player_a
+        if self.status == LOG_STATUS_B_WIN:
             return self.player_b
-        return self.player_a
+        return None
 
     def get_loser(self):
-        if self.status == 3:
-            return None
-        if self.status == 2:
+        if self.status == LOG_STATUS_A_WIN:
+            return self.player_b
+        if self.status == LOG_STATUS_B_WIN:
             return self.player_a
-        return self.player_b
+        return None
 
     @staticmethod
     def search(a, b):
@@ -115,7 +122,7 @@ class Log(BaseModel):
             turn=turn,
             table_id=table_id
         )
-        log.check_status(4)
+        log.check_status(LOG_STATUS_BYE)
         log.save()
 
     @classmethod

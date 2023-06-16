@@ -4,7 +4,10 @@ from functools import cmp_to_key
 from django.db import models
 import json
 from accounts.models import PlayerUser
-from pmtour.models import BaseModel, Tournament
+from pmtour.models import (
+    BaseModel, Tournament,
+    LOG_STATUS_A_WIN, LOG_STATUS_B_WIN, LOG_STATUS_TIE, LOG_STATUS_BYE, LOG_STATUS_BOTH_LOSE
+)
 
 
 class Player(BaseModel):
@@ -130,7 +133,7 @@ class Player(BaseModel):
         return "%s/%s/%s" % (self.wins + self.byes, self.loses, self.ties)
 
     def _get_winning_percentage(self):
-        wins, loses, byes = self.wins, self.loses, self.byes
+        wins, loses, ties, byes = self.wins, self.loses, self.ties, self.byes
         s_turns = self.tournament.get_option("turns")
         if self.tournament.status > s_turns:
             turns = self.tournament.turn_set.filter(turn_number__gt=s_turns)
@@ -141,20 +144,26 @@ class Player(BaseModel):
                 if log.count() == 0:
                     continue
                 log = log[0]
-                if log.status == 1:
-                    if log.player_a == self:
+                is_player_a = log.player_a == self
+                if log.status == LOG_STATUS_A_WIN:
+                    if is_player_a:
                         wins -= 1
                     else:
                         loses -= 1
-                elif log.status == 2:
-                    if log.player_a == self:
+                elif log.status == LOG_STATUS_B_WIN:
+                    if is_player_a:
                         loses -= 1
                     else:
                         wins -= 1
-                elif log.status == 4:
+                elif log.status == LOG_STATUS_TIE:
+                    ties -= 1
+                elif log.status == LOG_STATUS_BYE:
                     byes -= 1
+                elif log.status == LOG_STATUS_BOTH_LOSE:
+                    loses -= 1
 
-        re = wins + loses + byes
+
+        re = wins + loses + ties + byes
         if re == 0:
             return 0.0
         re = float(wins) / re
@@ -205,17 +214,17 @@ class Player(BaseModel):
         }
 
     def set_log(self, status, foe=None, scored=True):
-        if status == 4:
+        if status == LOG_STATUS_BYE:
             if scored:
                 self.score += 3
             self.byes += 1
-        elif status == 3:
+        elif status == LOG_STATUS_TIE:
             if scored:
                 self.score += 1
             self.ties += 1
-        elif status == 2:
+        elif status in (LOG_STATUS_B_WIN, LOG_STATUS_BOTH_LOSE):
             self.loses += 1
-        elif status == 1:
+        elif status == LOG_STATUS_A_WIN:
             if scored:
                 self.score += 3
             self.wins += 1
@@ -223,17 +232,17 @@ class Player(BaseModel):
             self.foes.add(foe)
 
     def delete_log(self, status, foe=None, scored=True):
-        if status == 4:
+        if status == LOG_STATUS_BYE:
             if scored:
                 self.score -= 3
             self.byes -= 1
-        elif status == 3:
+        elif status == LOG_STATUS_TIE:
             if scored:
                 self.score -= 1
             self.ties -= 1
-        elif status == 2:
+        elif status in (LOG_STATUS_B_WIN, LOG_STATUS_BOTH_LOSE):
             self.loses -= 1
-        elif status == 1:
+        elif status == LOG_STATUS_A_WIN:
             if scored:
                 self.score -= 3
             self.wins -= 1
